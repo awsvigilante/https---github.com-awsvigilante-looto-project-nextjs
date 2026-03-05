@@ -31,12 +31,27 @@ function getStatusConfig(status: string) {
   return STATUS_CONFIG[status] || STATUS_CONFIG["Draft"];
 }
 
-function getTaskActionLabel(status: string, role: string) {
+function getTaskActionLabel(status: string, role: string, task?: LotoTask & { supervisorId?: string }, userId?: string) {
   if (status === "Pending Approval" && role === "shift_engineer") return "Approve";
-  if (status === "Approved" && role === "operator") return "Fill Details";
+  if (status === "Approved" && (role === "operator" || role === "shift_engineer")) return "Isolate";
+  if (status === "Isolation In Progress" && role === "supervisor") return "Verify";
   if (status === "Isolation In Progress" && role === "operator") return "Continue";
-  if (status === "Isolation Complete" && role === "supervisor") return "Verify";
+  if (status === "Isolation Verified / Active") return "View";
+  if (status === "Closed") return "View";
   return "View";
+}
+
+// Smart routing: send each user to exactly the right page for their stage
+function getTaskRoute(task: LotoTask & { supervisorId?: string; primaryOperatorId?: string }, role: string, userId?: string): string {
+  const base = `/loto/${task.id}`;
+
+  // Supervisor going to verify an in-progress isolation → dedicated verify page
+  if (task.status === "Isolation In Progress" && role === "supervisor") {
+    return `${base}/verify`;
+  }
+
+  // All other cases → main task page (which shows the correct panel for their role)
+  return base;
 }
 
 export default function Dashboard() {
@@ -254,6 +269,7 @@ export default function Dashboard() {
                       {filtered.map(task => {
                         const cfg = getStatusConfig(task.status);
                         const actionLabel = getTaskActionLabel(task.status, user.role);
+                        const taskRoute = getTaskRoute(task as any, user.role, user.id);
                         return (
                           <tr key={task.id} className="hover:bg-slate-50/50 transition-colors group">
                             <td className="py-4 px-2">
@@ -278,11 +294,9 @@ export default function Dashboard() {
                                 <button onClick={() => router.push(`/loto/${task.id}`)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors" title="View details">
                                   <Eye className="h-4 w-4" />
                                 </button>
-                                {actionLabel !== "View" && (
-                                  <button onClick={() => router.push(`/loto/${task.id}`)} className="flex h-8 items-center justify-center rounded-lg bg-blue-50 px-3 text-xs font-extrabold text-blue-600 hover:bg-blue-100 transition-colors uppercase tracking-wide">
-                                    {actionLabel}
-                                  </button>
-                                )}
+                                <button onClick={() => router.push(taskRoute)} className={`flex h-8 items-center justify-center rounded-lg px-3 text-xs font-extrabold transition-colors uppercase tracking-wide ${actionLabel === 'View' ? 'bg-slate-50 text-slate-500 hover:bg-slate-100' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
+                                  {actionLabel}
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -307,7 +321,7 @@ export default function Dashboard() {
                 {pendingTasks.slice(0, 4).map(task => {
                   const cfg = getStatusConfig(task.status);
                   return (
-                    <div key={task.id} className="rounded-xl border border-slate-100 p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/loto/${task.id}`)}>
+                    <div key={task.id} className="rounded-xl border border-slate-100 p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(getTaskRoute(task as any, user.role, user.id))}>
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-bold text-slate-900 text-sm line-clamp-1 flex-1 pr-2">{task.equipmentName}</span>
                         <span className="text-xs font-bold text-slate-500 whitespace-nowrap">{task.lotoId}</span>

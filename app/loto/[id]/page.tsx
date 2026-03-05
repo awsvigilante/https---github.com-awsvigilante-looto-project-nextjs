@@ -70,7 +70,17 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                 setTask(data.task)
                 setPoints(data.isolationPoints)
                 setStatus(data.task.status)
-                
+
+                // Smart redirect: send supervisor to /verify if isolation is in progress
+                const currentUserRole = JSON.parse(localStorage.getItem('user') || '{}')?.role || ''
+                if (
+                  data.task.status === 'Isolation In Progress' &&
+                  ['supervisor', 'shift_engineer'].includes(currentUserRole)
+                ) {
+                  router.replace(`/loto/${id}/verify`)
+                  return
+                }
+
                 // Set editable fields
                 setFacility(data.task.facility)
                 setLockbox(data.task.lockBoxNumber)
@@ -84,7 +94,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
             })
             .catch(err => setToastMessage(err.message))
             .finally(() => setIsLoading(false))
-    }, [token, id])
+    }, [token, id, router])
 
     // Signatures
     const [operatorSignature, setOperatorSignature] = useState('')
@@ -190,7 +200,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
             case 'Draft': return 'AWAITING_APPROVAL'
             case 'Pending Approval': return 'AWAITING_APPROVAL'
             case 'Approved': return 'PENDING_ISOLATION'
-            case 'Isolation In Progress': return 'TAGS_PRINTED'
+            case 'Verification In Progress': return 'TAGS_PRINTED'
             case 'Isolation Complete': return 'AWAITING_VERIFICATION'
             case 'Isolation Verified / Active': return 'ACTIVE'
             case 'Return to Service': return 'READY_FOR_DELOT'
@@ -206,20 +216,24 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
     const isCreator = currentUserId !== '' && currentUserId === String(task?.creatorId || '').trim().toLowerCase()
     const isAssignedSupervisor = currentUserId !== '' && currentUserId === String(task?.supervisorId || task?.supervisor?.id || '').trim().toLowerCase()
     const isAssignedOperator = currentUserId !== '' && currentUserId === String(task?.primaryOperatorId || task?.primaryOperator?.id || '').trim().toLowerCase()
-    const isAuthorizedApprover = currentUserId !== '' && currentUserId === String(task?.approverId || task?.approver?.id || '').trim().toLowerCase()
+    const isAssignedApproverRole = ['shift_engineer', 'admin'].includes(activeUser?.role || '')
+    const isAuthorizedApprover = (currentUserId !== '' && currentUserId === String(task?.approverId || task?.approver?.id || '').trim().toLowerCase()) || isAssignedApproverRole
 
-    const isIsolationPhase = status === 'Approved' || status === 'Isolation In Progress'
-    const showInitial2 = ['Isolation In Progress', 'Isolation Complete', 'Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status)
-    const showRTS = ['Return to Service', 'Closed'].includes(status)
+    const isIsolationPhase = status === 'Approved' || status === 'Verification In Progress'
+    // Stage-progressive column flags — each stage accumulates previous columns + its own
+    const showOperatorCols  = ['Approved', 'Verification In Progress', 'Isolation Complete', 'Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status) // Lock Details + Isolation Position
+    const showLockInitial1  = ['Approved', 'Verification In Progress', 'Isolation Complete', 'Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status)
+    const showInitial2      = ['Verification In Progress', 'Isolation Complete', 'Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status)
+    const showRTS           = ['Return to Service', 'Closed'].includes(status)
     const canSeeDetails = status !== 'Pending Approval' || isAuthorizedApprover || isCreator
 
     const supervisorHasSigned = ['Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status)
     // Only the assigned supervisor can verify Lock on Initial #2
     // Role check catches both 'supervisor' and 'shift_engineer' roles
     const isSupervisorRole = ['supervisor', 'shift_engineer'].includes(activeUser?.role || '')
-    const canSupervisorVerify = status === 'Isolation In Progress' && (isAssignedSupervisor || isSupervisorRole)
+    const canSupervisorVerify = status === 'Verification In Progress' && (isAssignedSupervisor || isSupervisorRole)
 
-    // Operator can ONLY edit when status is exactly 'Approved' — once signed (Isolation In Progress), all their fields lock
+    // Operator can ONLY edit when status is exactly 'Approved' — once signed (Verification In Progress), all their fields lock
     const canExecuteIsolation = status === 'Approved' && (isCreator || isAssignedOperator)
 
     const updatePointLock = (index: number, val: string) => {
@@ -228,42 +242,14 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
         setPoints(newPts)
     }
 
-    const handlePrintTags = async () => {
-        if (points.some(p => !p.lockNumber)) {
-            alert("Please fill all lock numbers before printing tags!")
-            return
-        }
-        const token = localStorage.getItem('token')
-        if (!token) { alert("Not logged in"); return }
-
-        // Open the backend-generated print page in a new tab
+    const handlePrintTags = () => {
+        const tok = localStorage.getItem('token')
+        if (!tok) { alert("Not logged in"); return }
         const taskId = task?.id
         if (!taskId) return
-
-        const url = `/api/loto/${taskId}/tags`
-        const printWindow = window.open('', '_blank')
-        if (!printWindow) {
-            alert("Please allow popups to print tags.")
-            return
-        }
-        printWindow.document.write('<html><body style="font-family:sans-serif;padding:40px;color:#333;"><h2>Loading tags...</h2></body></html>')
-        
-        try {
-            const res = await fetch(url, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            if (!res.ok) {
-                const err = await res.json()
-                printWindow.document.write(`<html><body><p style="color:red;font-weight:bold;">Error: ${err.error}</p></body></html>`)
-                return
-            }
-            const html = await res.text()
-            printWindow.document.open()
-            printWindow.document.write(html)
-            printWindow.document.close()
-        } catch (e) {
-            printWindow.document.write('<html><body><p style="color:red;">Failed to load tags. Please try again.</p></body></html>')
-        }
+        // Open the print page directly — token passed as query param so the browser
+        // can open it as a standalone authenticated page and auto-trigger print dialog.
+        window.open(`/api/loto/${taskId}/tags?token=${encodeURIComponent(tok)}`, '_blank')
     }
     const confirmPrint = () => {
         setShowPrintModal(false)
@@ -274,7 +260,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
         switch (status) {
             case 'Pending Approval': return <span className="bg-yellow-100 text-yellow-800 border-yellow-200 border px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Approval Pending</span>
             case 'Approved': return <span className="bg-blue-100 text-blue-800 border-blue-200 border px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Execution Required</span>
-            case 'Isolation In Progress': return <span className="bg-purple-100 text-purple-800 border-purple-200 border px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><UserCheck className="w-3.5 h-3.5" /> Awaiting Verification</span>
+            case 'Verification In Progress': return <span className="bg-purple-100 text-purple-800 border-purple-200 border px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><UserCheck className="w-3.5 h-3.5" /> Awaiting Verification</span>
             case 'Isolation Complete': return <span className="bg-purple-100 text-purple-800 border-purple-200 border px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><UserCheck className="w-3.5 h-3.5" /> Supervisor Verification</span>
             case 'Isolation Verified / Active': return <span className="bg-emerald-100 text-emerald-800 border-emerald-500 border-2 px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Safe To Work</span>
             case 'Return to Service': return <span className="bg-red-100 text-red-800 border-red-500 border-2 px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5"><Key className="w-3.5 h-3.5" /> Return to Service</span>
@@ -304,8 +290,8 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                     {[
                         { step: 'Creation', active: false, done: true },
                         { step: 'Approval', active: status === 'Pending Approval', done: status !== 'Pending Approval' && status !== 'Draft' },
-                        { step: 'Isolation', active: status === 'Approved', done: ['Isolation In Progress','Isolation Complete','Isolation Verified / Active','Return to Service','Closed'].includes(status) },
-                        { step: 'Verification', active: status === 'Isolation In Progress', done: ['Isolation Verified / Active','Return to Service','Closed'].includes(status) },
+                        { step: 'Isolation', active: status === 'Approved', done: ['Verification In Progress','Isolation Complete','Isolation Verified / Active','Return to Service','Closed'].includes(status) },
+                        { step: 'Verification', active: status === 'Verification In Progress', done: ['Isolation Verified / Active','Return to Service','Closed'].includes(status) },
                         { step: 'Active', active: status === 'Isolation Verified / Active', done: status === 'Return to Service' || status === 'Closed' },
                         { step: 'Delot', active: status === 'Return to Service', done: status === 'Closed' }
                     ].map((s, idx, arr) => (
@@ -337,14 +323,34 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                         </div>
                     </div>
 
-                    {/* Dynamic Status Badge per PRD */}
-                    <div className={`px-5 py-2.5 rounded-full border-2 text-xs font-extrabold uppercase tracking-widest text-center shadow-sm
-                        ${status === 'Pending Approval' || status === 'Isolation Complete' ? 'bg-amber-50 text-amber-700 border-amber-200 shadow-amber-500/10' : ''}
-                        ${status === 'Isolation Verified / Active' || status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-emerald-500/10' : ''}
-                        ${status === 'Return to Service' ? 'bg-red-50 text-red-700 border-red-200 shadow-red-500/10' : ''}
-                        ${status === 'Draft' || status === 'Isolation In Progress' || status === 'Closed' ? 'bg-slate-50 text-slate-700 border-slate-200' : ''}
-                    `}>
-                        STATUS: {status}
+                    <div className="flex items-center gap-3 flex-wrap justify-end">
+                        {/* Dynamic Status Badge */}
+                        <div className={`px-5 py-2.5 rounded-full border-2 text-xs font-extrabold uppercase tracking-widest text-center shadow-sm
+                            ${status === 'Pending Approval' || status === 'Isolation Complete' ? 'bg-amber-50 text-amber-700 border-amber-200 shadow-amber-500/10' : ''}
+                            ${status === 'Isolation Verified / Active' || status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-emerald-500/10' : ''}
+                            ${status === 'Return to Service' ? 'bg-red-50 text-red-700 border-red-200 shadow-red-500/10' : ''}
+                            ${status === 'Draft' || status === 'Verification In Progress' || status === 'Closed' ? 'bg-slate-50 text-slate-700 border-slate-200' : ''}
+                        `}>
+                            STATUS: {status}
+                        </div>
+
+                        {/* User + Logout */}
+                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
+                            <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[11px] font-black uppercase">
+                                {(activeUser?.name || 'U').charAt(0)}
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 hidden sm:block max-w-[100px] truncate">{activeUser?.name || 'User'}</span>
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('token')
+                                    localStorage.removeItem('user')
+                                    router.push('/login')
+                                }}
+                                className="ml-1 px-4 py-1.5 rounded-full bg-red-500 hover:bg-red-600 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest shadow-sm shadow-red-500/30 transition-all"
+                            >
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -459,113 +465,107 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                 </h2>
                             </div>
                             <div className="overflow-x-auto">
-                                <table className="w-full text-left whitespace-nowrap min-w-[1200px]">
-                                    <thead className="border-b border-slate-100 bg-white">
+                                <table className="w-full text-left">
+                                    <thead className="border-b-2 border-slate-100 bg-slate-50/60">
                                         <tr>
-                                            <th className="px-3 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-12 text-center">Tag</th>
-                                            <th className="px-4 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Description & Requirements</th>
-                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest min-w-[160px]">Lock Details</th>
-                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest min-w-[180px]">Isolation Position</th>
-                                            <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Lock on Initial #1</th>
-                                            {showInitial2 && <th className={`px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest text-center ${canSupervisorVerify ? 'text-purple-500' : 'text-slate-400'}`}>Lock on Initial #2 {canSupervisorVerify && '(Supervisor)'}</th>}
-                                            {showRTS && <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Returned to Service Initial</th>}
+                                            <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-10 text-center">#</th>
+                                            <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Description</th>
+                                            <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-32">Normal</th>
+                                            <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-32">Required</th>
+                                            {showOperatorCols && <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-28">Lock No.</th>}
+                                            {showOperatorCols && <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-36">Isolated Position</th>}
+                                            {showLockInitial1 && <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Lock on Initial #1</th>}
+                                            {showInitial2 && <th className={`px-4 py-3.5 text-[10px] font-extrabold uppercase tracking-widest ${canSupervisorVerify ? 'text-purple-500' : 'text-slate-400'}`}>Lock on Initial #2</th>}
+                                            {showRTS && <th className="px-4 py-3.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">RTS Initial</th>}
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
+                                    <tbody className="divide-y divide-slate-100">
                                         {points.map((p, i) => (
-                                            <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                                                <td className="px-3 py-4 text-center">
-                                                    <span className="text-xs font-black text-slate-400">0{p.tagNo}</span>
+                                            <tr key={p.id} className="hover:bg-slate-50/60 transition-colors group">
+                                                {/* Tag number */}
+                                                <td className="px-4 py-4 text-center">
+                                                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-[11px] font-black text-slate-500">{p.tagNo}</span>
                                                 </td>
+                                                {/* Description — text only */}
                                                 <td className="px-4 py-4">
-                                                    <div className="flex flex-col gap-2">
-                                                        {isEditing ? (
-                                                            <input 
-                                                                title="Description"
-                                                                value={p.isolationDescription} 
-                                                                onChange={e => updatePoint(i, 'isolationDescription', e.target.value)} 
-                                                                className="w-full rounded-lg border border-slate-200 p-2 text-xs font-bold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" 
-                                                            />
-                                                        ) : (
-                                                            <div className="flex flex-col">
-                                                                <span className="font-extrabold text-slate-900 text-sm leading-tight">{p.isolationDescription}</span>
-                                                                <span className="text-[10px] text-slate-500 font-extrabold uppercase tracking-tighter mt-0.5">Physical Isolation Point</span>
-                                                            </div>
-                                                        )}
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <div className="flex items-center gap-1.5">
-                                                                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Normal:</span>
-                                                                <span className="inline-flex rounded bg-slate-100 px-2 py-0.5 text-[10px] font-extrabold text-slate-600 border border-slate-200 uppercase tracking-widest">
-                                                                    {p.normalPosition}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5">
-                                                                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">Required:</span>
-                                                                {isEditing ? (
-                                                                    <select
-                                                                        title="Required Position"
-                                                                        value={p.requiredPosition}
-                                                                        onChange={e => updatePoint(i, 'requiredPosition', e.target.value)}
-                                                                        className="rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-bold outline-none"
-                                                                    >
-                                                                        <option value="CLOSE">Close</option>
-                                                                        <option value="OPEN">Open</option>
-                                                                        <option value="INSTALLED">Installed</option>
-                                                                        <option value="REMOVED">Removed</option>
-                                                                    </select>
-                                                                ) : (
-                                                                    <span className="inline-flex rounded bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold text-amber-700 border border-amber-200 uppercase tracking-widest shadow-sm">
-                                                                        {p.requiredPosition}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                {/* Lock Details (now FIRST) */}
-                                                <td className="px-6 py-4">
-                                                    {canExecuteIsolation ? (
-                                                        <select
-                                                            title="Lock Number"
-                                                            value={p.lockNumber || ''}
-                                                            onChange={(e) => updatePoint(i, 'lockNumber', e.target.value)}
-                                                            disabled={!!p.lockOnInitial1}
-                                                            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-extrabold text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all outline-none cursor-pointer ${p.lockOnInitial1 ? 'border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed' : 'border-slate-300 bg-white'}`}
-                                                        >
-                                                            <option value="">Lock #...</option>
-                                                            {Array.from({ length: 50 }, (_, k) => k + 1).map(n => (
-                                                                <option key={n} value={String(n)}>{n}</option>
-                                                            ))}
-                                                        </select>
+                                                    {isEditing ? (
+                                                        <input 
+                                                            title="Description"
+                                                            value={p.isolationDescription} 
+                                                            onChange={e => updatePoint(i, 'isolationDescription', e.target.value)} 
+                                                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none" 
+                                                        />
                                                     ) : (
-                                                        <span className="font-extrabold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm text-sm">
-                                                            {p.lockNumber || 'N/A'}
-                                                        </span>
+                                                        <span className="font-bold text-slate-900 text-sm leading-snug">{p.isolationDescription || <span className="text-slate-300 italic font-normal">No description</span>}</span>
                                                     )}
                                                 </td>
-                                                {/* Isolation Position (now SECOND) */}
-                                                <td className="px-6 py-4">
-                                                    {canExecuteIsolation ? (
-                                                        <select
-                                                            title="Isolation Position"
-                                                            value={p.isolationPosition || ''}
-                                                            onChange={e => updatePoint(i, 'isolationPosition', e.target.value)}
-                                                            disabled={!!p.lockOnInitial1}
-                                                            className={`w-full rounded-lg border-2 p-2.5 text-sm font-extrabold text-slate-800 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none shadow-sm cursor-pointer transition-all ${p.lockOnInitial1 ? 'border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed' : 'border-indigo-300 bg-indigo-50'}`}
-                                                        >
-                                                            <option value="">Select Position...</option>
+                                                {/* Normal Position — own column, always visible */}
+                                                <td className="px-4 py-4">
+                                                    <span className="inline-flex rounded-md bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-600 border border-slate-200 uppercase tracking-wide">{p.normalPosition || '—'}</span>
+                                                </td>
+                                                {/* Required Position — own column, editable in edit mode */}
+                                                <td className="px-4 py-4">
+                                                    {isEditing ? (
+                                                        <select title="Required Position" value={p.requiredPosition} onChange={e => updatePoint(i, 'requiredPosition', e.target.value)} className="rounded-lg border-2 border-amber-300 bg-amber-50 px-2 py-1.5 text-[11px] font-bold text-amber-800 outline-none cursor-pointer">
                                                             <option value="CLOSE">Close</option>
                                                             <option value="OPEN">Open</option>
                                                             <option value="INSTALLED">Installed</option>
                                                             <option value="REMOVED">Removed</option>
                                                         </select>
                                                     ) : (
-                                                        <span className={`inline-flex rounded-md px-2.5 py-1 text-[10px] font-extrabold border uppercase tracking-widest shadow-sm ${p.isolationPosition ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-50 text-slate-300 border-slate-100 italic'}`}>
-                                                            {p.isolationPosition || 'Not Set'}
-                                                        </span>
+                                                        <span className="inline-flex rounded-md bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-700 border border-amber-200 uppercase tracking-wide shadow-sm">{p.requiredPosition || '—'}</span>
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-4">
+                                                {/* Lock No. — visible from Approved onwards */}
+                                                {showOperatorCols && (
+                                                    <td className="px-4 py-4">
+                                                        {canExecuteIsolation ? (
+                                                            <select
+                                                                title="Lock Number"
+                                                                value={p.lockNumber || ''}
+                                                                onChange={(e) => updatePoint(i, 'lockNumber', e.target.value)}
+                                                                disabled={!!p.lockOnInitial1}
+                                                                className={`w-full rounded-lg border-2 px-3 py-2 text-sm font-extrabold text-slate-800 focus:border-indigo-500 outline-none cursor-pointer transition-all ${p.lockOnInitial1 ? 'border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed' : 'border-slate-300 bg-white'}`}
+                                                            >
+                                                                <option value="">Lock #...</option>
+                                                                {Array.from({ length: 50 }, (_, k) => k + 1).map(n => (
+                                                                    <option key={n} value={String(n)}>{n}</option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <span className={`font-bold text-sm px-3 py-1.5 rounded-lg border shadow-sm ${p.lockNumber ? 'bg-slate-50 text-slate-900 border-slate-200' : 'text-slate-300 border-slate-100 italic text-xs'}`}>
+                                                                {p.lockNumber || '—'}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                )}
+                                                {/* Actual Position — visible from Approved onwards */}
+                                                {showOperatorCols && (
+                                                    <td className="px-4 py-4">
+                                                        {canExecuteIsolation ? (
+                                                            <select
+                                                                title="Isolated Position"
+                                                                value={p.isolationPosition || ''}
+                                                                onChange={e => updatePoint(i, 'isolationPosition', e.target.value)}
+                                                                disabled={!!p.lockOnInitial1}
+                                                                className={`w-full rounded-lg border-2 p-2.5 text-sm font-extrabold text-slate-800 focus:border-indigo-500 outline-none shadow-sm cursor-pointer transition-all ${p.lockOnInitial1 ? 'border-slate-200 bg-slate-50 opacity-60 cursor-not-allowed' : 'border-indigo-300 bg-indigo-50'}`}
+                                                            >
+                                                                <option value="">Select...</option>
+                                                                <option value="CLOSE">Close</option>
+                                                                <option value="OPEN">Open</option>
+                                                                <option value="INSTALLED">Installed</option>
+                                                                <option value="REMOVED">Removed</option>
+                                                            </select>
+                                                        ) : (
+                                                            <span className={`inline-flex rounded-md px-2.5 py-1 text-[10px] font-extrabold border uppercase tracking-widest shadow-sm ${p.isolationPosition ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-50 text-slate-300 border-slate-100 italic'}`}>
+                                                                {p.isolationPosition || '—'}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                )}
+                                                {/* Lock on Initial #1 — visible from Isolation In Progress onwards */}
+                                                {showLockInitial1 && (
+                                                <td className="px-4 py-4">
                                                     {p.lockOnInitial1 ? (
                                                         <div className="flex items-center gap-3">
                                                             <div className="inline-flex flex-col">
@@ -585,22 +585,25 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        canExecuteIsolation && p.lockNumber && p.isolationPosition ? (
+                                                        canExecuteIsolation ? (
                                                             <button
                                                                 onClick={() => {
                                                                     const name = activeUser?.name || 'Operator'
                                                                     const now = new Date().toLocaleString("en-CA", { hour12: false }).replace(',', '')
                                                                     updatePoint(i, 'lockOnInitial1', `${name} – ${now}`)
                                                                 }}
-                                                                className="text-sm font-black text-white bg-indigo-600 hover:bg-indigo-700 px-6 py-2.5 rounded-xl shadow-lg shadow-indigo-500/30 active:scale-95 transition-all uppercase tracking-widest border border-indigo-700"
+                                                                disabled={!p.lockNumber || !p.isolationPosition}
+                                                                title={!p.lockNumber ? 'Set Lock No. first' : !p.isolationPosition ? 'Set Isolated Position first' : 'Click to sign'}
+                                                                className="text-sm font-black text-white px-6 py-2.5 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest border disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30 border-indigo-700"
                                                             >
-                                                                ✓ Verify
+                                                                ✓ Done
                                                             </button>
                                                         ) : (
-                                                            <span className="text-[10px] text-slate-300 font-extrabold uppercase italic px-4">Pending...</span>
+                                                            <span className="text-[10px] text-slate-300 font-extrabold uppercase italic px-4">—</span>
                                                         )
                                                     )}
                                                 </td>
+                                                )}
                                                 {showInitial2 && (
                                                     <td className="px-6 py-4">
                                                         {p.lockOnInitial2 ? (

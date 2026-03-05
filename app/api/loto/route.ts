@@ -32,25 +32,12 @@ export async function GET(request: Request) {
 
     let tasks: LotoTask[];
 
-    if (user.role === "shift_engineer") {
-      // Shift engineers see all tasks — they need full visibility to approve/review
-      tasks = await repo.find({
-        order: { createdAt: "DESC" },
-        relations: ["creator", "supervisor", "primaryOperator", "approver"],
-      });
-    } else if (user.role === "supervisor") {
-      // Supervisors see tasks where they are assigned as supervisor OR they created
-      tasks = await repo.find({ order: { createdAt: "DESC" }, relations: ["creator", "supervisor", "primaryOperator", "approver"] });
-      tasks = tasks.filter(t =>
-        t.supervisorId === user.userId || t.creatorId === user.userId
-      );
-    } else {
-      // Operators see tasks they created or are assigned to as primary operator
-      tasks = await repo.find({ order: { createdAt: "DESC" }, relations: ["creator", "supervisor", "primaryOperator", "approver"] });
-      tasks = tasks.filter(t =>
-        t.creatorId === user.userId || t.primaryOperatorId === user.userId
-      );
-    }
+    // All users see all tasks — enforcement of who can act is done on the task detail page
+    // (only assigned operator/approver/supervisor can perform actions there)
+    tasks = await repo.find({
+      order: { createdAt: "DESC" },
+      relations: ["creator", "supervisor", "primaryOperator", "approver"],
+    });
 
     return NextResponse.json(tasks);
   } catch (error) {
@@ -128,6 +115,19 @@ export async function POST(request: Request) {
       points.push(point);
     }
     await pointRepo.save(points);
+
+    // 🔔 Auto-notify shift engineers that a new task needs approval
+    // Fire-and-forget — don't await so it doesn't slow down the response
+    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const token = request.headers.get("Authorization")?.replace("Bearer ", "") || "";
+    fetch(`${appUrl}/api/notifications/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ taskId: savedTask.id, type: "task_submitted" }),
+    }).catch(err => console.error("[NOTIFY] task_submitted failed:", err.message));
 
     return NextResponse.json({ task: savedTask, isolationPoints: points }, { status: 201 });
   } catch (error) {

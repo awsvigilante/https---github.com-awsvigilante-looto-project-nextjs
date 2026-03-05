@@ -60,13 +60,14 @@ export default function CreateLOTO() {
             .then(r => r.json())
             .then(data => {
                 const allUsers = data.users || []
-                // Approver must be a Shift Engineer
-                setEngineers(allUsers.filter((u: any) => u.role === 'shift_engineer'))
+                // Approver can be Shift Engineer or Admin
+                setEngineers(allUsers.filter((u: any) => ['shift_engineer', 'admin'].includes(u.role)))
                 
-                // Supervisor and Operator can be anyone except Admin or Contractor
-                const eligibleAssignees = allUsers.filter((u: any) => !['admin', 'contractor'].includes(u.role))
-                setSupervisors(eligibleAssignees)
-                setOperators(eligibleAssignees)
+                // Supervisor can be Supervisor, Shift Engineer, or Admin
+                setSupervisors(allUsers.filter((u: any) => ['supervisor', 'shift_engineer', 'admin'].includes(u.role)))
+
+                // Operator can be Operator, Supervisor, Shift Engineer, or Admin
+                setOperators(allUsers.filter((u: any) => ['operator', 'supervisor', 'shift_engineer', 'admin'].includes(u.role)))
             })
             .catch(() => {})
     }, [token])
@@ -321,7 +322,7 @@ export default function CreateLOTO() {
                                  >
                                      <option value="">Select Operator...</option>
                                      {operators.map(o => (
-                                         <option key={o.id} value={o.id}>{o.name} ({o.role.replace('_', ' ')})</option>
+                                         <option key={o.id} value={o.id}>{o.name}</option>
                                      ))}
                                  </select>
                             </div>
@@ -336,7 +337,7 @@ export default function CreateLOTO() {
                                  >
                                      <option value="">Select Supervisor...</option>
                                      {supervisors.map(s => (
-                                         <option key={s.id} value={s.id}>{s.name} ({s.role.replace('_', ' ')})</option>
+                                         <option key={s.id} value={s.id}>{s.name}</option>
                                      ))}
                                  </select>
                             </div>
@@ -351,7 +352,7 @@ export default function CreateLOTO() {
                                  >
                                      <option value="">Select Approver...</option>
                                      {engineers.map(e => (
-                                         <option key={e.id} value={e.id}>{e.name} ({e.role.replace('_', ' ')})</option>
+                                         <option key={e.id} value={e.id}>{e.name}</option>
                                      ))}
                                  </select>
                             </div>

@@ -181,6 +181,10 @@ export async function PATCH(
 
       task.comments = [...(task.comments || []), newComment];
       await taskRepo.save(task);
+
+      // Trigger email and dashboard notification for the new comment
+      triggerNotification(id, "new_comment", rawToken);
+
       return NextResponse.json({ task });
     }
 
@@ -214,7 +218,7 @@ export async function PATCH(
           returnedToServiceInitial: pt.returnedToServiceInitial
         });
       }
-      task.status = "Isolation In Progress";
+      task.status = "Verification In Progress";
       // Ensure primary operator is stamped on task if not already set
       if (!task.primaryOperatorId) {
         task.primaryOperatorId = user.userId;

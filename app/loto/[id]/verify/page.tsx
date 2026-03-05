@@ -8,6 +8,29 @@ import {
     Lock, UserCheck, FileText, Bell
 } from 'lucide-react'
 
+const STAGES = [
+    { label: 'Creation' },
+    { label: 'Approval' },
+    { label: 'Isolation' },
+    { label: 'Verification' },
+    { label: 'Active' },
+    { label: 'DeLOT' },
+]
+
+function getStageIndex(status: string) {
+    switch (status) {
+        case 'Draft':
+        case 'Pending Approval': return 1
+        case 'Approved': return 2
+        case 'Verification In Progress':
+        case 'Isolation Complete': return 3
+        case 'Isolation Verified / Active': return 4
+        case 'Return to Service': return 5
+        case 'Closed': return 6
+        default: return 1
+    }
+}
+
 export default function VerifyPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params)
     const router = useRouter()
@@ -33,7 +56,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
         fetch(`/api/loto/${id}`, { headers: { Authorization: `Bearer ${tok}` } })
             .then(r => r.json())
             .then(d => {
-                if (d.error) { router.push('/dashboard'); return }
+                if (d.error) { router.push('/'); return }
                 setTask(d.task)
                 setStatus(d.task.status)
                 setPoints(d.isolationPoints || [])
@@ -50,8 +73,12 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
     const currentUserId = String(activeUser?.id || activeUser?.userId || '').trim().toLowerCase()
     const isAssignedSupervisor = currentUserId !== '' &&
         currentUserId === String(task?.supervisorId || task?.supervisor?.id || '').trim().toLowerCase()
+    // Allow any supervisor or shift_engineer role to verify — not just the exact assigned one
+    const isSupervisorRole = ['supervisor', 'shift_engineer'].includes(activeUser?.role || '')
     const supervisorHasSigned = ['Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status)
-    const canVerify = status === 'Isolation In Progress' && isAssignedSupervisor
+    const canVerify = status === 'Verification In Progress' && (isAssignedSupervisor || isSupervisorRole)
+
+    const stageIdx = getStageIndex(status)
 
     // Update a point's lockOnInitial2 in local state + backend immediately
     const updateInitial2 = (index: number, value: string) => {
@@ -115,17 +142,44 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                 </div>
             )}
 
+            {/* 6-Stage Progress Bar */}
+            <div className="bg-white border-b border-slate-100 px-4 py-4 shadow-sm">
+                <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+                    {STAGES.map((s, i) => {
+                        const done = i + 1 < stageIdx
+                        const active = i + 1 === stageIdx
+                        return (
+                            <React.Fragment key={s.label}>
+                                <div className="flex flex-col items-center gap-1.5 min-w-[48px]">
+                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black border-2 transition-all
+                                        ${done ? 'bg-emerald-500 border-emerald-500 text-white' : active ? 'bg-indigo-600 border-indigo-600 text-white ring-4 ring-indigo-600/20' : 'bg-white border-slate-200 text-slate-400'}`}>
+                                        {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
+                                    </div>
+                                    <span className={`text-[9px] font-extrabold uppercase tracking-widest ${active ? 'text-indigo-600' : done ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                        {s.label}
+                                    </span>
+                                </div>
+                                {i < STAGES.length - 1 && (
+                                    <div className={`flex-1 h-1.5 mx-1 rounded-full transition-colors ${done ? 'bg-emerald-500' : 'bg-slate-100'}`} />
+                                )}
+                            </React.Fragment>
+                        )
+                    })}
+                </div>
+            </div>
+
             {/* Header */}
             <div className="bg-white border-b border-slate-200 px-4 py-4 shadow-sm">
                 <div className="max-w-6xl mx-auto flex items-center gap-4">
                     <Link href={`/loto/${id}`} className="p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <ArrowLeft className="w-5 h-5 text-slate-500" />
                     </Link>
-                    <div>
+                    <div className="flex-1">
                         <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-0.5">Supervisor Verification</p>
                         <h1 className="text-xl font-black text-slate-900 tracking-tight">{task.lotoId}</h1>
                     </div>
-                    <div className="ml-auto">
+                    {/* Right: status + user + logout */}
+                    <div className="flex items-center gap-3">
                         {supervisorHasSigned ? (
                             <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full text-xs font-bold uppercase flex items-center gap-1.5">
                                 <ShieldCheck className="w-3.5 h-3.5" /> Verified
@@ -135,6 +189,23 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                 <Lock className="w-3.5 h-3.5" /> Awaiting Supervisor Sign
                             </span>
                         )}
+                        {/* User + Logout */}
+                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 shadow-sm">
+                            <div className="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white text-[11px] font-black uppercase">
+                                {(activeUser?.name || 'U').charAt(0)}
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 hidden sm:block max-w-[100px] truncate">{activeUser?.name || 'User'}</span>
+                            <button
+                                onClick={() => {
+                                    localStorage.removeItem('token')
+                                    localStorage.removeItem('user')
+                                    router.push('/login')
+                                }}
+                                className="ml-1 px-4 py-1.5 rounded-full bg-red-500 hover:bg-red-600 active:scale-95 text-white text-[11px] font-black uppercase tracking-widest shadow-sm shadow-red-500/30 transition-all"
+                            >
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,15 +227,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                 </div>
 
                 {/* Supervisor instructions */}
-                {canVerify && (
-                    <div className="rounded-2xl border border-purple-200 bg-purple-50 px-6 py-4 flex items-start gap-4">
-                        <AlertTriangle className="w-5 h-5 text-purple-600 mt-0.5 shrink-0" />
-                        <div>
-                            <p className="text-sm font-extrabold text-purple-900">Your role: Verify each isolation point</p>
-                            <p className="text-xs font-bold text-purple-700 mt-1">Click <strong>Done</strong> on each row to sign Lock on Initial #2. All other fields are locked by the operator. Once all rows are signed, click <strong>Sign &amp; Supervise</strong>.</p>
-                        </div>
-                    </div>
-                )}
+
 
                 {supervisorHasSigned && (
                     <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-4 flex items-start gap-4">
@@ -189,7 +252,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                     <th className="px-3 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest w-12 text-center">Tag</th>
                                     <th className="px-4 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Tag Location</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Lock #</th>
-                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Isolation Position</th>
+                                    <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Isolated Position</th>
                                     <th className="px-6 py-4 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Lock on Initial #1 (Operator)</th>
                                     <th className={`px-6 py-4 text-[10px] font-extrabold uppercase tracking-widest ${canVerify ? 'text-purple-500' : 'text-slate-400'}`}>
                                         Lock on Initial #2 {canVerify && '(You)'}
@@ -200,7 +263,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                 {points.map((p, i) => (
                                     <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-3 py-4 text-center">
-                                            <span className="text-xs font-black text-slate-400">0{p.tagNo}</span>
+                                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-[11px] font-black text-slate-500">{p.tagNo}</span>
                                         </td>
                                         <td className="px-4 py-4">
                                             <span className="text-sm font-bold text-slate-800">{p.isolationDescription}</span>
@@ -211,7 +274,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                                 {p.lockNumber || '—'}
                                             </span>
                                         </td>
-                                        {/* Isolation Position — read-only */}
+                                        {/* Isolated Position — read-only */}
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex rounded-md px-2.5 py-1 text-[10px] font-extrabold border uppercase tracking-widest ${p.isolationPosition ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-50 text-slate-300 border-slate-100'}`}>
                                                 {p.isolationPosition || '—'}
@@ -230,7 +293,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                                 <span className="text-[10px] text-slate-300 italic font-bold">Not signed</span>
                                             )}
                                         </td>
-                                        {/* Lock on Initial #2 — only editable by supervisor */}
+                                        {/* Lock on Initial #2 — only editable by supervisor role */}
                                         <td className="px-6 py-4">
                                             {p.lockOnInitial2 ? (
                                                 <div className="flex items-center gap-3">
@@ -292,11 +355,6 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                 ? 'Sign & Supervise — Mark Isolation Verified'
                                 : `Sign all ${points.filter(p => !p.lockOnInitial2).length} remaining rows first`}
                         </button>
-                        {!isAssignedSupervisor && (
-                            <p className="mt-3 text-[10px] font-bold text-red-500 flex items-center gap-1 text-center justify-center uppercase tracking-widest">
-                                <AlertTriangle className="w-3 h-3" /> Only {task.supervisor?.name || 'the assigned supervisor'} can verify this isolation.
-                            </p>
-                        )}
                     </div>
                 )}
             </div>

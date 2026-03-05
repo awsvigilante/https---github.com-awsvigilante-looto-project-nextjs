@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { getDataSource } from "@/lib/data-source";
 import { LotoTask } from "@/lib/entities/LotoTask";
 import { User } from "@/lib/entities/User";
+import { Notification } from "@/lib/entities/Notification";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.APP_URL || "http://localhost:3001";
@@ -138,17 +139,35 @@ export async function POST(request: Request) {
 
     const results: { to: string; type: string; status: string; error?: string }[] = [];
 
+    const notifRepo = ds.getRepository(Notification);
+
     const sendEmail = async (
       to: string | undefined,
       userId: string,
       subject: string,
       html: string,
-      label: string
+      label: string,
+      toastMessage: string
     ) => {
       if (!to) {
         results.push({ to: "unknown", type: label, status: "skipped – no email" });
         return;
       }
+
+      // Always save an in-app notification for the dashboard toast polling
+      try {
+        const notif = notifRepo.create({
+          userId,
+          taskId,
+          type: label.split(' →')[0],
+          message: toastMessage,
+          isRead: false
+        });
+        await notifRepo.save(notif);
+      } catch (e) {
+        console.error("Failed to save in-app notification:", e);
+      }
+
       try {
         await resend.emails.send({
           from: "Smart LOTO <onboarding@resend.dev>",
@@ -181,7 +200,8 @@ export async function POST(request: Request) {
               "Review & Approve Task",
               summary
             ),
-            "task_submitted → shift_engineer"
+            "task_submitted → shift_engineer",
+            `New LOTO ${task.lotoId} needs your approval.`
           );
         }
         break;
@@ -204,7 +224,8 @@ export async function POST(request: Request) {
               "Open Task & Begin Isolation",
               summary
             ),
-            "task_approved → operator (magic link)"
+            "task_approved → operator (magic link)",
+            `LOTO ${task.lotoId} is approved. You can begin isolation.`
           );
         }
 
@@ -222,7 +243,8 @@ export async function POST(request: Request) {
               "View Task Details",
               summary
             ),
-            "task_approved → supervisor"
+            "task_approved → supervisor",
+            `LOTO ${task.lotoId} is approved. You are assigned to verify.`
           );
         }
         break;
@@ -245,7 +267,8 @@ export async function POST(request: Request) {
               "Open Verification Page →",
               summary
             ),
-            "isolation_complete → supervisor"
+            "isolation_complete → supervisor",
+            `Isolation on ${task.lotoId} complete. Please verify.`
           );
         }
         break;
@@ -272,6 +295,73 @@ export async function POST(request: Request) {
               summary
             ),
             `isolation_verified → ${u.role}`
+          );
+        }
+        break;
+      }
+
+      case "new_comment": {
+        // Find everyone attached to this task (except the sender)
+        const toNotify = [creator, supervisor, operator, approver].filter(
+          (u, i, arr) => u && u.id !== sender.userId && arr.findIndex(x => x?.id === u.id) === i
+        ) as User[];
+
+        for (const u of toNotify) {
+          if (!u.email) continue;
+          const url = magicUrl(u.id, taskId);
+          await sendEmail(
+            u.email, u.id,
+            `💬 New Comment on LOTO ${task.lotoId}`,
+            emailWrapper(
+              u.name,
+              "New Discussion on Your Task",
+              `<strong>${sender.userName || sender.email}</strong> just commented on the LOTO isolation plan for <strong>${task.equipmentName}</strong>.<br><br>Please click the link below to view the latest updates.`,
+              url,
+              "View Comments & Task",
+              summary
+            ),
+            `new_comment → ${u.role}`
+          );
+        }
+        break;
+      }
+
+      case "return_to_service": {
+        // Notify operator to begin de-LOTO (remove locks, restore equipment)
+        const rtsOperator = operator || creator;
+        if (rtsOperator?.email) {
+          const url = magicUrl(rtsOperator.id, taskId);
+          await sendEmail(
+            rtsOperator.email, rtsOperator.id,
+            `[Action Required] Return to Service – Remove Locks – ${task.lotoId}`,
+            emailWrapper(
+              rtsOperator.name,
+              "Work Complete — Begin De-LOTO 🔓",
+              `The maintenance work on <strong>${task.equipmentName}</strong> is complete.<br><br>Please open the task, physically remove all locks and tags from each isolation point, then sign the final Return to Service form to close this LOTO.`,
+              url,
+              "Open Task & Remove Locks",
+              summary
+            ),
+            "return_to_service → operator",
+            `Return to service for ${task.lotoId} initiated. Please remove locks.`
+          );
+        }
+        // Also notify supervisor for awareness
+        if (supervisor?.email && supervisor.id !== rtsOperator?.id) {
+          const url = magicUrl(supervisor.id, taskId);
+          await sendEmail(
+            supervisor.email, supervisor.id,
+            `[Info] Return to Service Initiated – ${task.lotoId}`,
+            emailWrapper(
+              supervisor.name,
+              "Return to Service Has Been Initiated",
+              `The LOTO task for <strong>${task.equipmentName}</strong> has been cleared for return to service. The operator has been notified to remove all locks and close the task.`,
+              url,
+              "View Task",
+              summary
+            ),
+            "return_to_service → supervisor",
+            `Return to service for ${task.lotoId} initiated.`
           );
         }
         break;
