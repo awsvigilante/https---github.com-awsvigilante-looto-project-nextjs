@@ -10,6 +10,7 @@ import {
   JoinColumn,
 } from "typeorm";
 import { User } from "./User";
+import type { ContractorLock } from "./ContractorLock";
 
 @Entity("loto_tasks")
 export class LotoTask {
@@ -116,6 +117,9 @@ export class LotoTask {
 
   @Column({ type: "jsonb", nullable: true, default: [] })
   comments?: any[];
+
+  @OneToMany("ContractorLock", (lock: any) => lock.task)
+  contractorLocks!: ContractorLock[];
 
   @CreateDateColumn()
   createdAt!: Date;

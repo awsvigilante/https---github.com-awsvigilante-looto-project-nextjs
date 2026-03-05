@@ -23,6 +23,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   "Approved":                  { label: "Approved",          color: "border-emerald-200", bg: "bg-emerald-100", textColor: "text-emerald-700" },
   "Isolation In Progress":     { label: "In Progress",       color: "border-blue-200",    bg: "bg-blue-100",    textColor: "text-blue-700" },
   "Isolation Complete":        { label: "Awaiting Sign-off", color: "border-purple-200",  bg: "bg-purple-100",  textColor: "text-purple-700" },
+  "Verification In Progress":  { label: "Verifying",         color: "border-purple-200",  bg: "bg-purple-100",  textColor: "text-purple-700" },
   "Isolation Verified / Active": { label: "Active (Safe)",   color: "border-emerald-200", bg: "bg-emerald-100", textColor: "text-emerald-700" },
   "Closed":                    { label: "Closed",            color: "border-slate-200",   bg: "bg-slate-100",   textColor: "text-slate-600" },
 };
@@ -31,13 +32,41 @@ function getStatusConfig(status: string) {
   return STATUS_CONFIG[status] || STATUS_CONFIG["Draft"];
 }
 
-function getTaskActionLabel(status: string, role: string, task?: LotoTask & { supervisorId?: string }, userId?: string) {
-  if (status === "Pending Approval" && role === "shift_engineer") return "Approve";
-  if (status === "Approved" && (role === "operator" || role === "shift_engineer")) return "Isolate";
-  if (status === "Isolation In Progress" && role === "supervisor") return "Verify";
-  if (status === "Isolation In Progress" && role === "operator") return "Continue";
-  if (status === "Isolation Verified / Active") return "View";
+function getTaskActionLabel(status: string, role: string, task?: any, userId?: string) {
+  const sId = task?.supervisor?.id?.toString() || task?.supervisorId?.toString();
+  const aId = task?.approver?.id?.toString() || task?.approverId?.toString();
+  const uId = userId?.toString();
+
+  const isSupervisorForTask = sId && uId && sId === uId;
+  const isApproverForTask = aId && uId && aId === uId;
+
+  // 1. Fully Closed tasks are always 'View' (history)
   if (status === "Closed") return "View";
+  if (status === "Isolation Verified / Active") return "View";
+
+  // Strict mapping: Only show action verb if the user can ACTUALLY take action on this status
+
+  // Pending Approval -> Shift Engineer / Approver acts
+  if (status === "Pending Approval" && (role === "shift_engineer" || role === "admin" || isApproverForTask)) {
+    return "Approve";
+  }
+
+  // Approved -> Operator acts
+  if (status === "Approved" && (role === "operator" || role === "admin")) {
+    return "Isolate";
+  }
+
+  // Isolation In Progress -> Operator acts
+  if (status === "Isolation In Progress" && role === "operator") {
+    return "Continue";
+  }
+
+  // Isolation Complete or Verification In Progress -> Supervisor acts
+  if ((status === "Isolation Complete" || status === "Verification In Progress") && (role === "supervisor" || role === "admin" || isSupervisorForTask)) {
+    return "Verify";
+  }
+
+  // Everyone else, or any other status (like Draft) just gets "View"
   return "View";
 }
 
@@ -268,7 +297,7 @@ export default function Dashboard() {
                     <tbody className="divide-y divide-slate-50">
                       {filtered.map(task => {
                         const cfg = getStatusConfig(task.status);
-                        const actionLabel = getTaskActionLabel(task.status, user.role);
+                        const actionLabel = getTaskActionLabel(task.status, user.role, task as any, user.id);
                         const taskRoute = getTaskRoute(task as any, user.role, user.id);
                         return (
                           <tr key={task.id} className="hover:bg-slate-50/50 transition-colors group">

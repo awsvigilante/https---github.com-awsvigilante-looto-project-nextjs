@@ -105,6 +105,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
     const [lockboxEmpty, setLockboxEmpty] = useState(false)
     const [showPrintModal, setShowPrintModal] = useState(false)
     const [isUpdating, setIsUpdating] = useState(false)
+    const [isRowUpdating, setIsRowUpdating] = useState(false)
     const [newComment, setNewComment] = useState('')
 
     const handleSaveEdit = async () => {
@@ -138,20 +139,26 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
         }
     }
 
-    const updatePoint = (index: number, field: string, val: string) => {
-        const newPts = [...points]
-        newPts[index] = { ...newPts[index], [field]: val }
-        setPoints(newPts)
-        // Persist changes to backend immediately
-        if (field === 'lockOnInitial1' || field === 'lockOnInitial2') {
-            const point = newPts[index]
-            const storedToken = localStorage.getItem('token')
-            if (storedToken && point.id && task?.id) {
-                fetch(`/api/loto/${task.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${storedToken}` },
-                    body: JSON.stringify({ action: 'update_point', pointId: point.id, field, value: val }),
-                }).then(r => r.json()).then(data => {
+    const updatePoint = async (index: number, field: string, val: string) => {
+        setIsRowUpdating(true)
+        setPoints(prev => {
+            const newPts = [...prev]
+            newPts[index] = { ...newPts[index], [field]: val }
+            return newPts
+        })
+        
+        try {
+            // Persist changes to backend immediately
+            if (field === 'lockOnInitial1' || field === 'lockOnInitial2') {
+                const pointId = points[index]?.id
+                const storedToken = localStorage.getItem('token')
+                if (storedToken && pointId && task?.id) {
+                    const r = await fetch(`/api/loto/${task.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${storedToken}` },
+                        body: JSON.stringify({ action: 'update_point', pointId, field, value: val }),
+                    })
+                    const data = await r.json()
                     if (data.task) {
                         setTask(data.task)
                         setStatus(data.task.status)
@@ -160,15 +167,19 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                     if (field === 'lockOnInitial2') {
                         const tok = localStorage.getItem('token')
                         if (tok && task?.id) {
-                            fetch(`/api/loto/${task.id}`, {
+                            const freshR = await fetch(`/api/loto/${task.id}`, {
                                 headers: { Authorization: `Bearer ${tok}` }
-                            }).then(r => r.json()).then(fresh => {
-                                if (fresh.isolationPoints) setPoints(fresh.isolationPoints)
-                            }).catch(() => {})
+                            })
+                            const fresh = await freshR.json()
+                            if (fresh.isolationPoints) setPoints(fresh.isolationPoints)
                         }
                     }
-                }).catch(() => {})
+                }
             }
+        } catch (err) {
+            console.error('Failed to update row', err)
+        } finally {
+            setIsRowUpdating(false)
         }
     }
 
@@ -237,9 +248,11 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
     const canExecuteIsolation = status === 'Approved' && (isCreator || isAssignedOperator)
 
     const updatePointLock = (index: number, val: string) => {
-        const newPts = [...points]
-        newPts[index] = { ...newPts[index], lockNumber: val }
-        setPoints(newPts)
+        setPoints(prev => {
+            const newPts = [...prev]
+            newPts[index] = { ...newPts[index], lockNumber: val }
+            return newPts
+        })
     }
 
     const handlePrintTags = () => {
@@ -292,7 +305,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                         { step: 'Approval', active: status === 'Pending Approval', done: status !== 'Pending Approval' && status !== 'Draft' },
                         { step: 'Isolation', active: status === 'Approved', done: ['Verification In Progress','Isolation Complete','Isolation Verified / Active','Return to Service','Closed'].includes(status) },
                         { step: 'Verification', active: status === 'Verification In Progress', done: ['Isolation Verified / Active','Return to Service','Closed'].includes(status) },
-                        { step: 'Active', active: status === 'Isolation Verified / Active', done: status === 'Return to Service' || status === 'Closed' },
+                        { step: 'Contractor', active: status === 'Isolation Verified / Active', done: status === 'Return to Service' || status === 'Closed' },
                         { step: 'Delot', active: status === 'Return to Service', done: status === 'Closed' }
                     ].map((s, idx, arr) => (
                         <React.Fragment key={s.step}>
@@ -577,7 +590,8 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                             {canExecuteIsolation && (
                                                                 <button
                                                                     onClick={() => updatePoint(i, 'lockOnInitial1', '')}
-                                                                    className="px-4 py-2 text-xs font-black text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all border border-red-600 uppercase tracking-widest shadow-md shadow-red-500/20 active:scale-95"
+                                                                    disabled={isRowUpdating}
+                                                                    className={`px-4 py-2 text-xs font-black text-white rounded-lg transition-all border border-red-600 uppercase tracking-widest shadow-md shadow-red-500/20 active:scale-95 ${isRowUpdating ? 'bg-slate-400 cursor-wait' : 'bg-red-500 hover:bg-red-600'}`}
                                                                     title="Edit Initial"
                                                                 >
                                                                     ✎ Edit
@@ -592,9 +606,9 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                                     const now = new Date().toLocaleString("en-CA", { hour12: false }).replace(',', '')
                                                                     updatePoint(i, 'lockOnInitial1', `${name} – ${now}`)
                                                                 }}
-                                                                disabled={!p.lockNumber || !p.isolationPosition}
+                                                                disabled={!p.lockNumber || !p.isolationPosition || isRowUpdating}
                                                                 title={!p.lockNumber ? 'Set Lock No. first' : !p.isolationPosition ? 'Set Isolated Position first' : 'Click to sign'}
-                                                                className="text-sm font-black text-white px-6 py-2.5 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest border disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30 border-indigo-700"
+                                                                className={`text-sm font-black text-white px-6 py-2.5 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest border disabled:opacity-40 disabled:cursor-wait disabled:shadow-none ${isRowUpdating ? 'bg-slate-400 border-slate-400' : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30 border-indigo-700'}`}
                                                             >
                                                                 ✓ Done
                                                             </button>
@@ -617,7 +631,8 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                                 {canSupervisorVerify && !supervisorHasSigned && (
                                                                     <button
                                                                         onClick={() => updatePoint(i, 'lockOnInitial2', '')}
-                                                                        className="px-4 py-2 text-xs font-black text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all border border-red-600 uppercase tracking-widest shadow-md shadow-red-500/20 active:scale-95"
+                                                                        disabled={isRowUpdating}
+                                                                        className={`px-4 py-2 text-xs font-black text-white rounded-lg transition-all border border-red-600 uppercase tracking-widest shadow-md shadow-red-500/20 active:scale-95 ${isRowUpdating ? 'bg-slate-400 cursor-wait' : 'bg-red-500 hover:bg-red-600'}`}
                                                                         title="Edit Supervisor Initial"
                                                                     >
                                                                         ✎ Edit
@@ -630,7 +645,8 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                                     // Send truthy signal — backend stamps real name from JWT
                                                                     updatePoint(i, 'lockOnInitial2', 'sign')
                                                                 }}
-                                                                className="text-sm font-black text-white bg-purple-600 hover:bg-purple-700 px-6 py-2.5 rounded-xl shadow-lg shadow-purple-500/30 active:scale-95 transition-all uppercase tracking-widest border border-purple-700"
+                                                                disabled={isRowUpdating}
+                                                                className={`text-sm font-black text-white px-6 py-2.5 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest border ${isRowUpdating ? 'bg-slate-400 border-slate-400 cursor-wait shadow-none' : 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/30 border-purple-700'}`}
                                                             >
                                                                 ✓ Verify
                                                             </button>
@@ -760,10 +776,10 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                         onClick={async () => {
                                                             await handleAction('fill_rows', { isolationPoints: points.map(p => ({ id: p.id, tagNo: p.tagNo, lockNumber: p.lockNumber, isolationPosition: p.isolationPosition, lockOnInitial1: p.lockOnInitial1, lockOnInitial2: p.lockOnInitial2, returnedToServiceInitial: p.returnedToServiceInitial })) })
                                                         }}
-                                                        disabled={points.some(p => !p.lockNumber || !p.isolationPosition || !p.lockOnInitial1) || isUpdating || !canExecuteIsolation}
-                                                        className="flex-1 rounded-xl px-8 py-3.5 text-sm font-extrabold text-white active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-50"
+                                                        disabled={points.some(p => !p.lockNumber || !p.isolationPosition || !p.lockOnInitial1) || isUpdating || !canExecuteIsolation || isRowUpdating}
+                                                        className={`flex-1 rounded-xl px-8 py-3.5 text-sm font-extrabold text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest disabled:opacity-50 ${isRowUpdating ? 'bg-slate-400 cursor-wait shadow-none' : 'shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700'}`}
                                                     >
-                                                        <PenLine className="w-5 h-5" /> Sign &amp; Complete Isolation
+                                                        {isRowUpdating ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <PenLine className="w-5 h-5" />} {isRowUpdating ? 'Saving Row...' : 'Sign & Complete Isolation'}
                                                     </button>
                                                 </div>
                                                 {!isAssignedOperator && (
@@ -792,11 +808,11 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                                     onClick={async () => {
                                                         await handleAction('supervisor_complete', { isolationPoints: points.map(p => ({ id: p.id, lockOnInitial2: p.lockOnInitial2 })) })
                                                     }}
-                                                    disabled={points.some(p => !p.lockOnInitial2) || isUpdating}
-                                                    className={`w-full rounded-xl px-8 py-4 text-base font-black text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest disabled:opacity-50 ${points.every(p => p.lockOnInitial2) ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20' : 'bg-slate-400 cursor-not-allowed'}`}
+                                                    disabled={points.some(p => !p.lockOnInitial2) || isUpdating || isRowUpdating}
+                                                    className={`w-full rounded-xl px-8 py-4 text-base font-black text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest disabled:opacity-50 ${points.every(p => p.lockOnInitial2) && !isRowUpdating ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20' : 'bg-slate-400 cursor-wait shadow-none'}`}
                                                 >
-                                                    <ShieldCheck className="w-6 h-6" />
-                                                    {points.every(p => p.lockOnInitial2) ? 'Sign & Supervise — Mark Isolation Verified' : `Sign all ${points.filter(p => !p.lockOnInitial2).length} remaining rows first`}
+                                                    {isUpdating || isRowUpdating ? <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <ShieldCheck className="w-6 h-6" />}
+                                                    {isRowUpdating ? 'Saving Row...' : points.every(p => p.lockOnInitial2) ? 'Sign & Supervise — Mark Isolation Verified' : `Sign all ${points.filter(p => !p.lockOnInitial2).length} remaining rows first`}
                                                 </button>
                                             </div>
                                         )}
@@ -942,7 +958,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                     </div>
                 )}
 
-                {status === 'READY_FOR_DELOT' && (
+                {(status === 'READY_FOR_DELOT' || status === 'Closed') && (
                     <div className="animate-in slide-in-from-bottom-4 duration-500 space-y-6">
                         <div className="rounded-2xl border border-red-200/60 bg-white overflow-hidden shadow-lg shadow-red-500/5">
                             <div className="bg-gradient-to-r from-red-50 to-rose-50/50 px-6 md:px-8 py-5 border-b border-red-100">
@@ -959,9 +975,10 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                 <label className={`flex items-start gap-4 p-5 md:p-6 rounded-2xl border cursor-pointer transition-all shadow-sm ${lockboxEmpty ? 'border-red-400 bg-red-50/50 ring-4 ring-red-500/10' : 'border-slate-200 bg-slate-50 hover:bg-slate-100/80 hover:border-slate-300'}`}>
                                     <input
                                         type="checkbox"
-                                        checked={lockboxEmpty}
+                                        checked={lockboxEmpty || status === 'Closed'}
+                                        disabled={status === 'Closed'}
                                         onChange={(e) => setLockboxEmpty(e.target.checked)}
-                                        className="mt-1 w-6 h-6 rounded border-slate-300 text-red-600 focus:ring-red-500 transition-colors cursor-pointer"
+                                        className="mt-1 w-6 h-6 rounded border-slate-300 text-red-600 focus:ring-red-500 transition-colors cursor-pointer disabled:opacity-50"
                                     />
                                     <div>
                                         <h4 className="font-extrabold text-slate-900 text-lg mb-1">Lockbox #1 is EMPTY</h4>
@@ -1025,7 +1042,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                     </div>
                                 )}
 
-                                {lockboxEmpty && maintenanceSignature && finalOperatorSignature && (
+                                {(lockboxEmpty || status === 'Closed') && maintenanceSignature && finalOperatorSignature && (
                                     <div className="pt-6 flex justify-end border-t border-slate-100">
                                         <button disabled className="w-full md:w-auto rounded-xl bg-slate-300 px-8 py-4 text-sm font-extrabold text-white transition-all flex items-center justify-center gap-2 uppercase tracking-widest cursor-not-allowed">
                                             <ShieldCheck className="w-5 h-5" />

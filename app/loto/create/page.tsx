@@ -179,7 +179,7 @@ export default function CreateLOTO() {
                         { step: 'Approval', active: false, done: false },
                         { step: 'Isolation', active: false, done: false },
                         { step: 'Verification', active: false, done: false },
-                        { step: 'Active', active: false, done: false },
+                        { step: 'Contractor', active: false, done: false },
                         { step: 'Delot', active: false, done: false }
                     ].map((s, idx, arr) => (
                         <React.Fragment key={s.step}>

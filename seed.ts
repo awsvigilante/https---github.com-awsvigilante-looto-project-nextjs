@@ -16,6 +16,7 @@ async function seed() {
       { email: "operator@looto.com",     password: "password123", name: "Mike Johnson",     type: "company", role: "operator" },
       { email: "engineer@looto.com",     password: "password123", name: "David Okonkwo",    type: "company", role: "shift_engineer" },
       { email: "supervisor@looto.com",   password: "password123", name: "Lisa Chen",        type: "company", role: "supervisor" },
+      { email: "apex@contractor.com",    password: "password123", name: "Apex Industrial",  type: "contractor", role: "contractor", lotoId: "LOTO-2026-000789", contractorNumber: "C-9999" },
     ];
 
     for (const u of seedUsers) {

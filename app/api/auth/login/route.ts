@@ -3,10 +3,18 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { getDataSource } from "@/lib/data-source";
 import { User } from "@/lib/entities/User";
+import { LotoTask } from "@/lib/entities/LotoTask";
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    const { email, password, type, lotoId, contractorNumber } = await request.json();
+    const body = await request.json();
+    const { email, password, type } = body;
+    let { lotoId, contractorNumber } = body;
+
+    let lotoIdTrimmed = "";
+    let contractorNumberTrimmed = "";
 
     if (type === "contractor") {
       if (!lotoId || !contractorNumber) {
@@ -15,6 +23,8 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+      lotoIdTrimmed = lotoId.trim();
+      contractorNumberTrimmed = contractorNumber.trim();
     } else if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
@@ -28,9 +38,31 @@ export async function POST(request: Request) {
     let user;
 
     if (type === "contractor") {
+      console.log(`[LOGIN FLOW] Attempting contractor login for lotoId=${lotoIdTrimmed}, contractorNumber=${contractorNumberTrimmed}`);
+      
+      const allUsers = await userRepository.find();
+      console.log(`[LOGIN FLOW] All users in DB:`, allUsers.map(u => ({ email: u.email, type: u.type })));
+
+      // First, find the user
       user = await userRepository.findOne({
-        where: { lotoId, contractorNumber, type: "contractor" }
+        where: { lotoId: lotoIdTrimmed, contractorNumber: contractorNumberTrimmed, type: "contractor" }
       });
+
+      console.log(`[LOGIN FLOW] Contractor query result:`, user ? user.email : "NULL");
+
+      // If user exists, check if the task is genuinely active
+      if (user) {
+        const taskRepo = dataSource.getRepository(LotoTask);
+        const task = await taskRepo.findOne({ where: { lotoId: lotoIdTrimmed } });
+        
+        if (!task || (task.status !== 'Isolation Verified / Active' && task.status !== 'READY_FOR_DELOT')) {
+          return NextResponse.json(
+            { error: "Access Denied: This LOTO task is not currently active or verified for contractor entry." },
+            { status: 403 }
+          );
+        }
+      }
+
     } else {
       console.log(`[LOGIN FLOW] Finding company user via QueryBuilder: ${email}`);
       user = await userRepository

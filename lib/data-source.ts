@@ -4,6 +4,7 @@ import { User } from "./entities/User";
 import { LotoTask } from "./entities/LotoTask";
 import { IsolationPoint } from "./entities/IsolationPoint";
 import { Notification } from "./entities/Notification";
+import { ContractorLock } from "./entities/ContractorLock";
 import ws from "ws";
 import { neonConfig } from "@neondatabase/serverless";
 import * as neonPg from "@neondatabase/serverless";
@@ -29,7 +30,7 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: false,
-  entities: [User, LotoTask, IsolationPoint, Notification],
+  entities: [User, LotoTask, IsolationPoint, Notification, ContractorLock],
   migrations: [],
   subscribers: [],
 });

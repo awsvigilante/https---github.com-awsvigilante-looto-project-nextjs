@@ -13,7 +13,7 @@ const STAGES = [
     { label: 'Approval' },
     { label: 'Isolation' },
     { label: 'Verification' },
-    { label: 'Active' },
+    { label: 'Contractor' },
     { label: 'DeLOT' },
 ]
 
@@ -39,6 +39,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
     const [points, setPoints] = useState<any[]>([])
     const [activeUser, setActiveUser] = useState<any>(null)
     const [isUpdating, setIsUpdating] = useState(false)
+    const [isRowUpdating, setIsRowUpdating] = useState(false)
     const [toastMessage, setToastMessage] = useState('')
     const [status, setStatus] = useState('')
 
@@ -81,18 +82,28 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
     const stageIdx = getStageIndex(status)
 
     // Update a point's lockOnInitial2 in local state + backend immediately
-    const updateInitial2 = (index: number, value: string) => {
-        const newPts = [...points]
-        newPts[index] = { ...newPts[index], lockOnInitial2: value }
-        setPoints(newPts)
-        const point = newPts[index]
-        const tok = localStorage.getItem('token')
-        if (tok && point.id && task?.id) {
-            fetch(`/api/loto/${task.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tok}` },
-                body: JSON.stringify({ action: 'update_point', pointId: point.id, field: 'lockOnInitial2', value }),
-            }).catch(() => {})
+    const updateInitial2 = async (index: number, value: string) => {
+        setIsRowUpdating(true)
+        setPoints(prev => {
+            const newPts = [...prev]
+            newPts[index] = { ...newPts[index], lockOnInitial2: value }
+            return newPts
+        })
+        
+        try {
+            const pointId = points[index]?.id
+            const tok = localStorage.getItem('token')
+            if (tok && pointId && task?.id) {
+                await fetch(`/api/loto/${task.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tok}` },
+                    body: JSON.stringify({ action: 'update_point', pointId, field: 'lockOnInitial2', value }),
+                })
+            }
+        } catch (err) {
+            console.error('Failed to update row', err)
+        } finally {
+            setIsRowUpdating(false)
         }
     }
 
@@ -306,7 +317,8 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                                     {canVerify && !supervisorHasSigned && (
                                                         <button
                                                             onClick={() => updateInitial2(i, '')}
-                                                            className="px-4 py-2 text-xs font-black text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all uppercase tracking-widest shadow-md active:scale-95"
+                                                            disabled={isRowUpdating}
+                                                            className={`px-4 py-2 text-xs font-black text-white rounded-lg transition-all uppercase tracking-widest shadow-md active:scale-95 ${isRowUpdating ? 'bg-slate-300 cursor-wait' : 'bg-red-500 hover:bg-red-600'}`}
                                                         >
                                                             ✎ Edit
                                                         </button>
@@ -319,7 +331,8 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                                                         const now = new Date().toLocaleString('en-CA', { hour12: false }).replace(',', '')
                                                         updateInitial2(i, `${name} – ${now}`)
                                                     }}
-                                                    className="text-sm font-black text-white bg-purple-600 hover:bg-purple-700 px-6 py-2.5 rounded-xl shadow-lg shadow-purple-500/30 active:scale-95 transition-all uppercase tracking-widest border border-purple-700"
+                                                    disabled={isRowUpdating}
+                                                    className={`text-sm font-black text-white px-6 py-2.5 rounded-xl shadow-lg active:scale-95 transition-all uppercase tracking-widest border ${isRowUpdating ? 'bg-slate-400 border-slate-400 cursor-wait shadow-none' : 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/30 border-purple-700'}`}
                                                 >
                                                     ✓ Done
                                                 </button>
@@ -339,19 +352,19 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
                     <div className="rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-6 shadow-sm">
                         <button
                             onClick={handleSignAndSupervise}
-                            disabled={points.some(p => !p.lockOnInitial2) || isUpdating}
+                            disabled={points.some(p => !p.lockOnInitial2) || isUpdating || isRowUpdating}
                             className={`w-full rounded-xl px-8 py-5 text-base font-black text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest disabled:opacity-50 ${
-                                points.every(p => p.lockOnInitial2)
+                                points.every(p => p.lockOnInitial2) && !isRowUpdating
                                     ? 'bg-purple-600 hover:bg-purple-700 shadow-purple-500/20'
-                                    : 'bg-slate-400 cursor-not-allowed'
+                                    : 'bg-slate-400 cursor-wait'
                             }`}
                         >
-                            {isUpdating ? (
+                            {isUpdating || isRowUpdating ? (
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             ) : (
                                 <ShieldCheck className="w-6 h-6" />
                             )}
-                            {points.every(p => p.lockOnInitial2)
+                            {isRowUpdating ? 'Saving Row...' : points.every(p => p.lockOnInitial2)
                                 ? 'Sign & Supervise — Mark Isolation Verified'
                                 : `Sign all ${points.filter(p => !p.lockOnInitial2).length} remaining rows first`}
                         </button>
