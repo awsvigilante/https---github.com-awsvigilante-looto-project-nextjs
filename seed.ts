@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "reflect-metadata";
 import bcrypt from "bcryptjs";
 import { AppDataSource } from "./lib/data-source.js";
@@ -20,17 +21,19 @@ async function seed() {
     ];
 
     for (const u of seedUsers) {
-      // Always delete and recreate to ensure clean password hash
       const existing = await userRepo.findOne({ where: { email: u.email } });
-      if (existing) {
-        await userRepo.delete({ email: u.email });
-        console.log(`Deleted existing: ${u.email}`);
-      }
       const hashed = await bcrypt.hash(u.password, 10);
-      console.log(`Hash for ${u.email}: ${hashed}`);
-      const user = userRepo.create({ ...u, password: hashed });
-      await userRepo.save(user);
-      console.log(`Created: ${u.name} (${u.role})`);
+      
+      if (existing) {
+        console.log(`Updating existing: ${u.email}`);
+        userRepo.merge(existing, { ...u, password: hashed });
+        await userRepo.save(existing);
+      } else {
+        console.log(`Creating new: ${u.email}`);
+        const user = userRepo.create({ ...u, password: hashed });
+        await userRepo.save(user);
+      }
+      console.log(`Synced: ${u.name} (${u.role})`);
     }
 
     console.log("\nAll users re-seeded successfully.");

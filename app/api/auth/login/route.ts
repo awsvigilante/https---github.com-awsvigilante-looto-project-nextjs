@@ -5,32 +5,10 @@ import { getDataSource } from "@/lib/data-source";
 import { User } from "@/lib/entities/User";
 import { LotoTask } from "@/lib/entities/LotoTask";
 
-export const dynamic = 'force-dynamic';
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, type } = body;
-    let { lotoId, contractorNumber } = body;
-
-    let lotoIdTrimmed = "";
-    let contractorNumberTrimmed = "";
-
-    if (type === "contractor") {
-      if (!lotoId || !contractorNumber) {
-        return NextResponse.json(
-          { error: "LOTO ID and Contractor Number are required" },
-          { status: 400 }
-        );
-      }
-      lotoIdTrimmed = lotoId.trim();
-      contractorNumberTrimmed = contractorNumber.trim();
-    } else if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email and password are required" },
-        { status: 400 }
-      );
-    }
+    const { email, password, type, lotoId, contractorNumber } = body;
 
     const dataSource = await getDataSource();
     const userRepository = dataSource.getRepository(User);
@@ -38,40 +16,38 @@ export async function POST(request: Request) {
     let user;
 
     if (type === "contractor") {
-      console.log(`[LOGIN FLOW] Attempting contractor login for lotoId=${lotoIdTrimmed}, contractorNumber=${contractorNumberTrimmed}`);
-      
-      const allUsers = await userRepository.find();
-      console.log(`[LOGIN FLOW] All users in DB:`, allUsers.map(u => ({ email: u.email, type: u.type })));
-
-      // First, find the user
-      user = await userRepository.findOne({
-        where: { lotoId: lotoIdTrimmed, contractorNumber: contractorNumberTrimmed, type: "contractor" }
-      });
-
-      console.log(`[LOGIN FLOW] Contractor query result:`, user ? user.email : "NULL");
-
-      // If user exists, check if the task is genuinely active
-      if (user) {
-        const taskRepo = dataSource.getRepository(LotoTask);
-        const task = await taskRepo.findOne({ where: { lotoId: lotoIdTrimmed } });
-        
-        if (!task || (task.status !== 'Isolation Verified / Active' && task.status !== 'READY_FOR_DELOT')) {
-          return NextResponse.json(
-            { error: "Access Denied: This LOTO task is not currently active or verified for contractor entry." },
-            { status: 403 }
-          );
-        }
+      if (!lotoId) {
+        return NextResponse.json(
+          { error: "LOTO ID is required" },
+          { status: 400 }
+        );
       }
 
+      const lotoIdTrimmed = lotoId.trim();
+
+      // Find the task first to ensure it exists and is active
+      const taskRepo = dataSource.getRepository(LotoTask);
+      const task = await taskRepo.findOne({ where: { lotoId: lotoIdTrimmed } });
+      
+      if (!task || (task.status !== 'Isolation Verified / Active' && task.status !== 'READY_FOR_DELOT')) {
+        return NextResponse.json(
+          { error: "Access Denied: This LOTO task is not currently active or verified for contractor entry." },
+          { status: 403 }
+        );
+      }
+
+      // Find ANY contractor user associated with this LOTO, or return a task-specific session
+      user = await userRepository.findOne({
+        where: { lotoId: lotoIdTrimmed, type: "contractor" }
+      });
+
+      // Pass the task UUID back for redirection
+      (user as any).taskId = task.id;
     } else {
-      console.log(`[LOGIN FLOW] Finding company user via QueryBuilder: ${email}`);
       user = await userRepository
         .createQueryBuilder("user")
         .where("user.email = :email", { email })
         .getOne();
-      
-      console.log(`[LOGIN FLOW] Found user? ${!!user}`);
-      console.log(`[LOGIN FLOW] Has Password Field? ${!!user?.password}`);
     }
 
     if (!user) {
@@ -121,6 +97,8 @@ export async function POST(request: Request) {
         name: user.name,
         role: user.role,
         type: user.type,
+        lotoId: user.lotoId,
+        taskId: (user as any).taskId,
       },
     });
   } catch (error) {

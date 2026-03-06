@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "reflect-metadata";
 import { AppDataSource } from "./lib/data-source.js";
 import { LotoTask } from "./lib/entities/LotoTask.js";

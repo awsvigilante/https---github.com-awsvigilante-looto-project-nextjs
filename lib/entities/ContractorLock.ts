@@ -31,6 +31,9 @@ export class ContractorLock {
   contractor!: User;
 
   @Column({ type: "varchar", nullable: true })
+  companyName?: string;
+
+  @Column({ type: "varchar", nullable: true })
   contractorName?: string;
 
   @Column({ type: "varchar", nullable: true })

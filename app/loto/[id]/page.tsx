@@ -81,6 +81,12 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                   return
                 }
 
+                // Contractor Redirect
+                if (currentUserRole === 'contractor' && data.task.status === 'Isolation Verified / Active') {
+                    router.replace(`/loto/${id}/contractor`)
+                    return
+                }
+
                 // Set editable fields
                 setFacility(data.task.facility)
                 setLockbox(data.task.lockBoxNumber)
@@ -950,7 +956,7 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                     <h3 className="text-xl font-extrabold text-slate-900 mb-2 flex items-center gap-2 tracking-tight">Isolation is Verified & Active</h3>
                                     <p className="text-sm font-medium text-slate-600">Contractors may now safely apply visual locks via the Portal.</p>
                                 </div>
-                                <Link href={`/contractor/${id}`} className="rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-700 flex items-center gap-2 whitespace-nowrap shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all">
+                                <Link href={`/loto/${id}/contractor`} className="rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-700 flex items-center gap-2 whitespace-nowrap shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all">
                                     Open Contractor Portal <Maximize className="w-4 h-4" />
                                 </Link>
                             </div>

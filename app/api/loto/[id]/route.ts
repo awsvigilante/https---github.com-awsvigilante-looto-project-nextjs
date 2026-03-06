@@ -41,10 +41,19 @@ export async function GET(
   try {
     const ds = await getDataSource();
     const taskRepo = ds.getRepository(LotoTask);
-    const task = await taskRepo.findOne({
+    // Support lookup by UUID or the human-readable lotoId string
+    let task = await taskRepo.findOne({
       where: { id: id },
       relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"]
     });
+
+    if (!task) {
+      task = await taskRepo.findOne({
+        where: { lotoId: id },
+        relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"]
+      });
+    }
+
     if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
     const points = await ds.getRepository(IsolationPoint).find({
