@@ -21,10 +21,16 @@ function getUserFromRequest(request: Request) {
 
 /** Fire-and-forget notification trigger — does not block the response */
 function triggerNotification(taskId: string, type: string, senderToken: string) {
+  // Use a relative URL or ensure the port matches the dev server (3000)
   const appUrl = process.env.APP_URL || "http://localhost:3000";
-  fetch(`${appUrl}/api/notifications/send`, {
+  const url = `${appUrl}/api/notifications/send`;
+  
+  fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${senderToken}` },
+    headers: { 
+      "Content-Type": "application/json", 
+      "Authorization": `Bearer ${senderToken}` 
+    },
     body: JSON.stringify({ taskId, type }),
   }).catch(err => console.warn("Notification trigger failed:", err));
 }
@@ -78,6 +84,7 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const rawToken = request.headers.get("Authorization")?.replace("Bearer ", "") || "";
+  let action: string | undefined;
 
   try {
     const ds = await getDataSource();
@@ -91,7 +98,7 @@ export async function PATCH(
     if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
     const body = await request.json();
-    const { action } = body;
+    action = body.action;
 
     // --- Creator edits the task before approval ---
     if (action === "edit") {
@@ -377,69 +384,8 @@ export async function PATCH(
       return NextResponse.json({ task });
     }
 
-    // --- Contractor Lock On (Sign in with photo) ---
-    if (action === "contractor_lock_on") {
-       const contractorLockRepo = ds.getRepository(ContractorLock);
-       const { trade, description, lockOnSignature, lockOnPhoto, contractorName, contractorPhone } = body;
-       
-       const newLock = contractorLockRepo.create({
-         taskId: id,
-         contractorId: user.userId,
-         contractorName,
-         contractorPhone,
-         trade,
-         description,
-         lockOnSignature,
-         lockOnPhoto,
-         lockedOnAt: new Date()
-       });
-       await contractorLockRepo.save(newLock);
-       
-       triggerNotification(id, "contractor_lock_on", rawToken);
-       
-       const updatedTask = await taskRepo.findOne({
-         where: { id },
-         relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"],
-       });
-       return NextResponse.json({ task: updatedTask });
-    }
-
-    // --- Contractor Lock Off (Sign out) ---
-    if (action === "contractor_lock_off") {
-       const contractorLockRepo = ds.getRepository(ContractorLock);
-       const { lockId, lockOffType, lockOffNote } = body;
-       
-       const existingLock = await contractorLockRepo.findOne({ where: { id: lockId, taskId: id } });
-       if (!existingLock) return NextResponse.json({ error: "Lock record not found" }, { status: 404 });
-       
-       // Only the original contractor or an admin/supervisor/engineer can sign off
-       if (existingLock.contractorId !== user.userId && !['supervisor', 'shift_engineer'].includes(user.role)) {
-          return NextResponse.json({ error: "Unauthorized to remove another contractor's lock" }, { status: 403 });
-       }
-       
-       existingLock.lockOffType = lockOffType;
-       existingLock.lockOffNote = lockOffNote;
-       existingLock.lockedOffAt = new Date();
-       await contractorLockRepo.save(existingLock);
-       
-       triggerNotification(id, "contractor_lock_off", rawToken);
-
-       // Check if ALL locks are now off. If so, transition task to READY_FOR_DELOT automatically
-       const allLocks = await contractorLockRepo.find({ where: { taskId: id } });
-       const allOff = allLocks.length > 0 && allLocks.every(l => l.lockedOffAt !== null);
-       
-       if (allOff && task.status === "Isolation Verified / Active") {
-         task.status = "READY_FOR_DELOT";
-         await taskRepo.save(task);
-       }
-       
-       const updatedTask = await taskRepo.findOne({
-         where: { id },
-         relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"],
-       });
-       return NextResponse.json({ task: updatedTask });
-    }
-
+    // Actions moved to /api/loto/[id]/contractor-lock
+    
     // --- Return to service ---
     if (action === "return_to_service") {
        if (task.primaryOperatorId !== user.userId && task.supervisorId !== user.userId && user.role !== 'shift_engineer') {
@@ -477,9 +423,31 @@ export async function PATCH(
        return NextResponse.json({ task });
     }
 
+    // --- Transition to Ready for De-LOTO (Internal trigger check) ---
+    if (action === "check_all_locks_off") {
+       const contractorLockRepo = ds.getRepository(ContractorLock);
+       const allLocks = await contractorLockRepo.find({ where: { taskId: id } });
+       const allOff = allLocks.length > 0 && allLocks.every(l => l.lockedOffAt !== null);
+       
+       if (allOff && task.status === "Isolation Verified / Active") {
+         task.status = "READY_FOR_DELOT";
+         await taskRepo.save(task);
+       }
+       return NextResponse.json({ task });
+    }
+
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) {
-    console.error("PATCH /api/loto/[id] error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    } catch (error: any) {
+    console.error("PATCH /api/loto/[id] error details:", {
+      message: error.message,
+      stack: error.stack,
+      action: action || 'unknown',
+      taskId: id,
+      userId: user.userId
+    });
+    return NextResponse.json({ 
+      error: "Internal server error", 
+      details: error.message 
+    }, { status: 500 });
   }
 }

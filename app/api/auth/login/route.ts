@@ -41,9 +41,20 @@ export async function POST(request: Request) {
         where: { lotoId: lotoIdTrimmed, type: "contractor" }
       });
 
+      if (!user) {
+        // Return a virtual user for contractor if none exist in DB for this LOTO
+        user = {
+          id: `virtual-contractor-${task.id}`,
+          email: `contractor@${lotoIdTrimmed}`,
+          name: "Contractor Access",
+          role: "contractor",
+          type: "contractor",
+          lotoId: lotoIdTrimmed,
+        } as any;
+      }
+
       // Pass the task UUID back for redirection
       (user as any).taskId = task.id;
-    } else {
       user = await userRepository
         .createQueryBuilder("user")
         .where("user.email = :email", { email })

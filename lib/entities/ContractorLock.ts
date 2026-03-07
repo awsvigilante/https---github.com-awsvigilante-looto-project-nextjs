@@ -37,7 +37,13 @@ export class ContractorLock {
   contractorName?: string;
 
   @Column({ type: "varchar", nullable: true })
+  contractorEmail?: string;
+
+  @Column({ type: "varchar", nullable: true })
   contractorPhone?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  verificationPassword?: string;
 
   @Column({ type: "varchar" })
   trade!: string;
@@ -61,6 +67,12 @@ export class ContractorLock {
 
   @Column({ type: "text", nullable: true })
   lockOffNote?: string;
+
+  @Column({ type: "text", nullable: true })
+  lockOffSignature?: string;
+
+  @Column({ type: "text", nullable: true })
+  lockOffPhoto?: string;
 
   @Column({ type: "timestamp", nullable: true })
   lockedOffAt?: Date;

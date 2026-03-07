@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDataSource } from "@/lib/data-source";
 import { Notification } from "@/lib/entities/Notification";
+import { In } from "typeorm";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
@@ -32,13 +33,9 @@ export async function GET(request: Request) {
     if (unread.length > 0) {
       // Mark them as read immediately so they don't pop up again
       await repo.update(
-        { id: unread.map(u => u.id) as any }, // TypeORM expects conditions, using IN implicitly or direct ID array depending on version. We'll iterate for safety.
+        { id: In(unread.map(u => u.id)) },
         { isRead: true }
       );
-      // Safer approach across TypeORM versions for mass update:
-      // await Promise.all(unread.map(u => repo.update(u.id, { isRead: true })));
-      // Let's use the Promise.all approach to be absolutely certain it works with SQLite/Postgres cleanly
-      await Promise.all(unread.map(u => repo.update(u.id, { isRead: true })));
     }
 
     return NextResponse.json({ notifications: unread });

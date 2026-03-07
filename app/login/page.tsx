@@ -77,7 +77,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-12 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div suppressHydrationWarning className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-12 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
       <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">

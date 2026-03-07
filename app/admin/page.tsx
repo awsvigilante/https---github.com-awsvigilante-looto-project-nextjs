@@ -29,7 +29,6 @@ export default function AdminPage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [type, setType] = useState("company");
   const [role, setRole] = useState("operator");
   const [lotoId, setLotoId] = useState("");
@@ -69,8 +68,8 @@ export default function AdminPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !password) {
-      toast.error("Name, email and password are required.");
+    if (!name || !email) {
+      toast.error("Name and email are required.");
       return;
     }
     if (type === "contractor" && (!lotoId || !contractorNumber)) {
@@ -86,13 +85,13 @@ export default function AdminPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, email, password, type, role, lotoId, contractorNumber }),
+        body: JSON.stringify({ name, email, type, role, lotoId, contractorNumber }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create user");
 
-      toast.success(`User ${name} created successfully!`);
-      setName(""); setEmail(""); setPassword("");
+      toast.success(`User ${name} created successfully! An email has been sent for password setup.`);
+      setName(""); setEmail(""); 
       setLotoId(""); setContractorNumber("");
       setType("company"); setRole("operator");
     } catch (err: any) {
@@ -132,7 +131,7 @@ export default function AdminPage() {
             </div>
             <div>
               <h2 className="font-bold text-slate-900 dark:text-white">Add New User</h2>
-              <p className="text-xs text-slate-500">Create a company or contractor account</p>
+              <p className="text-xs text-slate-500">Create a new account. They will receive an email to set up their password.</p>
             </div>
           </div>
 
@@ -178,11 +177,6 @@ export default function AdminPage() {
           <div className="space-y-2">
             <Label>Email Address *</Label>
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" required />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Password *</Label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimum 8 characters" required />
           </div>
 
           {/* Contractor-specific fields */}

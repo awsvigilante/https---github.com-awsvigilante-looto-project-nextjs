@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
     ArrowLeft, ShieldCheck, CheckCircle2, AlertTriangle, Clock,
-    Printer, Lock, UserCheck, Key, FileText, CheckSquare, Maximize, Bell, PenLine
+    Printer, Lock, UserCheck, Key, FileText, CheckSquare, Maximize, Bell, PenLine, 
+    User, Mail, Phone, Camera, Shield, Eye, ExternalLink, X
 } from 'lucide-react'
 
 type LotoStatus =
@@ -39,6 +40,11 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
     const [reason, setReason] = useState("")
     const [equipment, setEquipment] = useState("")
     const [duration, setDuration] = useState("")
+    
+    // Photo Mirror state
+    const [showPhotoMirror, setShowPhotoMirror] = useState(false)
+    const [mirrorPhotoUrl, setMirrorPhotoUrl] = useState("")
+    const [mirrorTitle, setMirrorTitle] = useState("")
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user')
@@ -685,6 +691,141 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                 </table>
                             </div>
                         </section>
+                        
+                        {/* Crew Tracking Section — Shared with Contractor Portal */}
+                        {['Approved', 'Verification In Progress', 'Isolation Complete', 'Isolation Verified / Active', 'Return to Service', 'Closed'].includes(status) && (
+                            <section className="rounded-2xl border border-blue-200 bg-white shadow-sm overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500 delay-150">
+                                <div className="bg-gradient-to-r from-blue-50 to-slate-50/50 px-6 py-5 border-b border-blue-100 flex items-center justify-between">
+                                    <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                        <div className="w-1.5 h-4 bg-blue-500 rounded-full"></div>
+                                        Crew Tracking <span className="text-blue-500 ml-1">({task?.contractorLocks?.length || 0})</span>
+                                    </h2>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                        <Shield className="h-3 w-3" /> Real-time status
+                                    </div>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-slate-50/50 border-b border-slate-100">
+                                            <tr>
+                                                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest shrink-0">Identity</th>
+                                                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">Trade \ Contact</th>
+                                                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">LOCK ON</th>
+                                                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest text-right">LOCK OFF</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {(!task?.contractorLocks || task.contractorLocks.length === 0) ? (
+                                                <tr>
+                                                    <td colSpan={4} className="px-6 py-12 text-center">
+                                                        <div className="flex flex-col items-center opacity-40">
+                                                            <User className="h-10 w-10 mb-2 text-slate-300" />
+                                                            <p className="text-xs font-black uppercase tracking-widest text-slate-400">No one signed on yet</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                task.contractorLocks.map((lock: any) => (
+                                                    <tr key={lock.id} className="hover:bg-blue-50/20 transition-all group">
+                                                        <td className="px-6 py-5 shrink-0">
+                                                            <div className="flex items-center gap-4">
+                                                                <div 
+                                                                    className="h-14 w-14 rounded-2xl bg-slate-100 border-2 border-slate-50 overflow-hidden relative shadow-sm group-hover:shadow-md transition-all cursor-zoom-in"
+                                                                    onClick={() => {
+                                                                        setMirrorPhotoUrl(lock.lockOnPhoto || "");
+                                                                        setMirrorTitle(lock.contractorName || "Contractor");
+                                                                        setShowPhotoMirror(true);
+                                                                    }}
+                                                                >
+                                                                    {lock.lockOnPhoto ? (
+                                                                        <img src={lock.lockOnPhoto} alt="ID" className="h-full w-full object-cover group-hover:scale-110 transition-transform" />
+                                                                    ) : (
+                                                                        <div className="h-full w-full flex items-center justify-center text-slate-300">
+                                                                            <User className="h-6 w-6" />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="font-black text-slate-900 text-sm tracking-tight leading-none mb-1">{lock.contractorName}</div>
+                                                                    <div className="text-[10px] text-emerald-600 font-extrabold uppercase tracking-wide flex items-center gap-1">
+                                                                        <CheckCircle2 className="h-2.5 w-2.5" /> Identity Verified
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5">
+                                                            <div className="space-y-1">
+                                                                <div className="font-bold text-slate-700 text-xs">{lock.trade || 'Worker'}</div>
+                                                                <div className="text-[10px] text-slate-400 font-bold flex flex-col gap-0.5">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Mail className="h-3 w-3" /> {lock.contractorEmail || 'N/A'}
+                                                                    </div>
+                                                                    {lock.contractorPhone && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Phone className="h-3 w-3" /> {lock.contractorPhone}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5">
+                                                            <div className="inline-flex flex-col items-center">
+                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                                    <Clock className="h-3 w-3" /> {new Date(lock.lockedOnAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                                <div 
+                                                                    className="h-10 w-24 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden relative group/sign hover:border-slate-300 transition-all cursor-zoom-in shadow-inner"
+                                                                    onClick={() => {
+                                                                        setMirrorPhotoUrl(lock.lockOnSignature || "");
+                                                                        setMirrorTitle(`Sign-on: ${lock.contractorName}`);
+                                                                        setShowPhotoMirror(true);
+                                                                    }}
+                                                                >
+                                                                    {lock.lockOnSignature && <img src={lock.lockOnSignature} alt="Sign" className="h-full w-full object-contain grayscale" />}
+                                                                    {!lock.lockOnSignature && <div className="h-full w-full flex items-center justify-center text-[10px] font-bold text-slate-400">SIGN-ON</div>}
+                                                                </div>
+                                                                <div className="text-[9px] font-black text-emerald-600 uppercase mt-1">
+                                                                    Active
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5 text-right">
+                                                            {lock.lockedOffAt ? (
+                                                                <div className="inline-flex flex-col items-end opacity-60">
+                                                                    <span className="text-[9px] font-extrabold text-blue-500 uppercase tracking-widest mb-1">
+                                                                        LOCK OFF: {new Date(lock.lockedOffAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </span>
+                                                                    <div 
+                                                                        className="h-10 w-24 rounded-lg bg-slate-50 border border-slate-200 overflow-hidden relative group/sign hover:border-slate-300 transition-all cursor-zoom-in shadow-inner"
+                                                                        onClick={() => {
+                                                                            setMirrorPhotoUrl(lock.lockOffSignature || "");
+                                                                            setMirrorTitle(`Sign-off: ${lock.contractorName}`);
+                                                                            setShowPhotoMirror(true);
+                                                                        }}
+                                                                    >
+                                                                        {lock.lockOffSignature && <img src={lock.lockOffSignature} alt="Sign" className="h-full w-full object-contain grayscale" />}
+                                                                        {!lock.lockOffSignature && <div className="h-full w-full flex items-center justify-center text-[10px] font-bold text-slate-400">SIGN-OFF</div>}
+                                                                    </div>
+                                                                    <div className="text-[9px] font-black text-slate-500 uppercase mt-1">
+                                                                        {lock.lockOffType === 'Self' ? 'Verified Entry' : lock.lockOffType}
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="inline-flex flex-col items-end">
+                                                                    <div className="h-10 w-24 rounded-lg bg-slate-50/50 border border-dashed border-slate-200 flex items-center justify-center text-[10px] font-bold text-amber-500 tracking-widest uppercase animate-pulse">
+                                                                        Not Active
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        )}
 
                 {/* Contextual Actions Panel */}
                 {status === 'Pending Approval' && (isAuthorizedApprover || isCreator) && (
@@ -950,15 +1091,12 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                             </div>
                         </div>
 
-                        {status === 'ACTIVE' && (
+                        {['Isolation Verified / Active', 'READY_FOR_DELOT'].includes(status) && (
                             <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50 to-teal-50/30 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
                                 <div>
                                     <h3 className="text-xl font-extrabold text-slate-900 mb-2 flex items-center gap-2 tracking-tight">Isolation is Verified & Active</h3>
-                                    <p className="text-sm font-medium text-slate-600">Contractors may now safely apply visual locks via the Portal.</p>
+                                    <p className="text-sm font-medium text-slate-600">The Dedicated Contractor Portal is now live for this LOTO. Contractors may access it to safely apply their visual locks.</p>
                                 </div>
-                                <Link href={`/loto/${id}/contractor`} className="rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-emerald-700 flex items-center gap-2 whitespace-nowrap shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all">
-                                    Open Contractor Portal <Maximize className="w-4 h-4" />
-                                </Link>
                             </div>
                         )}
                     </div>
@@ -1086,6 +1224,45 @@ export default function LotoDetail({ params }: { params: Promise<{ id: string }>
                                 <button onClick={confirmPrint} className="flex-1 rounded-xl bg-indigo-600 py-3.5 font-bold text-white hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-md shadow-indigo-500/20">
                                     Print All Tags
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- PHOTO MIRROR MODAL (Click to enlarge) --- */}
+            {showPhotoMirror && (
+                <div 
+                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/95 backdrop-blur-xl animate-in fade-in duration-300"
+                    onClick={() => setShowPhotoMirror(false)}
+                >
+                    <div className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+                        <X className="h-10 w-10 cursor-pointer" />
+                    </div>
+                    <div 
+                        className="max-w-4xl w-full bg-slate-800 rounded-[40px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 ring-1 ring-white/20"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="aspect-video relative bg-black flex items-center justify-center group overflow-hidden">
+                            {mirrorPhotoUrl ? (
+                                <img 
+                                    src={mirrorPhotoUrl} 
+                                    className="h-full w-full object-contain animate-in fade-in duration-700 zoom-in-110" 
+                                    alt="Enlarged" 
+                                />
+                            ) : (
+                                <div className="text-slate-700 flex flex-col items-center">
+                                    <Camera className="h-20 w-20 mb-4 opacity-10" />
+                                    <p className="text-xs font-black uppercase tracking-widest opacity-20">No Image Data</p>
+                                </div>
+                            )}
+                            
+                            {/* Overlay Info */}
+                            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
+                                <h3 className="text-2xl font-black text-white tracking-tight mb-1">{mirrorTitle}</h3>
+                                <p className="text-sm font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                                    <ShieldCheck className="h-4 w-4" /> Identity Verified Segment
+                                </p>
                             </div>
                         </div>
                     </div>

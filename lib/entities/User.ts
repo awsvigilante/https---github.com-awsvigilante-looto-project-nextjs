@@ -26,6 +26,12 @@ export class User {
   @Column({ type: "varchar", nullable: true })
   contractorNumber?: string;
 
+  @Column({ type: "varchar", nullable: true })
+  resetToken?: string;
+
+  @Column({ type: "timestamp", nullable: true })
+  resetTokenExpiry?: Date;
+
   @CreateDateColumn()
   createdAt!: Date;
 
