@@ -55,6 +55,8 @@ export async function POST(request: Request) {
 
       // Pass the task UUID back for redirection
       (user as any).taskId = task.id;
+    } else {
+      // Company login
       user = await userRepository
         .createQueryBuilder("user")
         .where("user.email = :email", { email })
