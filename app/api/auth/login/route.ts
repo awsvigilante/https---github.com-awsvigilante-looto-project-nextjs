@@ -10,7 +10,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password, type, lotoId, contractorNumber } = body;
 
-    const dataSource = await getDataSource();
+    let dataSource = await getDataSource();
+    if (!dataSource.isInitialized) {
+        console.log("[LOGIN FLOW] DataSource was not initialized. Forcing initialization...");
+        await dataSource.initialize();
+    }
     const userRepository = dataSource.getRepository(User);
 
     let user;
@@ -61,6 +65,8 @@ export async function POST(request: Request) {
         .createQueryBuilder("user")
         .where("user.email = :email", { email })
         .getOne();
+        
+      console.log(`[LOGIN FLOW] DB found company user? ${!!user}, ID: ${user?.id}, email: ${user?.email}`);
     }
 
     if (!user) {
@@ -81,6 +87,7 @@ export async function POST(request: Request) {
 
     if (type !== "contractor") {
       console.log(`[LOGIN FLOW] Running bcrypt on provided password against DB hash...`);
+      console.log(`[LOGIN FLOW] Received password length: ${password?.length}, stored hash length: ${user.password?.length}`);
       const isPasswordValid = await bcrypt.compare(password, user.password);
       console.log(`[LOGIN FLOW] Bcrypt valid? ${isPasswordValid}`);
 
