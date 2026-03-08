@@ -5,6 +5,8 @@ import { getDataSource } from "@/lib/data-source";
 import { User } from "@/lib/entities/User";
 import { LotoTask } from "@/lib/entities/LotoTask";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
