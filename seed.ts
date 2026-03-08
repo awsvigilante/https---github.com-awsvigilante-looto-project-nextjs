@@ -13,10 +13,10 @@ async function seed() {
     const userRepo = AppDataSource.getRepository(User);
 
     const seedUsers = [
-      { email: "admin@looto.com",        password: "password123", name: "Admin User",       type: "company", role: "admin" },
-      { email: "operator@looto.com",     password: "password123", name: "Mike Johnson",     type: "company", role: "operator" },
-      { email: "engineer@looto.com",     password: "password123", name: "David Okonkwo",    type: "company", role: "shift_engineer" },
-      { email: "supervisor@looto.com",   password: "password123", name: "Lisa Chen",        type: "company", role: "supervisor" },
+      { email: "admin@smartlotto.online",        password: "password123", name: "Admin User",       type: "company", role: "admin" },
+      { email: "operator@smartlotto.online",     password: "password123", name: "Mike Johnson",     type: "company", role: "operator" },
+      { email: "engineer@smartlotto.online",     password: "password123", name: "David Okonkwo",    type: "company", role: "shift_engineer" },
+      { email: "supervisor@smartlotto.online",   password: "password123", name: "Lisa Chen",        type: "company", role: "supervisor" },
       { email: "apex@contractor.com",    password: "password123", name: "Apex Industrial",  type: "contractor", role: "contractor", lotoId: "LOTO-2026-000789", contractorNumber: "C-9999" },
     ];
 

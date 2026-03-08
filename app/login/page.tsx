@@ -157,7 +157,7 @@ export default function LoginPage() {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="name@company.com"
+                        placeholder="name@smartlotto.online"
                         className="h-14 pl-12 bg-zinc-950/50 border-white/5 text-sm font-bold text-white focus:border-emerald-500 transition-all rounded-2xl outline-none ring-0 placeholder:text-zinc-700"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
