@@ -5,8 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Shield, Lock, Mail, Loader2, HardHat, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,7 +27,7 @@ export default function LoginPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-    
+
     if (token && storedUser) {
       try {
         const parsed = JSON.parse(storedUser);
@@ -41,9 +47,10 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const body = userType === "contractor" 
-        ? { lotoId, type: userType }
-        : { email, password, type: userType };
+      const body =
+        userType === "contractor"
+          ? { lotoId, type: userType }
+          : { email, password, type: userType };
 
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -61,7 +68,7 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       toast.success(`Welcome back, ${data.user.name}!`);
-      
+
       if (data.user.role === "admin") {
         router.push("/admin");
       } else if (data.user.type === "contractor" && data.user.taskId) {
@@ -77,7 +84,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div suppressHydrationWarning className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-12 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div
+      suppressHydrationWarning
+      className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-12 font-sans selection:bg-emerald-500/30 selection:text-emerald-200"
+    >
       <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
@@ -98,22 +108,33 @@ export default function LoginPage() {
 
         <Card className="border-white/5 bg-zinc-900/50 shadow-2xl backdrop-blur-xl rounded-3xl overflow-hidden ring-1 ring-white/10">
           <CardHeader className="pb-8 pt-10 px-8 bg-zinc-950/20 border-b border-white/5">
-            <div className="flex items-center justify-between mb-2">
-              <CardTitle className="text-2xl font-black text-white tracking-tight">Sign In</CardTitle>
-              <div className="flex items-center gap-3 bg-zinc-950/50 p-1.5 rounded-full ring-1 ring-white/10 transition-all">
-                <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${userType === 'company' ? 'bg-emerald-500 text-zinc-950' : 'text-zinc-500'}`}>
-                  <Building2 className="w-3 h-3" /> Staff
-                </span>
-                <Switch
-                  id="user-type-toggle"
-                  checked={userType === "contractor"}
-                  onCheckedChange={(checked) => setUserType(checked ? "contractor" : "company")}
-                  className="data-[state=checked]:bg-blue-500 data-[state=unchecked]:bg-emerald-500"
-                  aria-label="Toggle login mode"
-                />
-                <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all flex items-center gap-1.5 ${userType === 'contractor' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'text-zinc-500'}`}>
-                  <HardHat className="w-3 h-3" /> Contractor
-                </span>
+            <CardTitle className="text-2xl font-black text-white tracking-tight">
+              Sign In
+            </CardTitle>
+            <div className="flex items-center justify-center mb-6">
+              <div className="flex bg-zinc-950/50 p-1 rounded-2xl ring-1 ring-white/10 transition-all">
+                <button
+                  type="button"
+                  onClick={() => setUserType("company")}
+                  className={`text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all flex items-center gap-1.5 ${
+                    userType === "company"
+                      ? "bg-emerald-500 text-zinc-950 shadow-lg shadow-emerald-500/20"
+                      : "text-zinc-500 hover:text-zinc-300"
+                  }`}
+                >
+                  <Building2 className="w-3.5 h-3.5" /> Staff
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserType("contractor")}
+                  className={`text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all flex items-center gap-1.5 ${
+                    userType === "contractor"
+                      ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                      : "text-zinc-500 hover:text-zinc-300"
+                  }`}
+                >
+                  <HardHat className="w-3.5 h-3.5" /> Contractor
+                </button>
               </div>
             </div>
             <CardDescription className="text-zinc-400 font-medium">
@@ -125,7 +146,12 @@ export default function LoginPage() {
               {userType === "company" ? (
                 <div className="space-y-5 animate-in slide-in-from-right-4 duration-300">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Email Address</Label>
+                    <Label
+                      htmlFor="email"
+                      className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1"
+                    >
+                      Email Address
+                    </Label>
                     <div className="relative group">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-400 transition-colors" />
                       <Input
@@ -142,7 +168,13 @@ export default function LoginPage() {
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between ml-1">
-                      <Label htmlFor="password" title="password" className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Security Password</Label>
+                      <Label
+                        htmlFor="password"
+                        title="password"
+                        className="text-[10px] font-black uppercase tracking-widest text-zinc-500"
+                      >
+                        Security Password
+                      </Label>
                     </div>
                     <div className="relative group">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-400 transition-colors" />
@@ -161,7 +193,12 @@ export default function LoginPage() {
               ) : (
                 <div className="space-y-5 animate-in slide-in-from-left-4 duration-300">
                   <div className="space-y-4">
-                    <Label htmlFor="lotoId" className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Active LOTO ID</Label>
+                    <Label
+                      htmlFor="lotoId"
+                      className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1"
+                    >
+                      Active LOTO ID
+                    </Label>
                     <div className="relative group">
                       <Shield className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-blue-400 transition-colors" />
                       <Input
@@ -174,7 +211,8 @@ export default function LoginPage() {
                       />
                     </div>
                     <p className="text-[10px] text-zinc-500 font-medium px-1">
-                      Enter the ID provided by your supervisor to access the crew tracking portal.
+                      Enter the ID provided by your supervisor to access the
+                      crew tracking portal.
                     </p>
                   </div>
                 </div>
@@ -182,7 +220,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className={`w-full h-14 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl active:scale-[0.98] ${userType === 'company' ? 'bg-emerald-500 hover:bg-emerald-400 text-zinc-900 shadow-emerald-500/20' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20'}`}
+                className={`w-full h-14 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl active:scale-[0.98] ${userType === "company" ? "bg-emerald-500 hover:bg-emerald-400 text-zinc-900 shadow-emerald-500/20" : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/20"}`}
                 disabled={isLoading}
               >
                 {isLoading ? (
