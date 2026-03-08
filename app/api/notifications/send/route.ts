@@ -170,7 +170,7 @@ export async function POST(request: Request) {
 
       try {
         await resend.emails.send({
-          from: "Smart LOTO <onboarding@resend.dev>",
+          from: "Smart LOTO <notifications@smartlotto.online>",
           to,
           subject,
           html,
@@ -294,7 +294,8 @@ export async function POST(request: Request) {
               "View Active LOTO",
               summary
             ),
-            `isolation_verified → ${u.role}`
+            `isolation_verified → ${u.role}`,
+            `Isolation on ${task.lotoId} has been verified.`
           );
         }
         break;
@@ -320,7 +321,8 @@ export async function POST(request: Request) {
               "View Comments & Task",
               summary
             ),
-            `new_comment → ${u.role}`
+            `new_comment → ${u.role}`,
+            `New comment on LOTO ${task.lotoId}`
           );
         }
         break;

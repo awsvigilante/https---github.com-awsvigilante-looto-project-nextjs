@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       const setupUrl = `${process.env.APP_URL}/setup-password?token=${resetToken}`;
       
       await resend.emails.send({
-        from: "LOOTO <onboarding@resend.dev>",
+        from: "Smart LOTO <notifications@smartlotto.online>",
         to: email,
         subject: "Set up your LOOTO Password",
         html: `
