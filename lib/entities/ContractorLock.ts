@@ -8,7 +8,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm";
-import type { LotoTask } from "./LotoTask";
+import type { Relation } from "typeorm";
+import { LotoTask } from "./LotoTask";
+import type { LotoTask as LotoTaskType } from "./LotoTask";
 import { User } from "./User";
 
 @Entity("contractor_locks")
@@ -19,9 +21,9 @@ export class ContractorLock {
   @Column({ type: "uuid" })
   taskId!: string;
 
-  @ManyToOne("LotoTask", (task: any) => task.contractorLocks)
+  @ManyToOne(() => LotoTask, (task: any) => task.contractorLocks)
   @JoinColumn({ name: "taskId" })
-  task!: LotoTask;
+  task!: Relation<LotoTaskType>;
 
   @Column({ type: "uuid" })
   contractorId!: string;

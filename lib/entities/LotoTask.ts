@@ -9,8 +9,10 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
+import type { Relation } from "typeorm";
 import { User } from "./User";
-import type { ContractorLock } from "./ContractorLock";
+import { ContractorLock } from "./ContractorLock";
+import type { ContractorLock as ContractorLockType } from "./ContractorLock";
 
 @Entity("loto_tasks")
 export class LotoTask {
@@ -118,8 +120,8 @@ export class LotoTask {
   @Column({ type: "jsonb", nullable: true, default: [] })
   comments?: any[];
 
-  @OneToMany("ContractorLock", (lock: any) => lock.task)
-  contractorLocks!: ContractorLock[];
+  @OneToMany(() => ContractorLock, (lock: any) => lock.task)
+  contractorLocks!: Relation<ContractorLockType>[];
 
   @CreateDateColumn()
   createdAt!: Date;
