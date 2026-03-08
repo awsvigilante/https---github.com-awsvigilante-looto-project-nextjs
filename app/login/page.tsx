@@ -175,6 +175,13 @@ export default function LoginPage() {
                       >
                         Security Password
                       </Label>
+                      <button
+                        type="button"
+                        onClick={() => router.push("/forgot-password")}
+                        className="text-[10px] font-bold text-emerald-500 hover:text-emerald-400 transition-colors uppercase tracking-wider"
+                      >
+                        Forgot Password?
+                      </button>
                     </div>
                     <div className="relative group">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-emerald-400 transition-colors" />
