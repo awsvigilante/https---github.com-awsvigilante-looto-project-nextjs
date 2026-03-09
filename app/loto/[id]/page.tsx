@@ -308,7 +308,7 @@ export default function LotoDetail({
   const isAssignedOperator =
     currentUserId !== "" &&
     currentUserId ===
-      String(task?.primaryOperatorId || task?.primaryOperator?.id || "")
+      String(task?.primaryOperator?.id || task?.primaryOperatorId || "")
         .trim()
         .toLowerCase();
   const isAssignedApproverRole = ["shift_engineer", "admin"].includes(
