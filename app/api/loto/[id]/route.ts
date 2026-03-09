@@ -22,7 +22,7 @@ function getUserFromRequest(request: Request) {
 /** Fire-and-forget notification trigger — does not block the response */
 function triggerNotification(taskId: string, type: string, senderToken: string) {
   // Use a relative URL or ensure the port matches the dev server (3000)
-  const appUrl = process.env.APP_URL || "http://localhost:3000";
+  const appUrl = "https://www.smartlotto.online";
   const url = `${appUrl}/api/notifications/send`;
   
   fetch(url, {

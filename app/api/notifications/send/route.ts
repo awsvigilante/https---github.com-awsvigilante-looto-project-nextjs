@@ -5,9 +5,10 @@ import { getDataSource } from "@/lib/data-source";
 import { LotoTask } from "@/lib/entities/LotoTask";
 import { User } from "@/lib/entities/User";
 import { Notification } from "@/lib/entities/Notification";
+import { randomBytes } from 'crypto';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const APP_URL = process.env.APP_URL || "http://localhost:3001";
+const resend = new Resend(process.env.RESEND_API_KEY!);
+const APP_URL = "https://www.smartlotto.online";
 const JWT_SECRET = process.env.JWT_SECRET || "default_secret";
 
 function getUserFromRequest(request: Request) {

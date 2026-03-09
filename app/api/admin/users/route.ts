@@ -109,7 +109,7 @@ export async function POST(request: Request) {
 
     // If company user, send setup email
     if (type === "company" && email && resetToken) {
-      const setupUrl = `${process.env.APP_URL}/setup-password?token=${resetToken}`;
+      const setupUrl = `https://www.smartlotto.online/setup-password?token=${resetToken}`;
       
       await resend.emails.send({
         from: "Smart LOTO <notifications@smartlotto.online>",

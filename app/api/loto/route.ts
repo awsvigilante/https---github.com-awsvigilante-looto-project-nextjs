@@ -118,7 +118,7 @@ export async function POST(request: Request) {
 
     // 🔔 Auto-notify shift engineers that a new task needs approval
     // Fire-and-forget — don't await so it doesn't slow down the response
-    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const appUrl = "https://www.smartlotto.online";
     const token = request.headers.get("Authorization")?.replace("Bearer ", "") || "";
     fetch(`${appUrl}/api/notifications/send`, {
       method: "POST",

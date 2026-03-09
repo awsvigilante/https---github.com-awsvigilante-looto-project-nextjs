@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     await userRepository.save(user);
 
     // Send the email
-    const resetUrl = `${process.env.APP_URL}/setup-password?token=${resetToken}`;
+    const resetUrl = `https://www.smartlotto.online/setup-password?token=${resetToken}`;
     
     await resend.emails.send({
       from: "Smart LOTO <notifications@smartlotto.online>",
