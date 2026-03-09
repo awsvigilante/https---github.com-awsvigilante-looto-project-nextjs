@@ -800,21 +800,40 @@ export default function LotoDetail({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-white/5 bg-zinc-950/20">
-                        <th className="px-6 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest">
-                          ID
+                        <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                          ID & Type
                         </th>
-                        <th className="px-6 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest">
-                          Equipment / Location
+                        <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest min-w-[180px]">
+                          Description / Equipment
                         </th>
-                        <th className="px-6 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest">
-                          Method
+                        <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                          Required
                         </th>
-                        <th className="px-6 py-5 text-center text-[9px] font-black text-zinc-500 uppercase tracking-widest">
-                          Status
-                        </th>
-                        <th className="px-6 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-widest">
-                          Execution
-                        </th>
+                        {showOperatorCols && (
+                          <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                            Lock No.
+                          </th>
+                        )}
+                        {showOperatorCols && (
+                          <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                            Isolated Pos.
+                          </th>
+                        )}
+                        {showLockInitial1 && (
+                          <th className="px-4 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                            Operator Sign
+                          </th>
+                        )}
+                        {showInitial2 && (
+                          <th className={`px-4 py-5 text-right text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${canSupervisorVerify ? 'text-purple-400' : 'text-zinc-500'}`}>
+                            Supervisor Sign
+                          </th>
+                        )}
+                        {showRTS && (
+                          <th className="px-4 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                            RTS Initial
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -823,62 +842,209 @@ export default function LotoDetail({
                           key={p.id || idx}
                           className="group hover:bg-white/[0.02] transition-colors"
                         >
-                          <td className="px-6 py-5">
-                            <span className="text-[10px] font-black text-emerald-500/50 group-hover:text-emerald-500 transition-colors">
-                              #{p.tagNo || idx + 1}
+                          <td className="px-4 py-5 font-black text-zinc-400">
+                            #{p.tagNo || idx + 1}
+                            <span className="block text-[8px] text-zinc-600 uppercase tracking-widest mt-1">
+                              {p.isolationType || "LOTO"}
                             </span>
                           </td>
-                          <td className="px-6 py-5">
-                            <div className="flex flex-col">
-                              <span className="font-black text-white group-hover:text-emerald-400 transition-colors">
-                                {p.isolationDescription}
-                              </span>
-                              <span className="text-[10px] font-bold text-zinc-500 mt-0.5">
-                                {p.equipmentName || "Standard Segment"}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-5">
-                            <div className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/30" />
-                              <span className="text-xs font-bold text-zinc-400">
-                                {p.isolationType ||
-                                  p.requiredPosition ||
-                                  "LOTO"}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-5 text-center">
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
-                                p.isIsolated || p.lockOnInitial1
-                                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                  : "bg-zinc-950 text-zinc-500 border-white/5"
-                              }`}
-                            >
-                              {p.isIsolated || p.lockOnInitial1
-                                ? "Isolated"
-                                : "Pending"}
-                            </span>
-                          </td>
-                          <td className="px-6 py-5 text-right">
-                            {p.lockOnInitial1 ? (
-                              <div className="flex flex-col items-end">
-                                <span className="text-xs font-black text-zinc-200">
-                                  {p.lockOnInitial1
-                                    .split(" – ")[1]
-                                    ?.split(" ")[1] || "Signed"}
+                          <td className="px-4 py-5">
+                            {isEditing ? (
+                              <textarea
+                                title="Description"
+                                value={p.isolationDescription || ""}
+                                onChange={(e) => updatePoint(idx, "isolationDescription", e.target.value)}
+                                className="w-full rounded-xl border border-white/10 bg-zinc-900/50 px-3 py-2 text-xs font-bold text-white focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 outline-none resize-none h-16"
+                              />
+                            ) : (
+                              <div className="flex flex-col">
+                                <span className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors">
+                                  {p.isolationDescription}
                                 </span>
-                                <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">
-                                  {p.lockOnInitial1.split(" – ")[0]}
+                                <span className="text-[10px] font-bold text-zinc-500 mt-1">
+                                  {p.equipmentName || "Standard Segment"}
                                 </span>
                               </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-5">
+                            {isEditing ? (
+                              <select
+                                title="Required Position"
+                                value={p.requiredPosition || ""}
+                                onChange={(e) => updatePoint(idx, "requiredPosition", e.target.value)}
+                                className="w-full rounded-xl border border-white/10 bg-zinc-900/50 px-3 py-2.5 text-xs font-bold text-amber-500 focus:border-emerald-500 outline-none cursor-pointer"
+                              >
+                                <option value="">Select...</option>
+                                <option value="CLOSE">Close</option>
+                                <option value="OPEN">Open</option>
+                                <option value="INSTALLED">Installed</option>
+                                <option value="REMOVED">Removed</option>
+                              </select>
                             ) : (
-                              <span className="text-[10px] font-black text-zinc-700 uppercase tracking-widest italic">
-                                Awaiting Action
+                              <span className="inline-flex rounded-lg bg-amber-500/10 px-3 py-1.5 text-[10px] font-black text-amber-500 border border-amber-500/20 uppercase tracking-widest">
+                                {p.requiredPosition || "—"}
                               </span>
                             )}
                           </td>
+                          {showOperatorCols && (
+                            <td className="px-4 py-5">
+                              {canExecuteIsolation ? (
+                                <select
+                                  title="Lock Number"
+                                  value={p.lockNumber || ""}
+                                  onChange={(e) => updatePoint(idx, "lockNumber", e.target.value)}
+                                  disabled={!!p.lockOnInitial1 || isRowUpdating}
+                                  className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
+                                    p.lockOnInitial1
+                                      ? "bg-zinc-950 text-zinc-600 opacity-60 cursor-not-allowed border-transparent"
+                                      : "bg-zinc-900 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 hover:bg-zinc-800"
+                                  }`}
+                                >
+                                  <option value="">Lock #...</option>
+                                  {Array.from({ length: 50 }, (_, k) => k + 1).map((n) => (
+                                    <option key={n} value={String(n)}>{n}</option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-black border uppercase tracking-widest ${
+                                  p.lockNumber ? "bg-zinc-800 text-white border-white/10" : "bg-zinc-950 text-zinc-600 border-white/5"
+                                }`}>
+                                  {p.lockNumber || "—"}
+                                </span>
+                              )}
+                            </td>
+                          )}
+                          {showOperatorCols && (
+                            <td className="px-4 py-5">
+                              {canExecuteIsolation ? (
+                                <select
+                                  title="Isolated Position"
+                                  value={p.isolationPosition || ""}
+                                  onChange={(e) => updatePoint(idx, "isolationPosition", e.target.value)}
+                                  disabled={!!p.lockOnInitial1 || isRowUpdating}
+                                  className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
+                                    p.lockOnInitial1
+                                      ? "bg-zinc-950 text-zinc-600 opacity-60 cursor-not-allowed border-transparent"
+                                      : "bg-zinc-900 text-emerald-400 focus:border-emerald-500 hover:bg-zinc-800"
+                                  }`}
+                                >
+                                  <option value="">Confirm...</option>
+                                  <option value="CLOSE">Close</option>
+                                  <option value="OPEN">Open</option>
+                                  <option value="INSTALLED">Installed</option>
+                                  <option value="REMOVED">Removed</option>
+                                </select>
+                              ) : (
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-black border uppercase tracking-widest ${
+                                  p.isolationPosition ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-zinc-950 text-zinc-600 border-white/5"
+                                }`}>
+                                  {p.isolationPosition || "—"}
+                                </span>
+                              )}
+                            </td>
+                          )}
+                          {showLockInitial1 && (
+                            <td className="px-4 py-5 text-right">
+                              {p.lockOnInitial1 ? (
+                                <div className="flex flex-col items-end gap-2">
+                                  <div className="inline-flex flex-col items-end">
+                                    <span className="text-[9px] font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                                      {p.lockOnInitial1.split(" – ")[0]}
+                                    </span>
+                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                                      {p.lockOnInitial1.split(" – ")[1]}
+                                    </span>
+                                  </div>
+                                  {canExecuteIsolation && (
+                                    <button
+                                      onClick={() => updatePoint(idx, "lockOnInitial1", "")}
+                                      disabled={isRowUpdating}
+                                      className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors disabled:opacity-50 mt-1"
+                                      title="Edit Initial"
+                                    >
+                                      Revert
+                                    </button>
+                                  )}
+                                </div>
+                              ) : (
+                                canExecuteIsolation ? (
+                                  <button
+                                    onClick={() => {
+                                      const name = activeUser?.name || "Operator";
+                                      const now = new Date().toLocaleString("en-CA", { hour12: false }).replace(",", "");
+                                      updatePoint(idx, "lockOnInitial1", `${name} – ${now}`);
+                                    }}
+                                    disabled={!p.lockNumber || !p.isolationPosition || isRowUpdating}
+                                    title={!p.lockNumber ? "Set Lock No. first" : !p.isolationPosition ? "Set Isolated Position first" : "Click to sign"}
+                                    className="text-[10px] font-black text-zinc-950 bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.2)] active:scale-95 transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none min-w-[90px]"
+                                  >
+                                    Sign Row
+                                  </button>
+                                ) : (
+                                  <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest italic flex items-center justify-end gap-1.5" title="Awaiting action">
+                                    {status === "Pending Approval" ? "Not Ready" : "Awaiting Op"}
+                                  </span>
+                                )
+                              )}
+                            </td>
+                          )}
+                          {showInitial2 && (
+                            <td className="px-4 py-5 text-right">
+                              {p.lockOnInitial2 ? (
+                                <div className="flex flex-col items-end gap-2">
+                                  <div className="inline-flex flex-col items-end">
+                                    <span className="text-[9px] font-black text-purple-400 uppercase bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]">
+                                      {p.lockOnInitial2.split(" – ")[0]}
+                                    </span>
+                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                                      {p.lockOnInitial2.split(" – ")[1]}
+                                    </span>
+                                  </div>
+                                  {canSupervisorVerify && !supervisorHasSigned && (
+                                    <button
+                                      onClick={() => updatePoint(idx, "lockOnInitial2", "")}
+                                      disabled={isRowUpdating}
+                                      className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors disabled:opacity-50 mt-1"
+                                      title="Edit Initial"
+                                    >
+                                      Revert
+                                    </button>
+                                  )}
+                                </div>
+                              ) : canSupervisorVerify ? (
+                                <button
+                                  onClick={() => updatePoint(idx, "lockOnInitial2", "sign")}
+                                  disabled={isRowUpdating}
+                                  className="text-[10px] font-black text-white bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.2)] active:scale-95 transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed min-w-[90px]"
+                                >
+                                  Verify Safe
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest flex items-center justify-end gap-1.5">
+                                  —
+                                </span>
+                              )}
+                            </td>
+                          )}
+                          {showRTS && (
+                            <td className="px-4 py-5 text-right">
+                              {status === "Return to Service" ? (
+                                <input
+                                  title="Returned to Service Initial"
+                                  type="text"
+                                  placeholder="Initial..."
+                                  value={p.returnedToServiceInitial || ""}
+                                  onChange={(e) => updatePoint(idx, "returnedToServiceInitial", e.target.value)}
+                                  className="w-[80px] rounded-xl border border-white/10 bg-zinc-900/50 p-2.5 text-xs font-bold text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/10 outline-none float-right"
+                                />
+                              ) : (
+                                <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest float-right">
+                                  {p.returnedToServiceInitial || "—"}
+                                </span>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

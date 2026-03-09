@@ -15,8 +15,9 @@ function getUserFromRequest(request: Request) {
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const currentUser = getUserFromRequest(request);
 
   if (!currentUser || currentUser.role !== "admin") {
@@ -27,7 +28,7 @@ export async function DELETE(
     const dataSource = await getDataSource();
     const userRepository = dataSource.getRepository(User);
 
-    const userToDelete = await userRepository.findOneBy({ id: params.id });
+    const userToDelete = await userRepository.findOneBy({ id });
 
     if (!userToDelete) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
