@@ -4,6 +4,8 @@ import { LotoTask } from "@/lib/entities/LotoTask";
 import { IsolationPoint } from "@/lib/entities/IsolationPoint";
 import jwt from "jsonwebtoken";
 
+export const dynamic = 'force-dynamic';
+
 function getUserFromRequest(request: Request) {
   const auth = request.headers.get("Authorization");
   if (!auth) return null;

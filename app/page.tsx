@@ -196,6 +196,7 @@ export default function Dashboard() {
     setIsLoading(true);
     fetch("/api/loto", {
       headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
     })
       .then((r) => r.json())
       .then((data) => setTasks(Array.isArray(data) ? data : []))

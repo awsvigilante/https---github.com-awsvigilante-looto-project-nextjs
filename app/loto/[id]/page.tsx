@@ -96,6 +96,7 @@ export default function LotoDetail({
     if (!token) return;
     fetch(`/api/loto/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
     })
       .then((r) => r.json())
       .then((data) => {
