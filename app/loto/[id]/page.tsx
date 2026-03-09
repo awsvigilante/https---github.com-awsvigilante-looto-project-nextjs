@@ -323,6 +323,19 @@ export default function LotoDetail({
           .toLowerCase()) ||
     isAssignedApproverRole;
 
+  console.log("[DEBUG LOTO STATE]", { 
+    currentUserId, 
+    role: activeUser?.role,
+    dbStatus: status, 
+    uiStatus: mapStatusToUI(status),
+    isCreator, 
+    isAssignedOperator, 
+    isAssignedSupervisor, 
+    isAuthorizedApprover,
+    taskPrimaryOpObj: task?.primaryOperator,
+    taskPrimaryOpIdStr: task?.primaryOperatorId
+  });
+
   const isIsolationPhase =
     status === "Approved" || status === "Verification In Progress";
   // Stage-progressive column flags — each stage accumulates previous columns + its own
