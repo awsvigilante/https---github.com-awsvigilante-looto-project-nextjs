@@ -285,10 +285,22 @@ export async function PATCH(
           return NextResponse.json({ error: "Only the assigned operator can edit isolation rows" }, { status: 403 });
         }
         await pointRepo.update(pointId, { [field]: value || null });
-        // If clearing lockOnInitial1, revert task status to Approved
-        if (field === "lockOnInitial1" && !value && task.status === "Verification In Progress") {
-          task.status = "Approved";
-          await taskRepo.save(task);
+
+        if (field === "lockOnInitial1") {
+          if (!value && task.status === "Verification In Progress") {
+            // If clearing lockOnInitial1, revert task status to Approved
+            task.status = "Approved";
+            await taskRepo.save(task);
+          } else if (value && task.status === "Approved") {
+            // If setting lockOnInitial1, check if all points are now signed
+            const allPoints = await pointRepo.find({ where: { taskId: id } });
+            const allSigned = allPoints.every(p => p.lockOnInitial1);
+            if (allSigned) {
+              task.status = "Verification In Progress";
+              await taskRepo.save(task);
+              triggerNotification(id, "isolation_complete", rawToken);
+            }
+          }
         }
       }
 
