@@ -286,7 +286,7 @@ export async function PATCH(
         }
         await pointRepo.update(pointId, { [field]: value || null });
         // If clearing lockOnInitial1, revert task status to Approved
-        if (field === "lockOnInitial1" && !value && task.status === "Isolation In Progress") {
+        if (field === "lockOnInitial1" && !value && task.status === "Verification In Progress") {
           task.status = "Approved";
           await taskRepo.save(task);
         }
@@ -308,9 +308,9 @@ export async function PATCH(
           { status: 403 }
         );
       }
-      if (task.status !== "Isolation In Progress") {
+      if (task.status !== "Verification In Progress") {
         return NextResponse.json(
-          { error: "Task must be in Isolation In Progress state for supervisor verification" },
+          { error: "Task must be in Verification In Progress state for supervisor verification" },
           { status: 400 }
         );
       }

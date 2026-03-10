@@ -175,7 +175,7 @@ function LotoTag({
   task: LotoTask;
   operatorName: string;
 }) {
-  const pos = (point.isolationPosition || "").toUpperCase();
+  const pos = (point.isolationPosition || point.requiredPosition || "").toUpperCase();
   const isClose     = pos === "CLOSE";
   const isOpen      = pos === "OPEN";
   const isInstalled = pos === "INSTALLED";

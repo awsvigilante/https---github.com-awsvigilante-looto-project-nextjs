@@ -724,11 +724,11 @@ export default function LotoDetail({
                   </div>
                   <div className="p-6 group">
                     <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-zinc-500 transition-colors text-center md:text-left">
-                      Verifying Supervisor
+                      Operator Supervisor
                     </p>
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                       <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-emerald-400">
-                        SV
+                        OS
                       </div>
                       <span className="text-xs font-black text-zinc-200">
                         {task?.supervisor?.name || "N/A"}
@@ -897,7 +897,7 @@ export default function LotoDetail({
                                   disabled={!!p.lockOnInitial1 || isRowUpdating}
                                   className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
                                     p.lockOnInitial1
-                                      ? "bg-zinc-950 text-zinc-600 opacity-60 cursor-not-allowed border-transparent"
+                                      ? "bg-zinc-950 text-zinc-400 opacity-60 cursor-not-allowed border-transparent"
                                       : "bg-zinc-900 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 hover:bg-zinc-800"
                                   }`}
                                 >
@@ -925,7 +925,7 @@ export default function LotoDetail({
                                   disabled={!!p.lockOnInitial1 || isRowUpdating}
                                   className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
                                     p.lockOnInitial1
-                                      ? "bg-zinc-950 text-zinc-600 opacity-60 cursor-not-allowed border-transparent"
+                                      ? "bg-zinc-950 text-zinc-400 opacity-60 cursor-not-allowed border-transparent"
                                       : "bg-zinc-900 text-emerald-400 focus:border-emerald-500 hover:bg-zinc-800"
                                   }`}
                                 >
@@ -963,7 +963,7 @@ export default function LotoDetail({
                                       className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors disabled:opacity-50 mt-1"
                                       title="Edit Initial"
                                     >
-                                      Revert
+                                      Edit
                                     </button>
                                   )}
                                 </div>
@@ -1008,7 +1008,7 @@ export default function LotoDetail({
                                       className="text-[10px] font-bold text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors disabled:opacity-50 mt-1"
                                       title="Edit Initial"
                                     >
-                                      Revert
+                                      Edit
                                     </button>
                                   )}
                                 </div>
@@ -1645,7 +1645,7 @@ export default function LotoDetail({
                       </div>
                       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm opacity-80">
                         <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">
-                          Verifying Supervisor
+                          Operator Supervisor
                         </p>
                         <span className="font-[Brush_Script_MT] text-3xl text-slate-800">
                           {task?.supervisor?.name}
