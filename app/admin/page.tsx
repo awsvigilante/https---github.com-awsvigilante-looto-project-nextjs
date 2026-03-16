@@ -488,13 +488,13 @@ export default function AdminPage() {
                           <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
                             <SelectItem
                               value="company"
-                              className="text-xs font-bold hover:bg-emerald-500/10"
+                              className="text-xs font-bold text-zinc-300 hover:text-white hover:bg-emerald-500/10 focus:bg-emerald-500/10 focus:text-white"
                             >
                               Company Internal
                             </SelectItem>
                             <SelectItem
                               value="contractor"
-                              className="text-xs font-bold hover:bg-emerald-500/10"
+                              className="text-xs font-bold text-zinc-300 hover:text-white hover:bg-emerald-500/10 focus:bg-emerald-500/10 focus:text-white"
                             >
                               External Contractor
                             </SelectItem>
@@ -516,7 +516,7 @@ export default function AdminPage() {
                                 <SelectItem
                                   key={r.value}
                                   value={r.value}
-                                  className="text-xs font-bold hover:bg-emerald-500/10"
+                                  className="text-xs font-bold text-zinc-300 hover:text-white hover:bg-emerald-500/10 focus:bg-emerald-500/10 focus:text-white"
                                 >
                                   {r.label}
                                 </SelectItem>
@@ -624,10 +624,10 @@ export default function AdminPage() {
                             <SelectValue placeholder="Select Account Category" />
                           </SelectTrigger>
                           <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
-                            <SelectItem value="company" className="text-xs font-bold hover:bg-emerald-500/10">
+                            <SelectItem value="company" className="text-xs font-bold text-zinc-300 hover:text-white hover:bg-emerald-500/10 focus:bg-emerald-500/10 focus:text-white">
                               Company Internal
                             </SelectItem>
-                            <SelectItem value="contractor" className="text-xs font-bold hover:bg-emerald-500/10">
+                            <SelectItem value="contractor" className="text-xs font-bold text-zinc-300 hover:text-white hover:bg-emerald-500/10 focus:bg-emerald-500/10 focus:text-white">
                               External Contractor
                             </SelectItem>
                           </SelectContent>
@@ -645,7 +645,7 @@ export default function AdminPage() {
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
                               {COMPANY_ROLES.map((r) => (
-                                <SelectItem key={r.value} value={r.value} className="text-xs font-bold hover:bg-emerald-500/10">
+                                <SelectItem key={r.value} value={r.value} className="text-xs font-bold text-zinc-300 hover:text-white hover:bg-emerald-500/10 focus:bg-emerald-500/10 focus:text-white">
                                   {r.label}
                                 </SelectItem>
                               ))}
