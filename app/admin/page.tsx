@@ -30,18 +30,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  ShieldCheck,
-  UserPlus,
+  Shield,
+  Lock,
+  Mail,
   Loader2,
+  HardHat,
+  Building2,
+  UserPlus,
+  Trash2,
+  Edit2,
+  Search,
+  ShieldCheck,
   LogOut,
   CheckCircle2,
   Factory,
   Construction,
-  Trash2,
-  CalendarClock,
-  Edit2,
+  CalendarClock
 } from "lucide-react";
 import { toast } from "sonner";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\+?[\d\s\-()]{7,20}$/;
 import { format as timeagoFormat } from "timeago.js";
 
 const COMPANY_ROLES = [
@@ -144,10 +153,18 @@ export default function AdminPage() {
       toast.error("Name and email are required for company staff.");
       return;
     }
+    if (type === "company" && !EMAIL_REGEX.test(email)) {
+      toast.error("Invalid email format.");
+      return;
+    }
     if (type === "contractor" && (!address || !phone)) {
       toast.error(
         "Company Address and Phone are required for contractor accounts.",
       );
+      return;
+    }
+    if (type === "contractor" && !PHONE_REGEX.test(phone)) {
+      toast.error("Invalid phone number format.");
       return;
     }
 
@@ -206,6 +223,17 @@ export default function AdminPage() {
     e.preventDefault();
     setIsEditSubmitting(true);
     try {
+      if (editType === "company" && !EMAIL_REGEX.test(editEmail)) {
+        toast.error("Invalid email format.");
+        setIsEditSubmitting(false);
+        return;
+      }
+      if (editType === "contractor" && !PHONE_REGEX.test(editPhone)) {
+        toast.error("Invalid phone number format.");
+        setIsEditSubmitting(false);
+        return;
+      }
+
       const payload: any = {
         name: editName,
         type: editType,

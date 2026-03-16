@@ -3,6 +3,9 @@ import { getDataSource } from "@/lib/data-source";
 import { User } from "@/lib/entities/User";
 import jwt from "jsonwebtoken";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\+?[\d\s\-()]{7,20}$/;
+
 function getUserFromRequest(request: Request) {
   const auth = request.headers.get("Authorization");
   if (!auth) return null;
@@ -80,7 +83,12 @@ export async function PUT(
     // Optionally prevent changing extreme admin info depending on business logic
     // but for now, we just update all provided valid fields.
     if (name) userToUpdate.name = name;
-    if (email && userToUpdate.type === "company") userToUpdate.email = email;
+    if (email && userToUpdate.type === "company") {
+      if (!EMAIL_REGEX.test(email)) {
+        return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+      }
+      userToUpdate.email = email;
+    }
     if (role && userToUpdate.type === "company") userToUpdate.role = role;
     
     // Changing types might be dangerous, but if requested:
@@ -88,7 +96,12 @@ export async function PUT(
 
     if (userToUpdate.type === "contractor") {
       if (address) userToUpdate.address = address;
-      if (phone) userToUpdate.phone = phone;
+      if (phone) {
+        if (!PHONE_REGEX.test(phone)) {
+          return NextResponse.json({ error: "Invalid phone number format" }, { status: 400 });
+        }
+        userToUpdate.phone = phone;
+      }
     }
 
     await userRepository.save(userToUpdate);

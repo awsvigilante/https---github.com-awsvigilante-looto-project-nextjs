@@ -9,6 +9,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const dynamic = "force-dynamic";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^\+?[\d\s\-()]{7,20}$/;
+
 function getUserFromRequest(request: Request) {
   const auth = request.headers.get("Authorization");
   if (!auth) return null;
@@ -49,18 +52,34 @@ export async function POST(request: Request) {
       );
     }
 
-    if (type === "company" && !email) {
-      return NextResponse.json(
-        { error: "Email is required for company users" },
-        { status: 400 }
-      );
+    if (type === "company") {
+      if (!email) {
+        return NextResponse.json(
+          { error: "Email is required for company users" },
+          { status: 400 }
+        );
+      }
+      if (!EMAIL_REGEX.test(email)) {
+        return NextResponse.json(
+          { error: "Invalid email format" },
+          { status: 400 }
+        );
+      }
     }
 
-    if (type === "contractor" && (!address || !phone)) {
-      return NextResponse.json(
-        { error: "Company Address and Phone are required for contractors" },
-        { status: 400 }
-      );
+    if (type === "contractor") {
+      if (!address || !phone) {
+        return NextResponse.json(
+          { error: "Company Address and Phone are required for contractors" },
+          { status: 400 }
+        );
+      }
+      if (!PHONE_REGEX.test(phone)) {
+        return NextResponse.json(
+          { error: "Invalid phone number format" },
+          { status: 400 }
+        );
+      }
     }
 
     const dataSource = await getDataSource();
