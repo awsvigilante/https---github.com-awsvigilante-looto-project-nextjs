@@ -482,8 +482,8 @@ export default function AdminPage() {
                           Account Category
                         </Label>
                         <Select value={type} onValueChange={setType}>
-                          <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
-                            <SelectValue />
+                          <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white [&>span]:line-clamp-1 focus:ring-emerald-500/50">
+                            <SelectValue placeholder="Select Account Category" />
                           </SelectTrigger>
                           <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
                             <SelectItem
@@ -508,8 +508,8 @@ export default function AdminPage() {
                             Privilege Level
                           </Label>
                           <Select value={role} onValueChange={setRole}>
-                            <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
-                              <SelectValue />
+                            <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white [&>span]:line-clamp-1 focus:ring-emerald-500/50">
+                              <SelectValue placeholder="Select Privilege Level" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
                               {COMPANY_ROLES.map((r) => (
@@ -620,8 +620,8 @@ export default function AdminPage() {
                           Account Category
                         </Label>
                         <Select value={editType} onValueChange={setEditType}>
-                          <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
-                            <SelectValue />
+                          <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white [&>span]:line-clamp-1 focus:ring-emerald-500/50">
+                            <SelectValue placeholder="Select Account Category" />
                           </SelectTrigger>
                           <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
                             <SelectItem value="company" className="text-xs font-bold hover:bg-emerald-500/10">
@@ -640,8 +640,8 @@ export default function AdminPage() {
                             Privilege Level
                           </Label>
                           <Select value={editRole} onValueChange={setEditRole}>
-                            <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
-                              <SelectValue />
+                            <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white [&>span]:line-clamp-1 focus:ring-emerald-500/50">
+                              <SelectValue placeholder="Select Privilege Level" />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
                               {COMPANY_ROLES.map((r) => (
