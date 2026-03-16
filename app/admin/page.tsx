@@ -482,7 +482,7 @@ export default function AdminPage() {
                           Account Category
                         </Label>
                         <Select value={type} onValueChange={setType}>
-                          <SelectTrigger className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold focus:ring-emerald-500/50">
+                          <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
@@ -508,7 +508,7 @@ export default function AdminPage() {
                             Privilege Level
                           </Label>
                           <Select value={role} onValueChange={setRole}>
-                            <SelectTrigger className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold focus:ring-emerald-500/50">
+                            <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
@@ -534,7 +534,7 @@ export default function AdminPage() {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="e.g. Sarah Jenkins"
-                          className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                          className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
                           required
                         />
                       </div>
@@ -548,7 +548,7 @@ export default function AdminPage() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="name@organization.com"
-                          className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                          className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
                           required
                         />
                       </div>
@@ -563,7 +563,7 @@ export default function AdminPage() {
                               value={lotoId}
                               onChange={(e) => setLotoId(e.target.value)}
                               placeholder="e.g. 000789"
-                              className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
+                              className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
                           </div>
@@ -577,7 +577,7 @@ export default function AdminPage() {
                                 setContractorNumber(e.target.value)
                               }
                               placeholder="CN-001"
-                              className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
+                              className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
                           </div>
@@ -620,7 +620,7 @@ export default function AdminPage() {
                           Account Category
                         </Label>
                         <Select value={editType} onValueChange={setEditType}>
-                          <SelectTrigger className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold focus:ring-emerald-500/50">
+                          <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
@@ -640,7 +640,7 @@ export default function AdminPage() {
                             Privilege Level
                           </Label>
                           <Select value={editRole} onValueChange={setEditRole}>
-                            <SelectTrigger className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold focus:ring-emerald-500/50">
+                            <SelectTrigger className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold focus:ring-emerald-500/50">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
@@ -662,7 +662,7 @@ export default function AdminPage() {
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
                           placeholder="e.g. Sarah Jenkins"
-                          className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                          className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
                           required
                         />
                       </div>
@@ -677,7 +677,7 @@ export default function AdminPage() {
                             value={editEmail}
                             onChange={(e) => setEditEmail(e.target.value)}
                             placeholder="name@organization.com"
-                            className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                            className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
                             required
                           />
                         </div>
@@ -693,7 +693,7 @@ export default function AdminPage() {
                               value={editLotoId}
                               onChange={(e) => setEditLotoId(e.target.value)}
                               placeholder="e.g. 000789"
-                              className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
+                              className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
                           </div>
@@ -705,7 +705,7 @@ export default function AdminPage() {
                               value={editContractorNumber}
                               onChange={(e) => setEditContractorNumber(e.target.value)}
                               placeholder="CN-001"
-                              className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
+                              className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
                           </div>
