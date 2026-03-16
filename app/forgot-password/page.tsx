@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
             <CardTitle className="text-2xl font-black text-white tracking-tight">
               Reset Password
             </CardTitle>
-            <CardDescription className="text-zinc-400 font-medium max-w-[280px] mx-auto mt-2 tracking-wide">
+            <CardDescription className="text-zinc-400 font-bold max-w-[280px] mx-auto mt-2 tracking-wide">
               {isSuccess 
                 ? "Check your inbox for the reset magic link." 
                 : "Enter your email address to receive a secure reset link."}
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
                   <CheckCircle2 className="w-10 h-10 text-emerald-400" />
                 </div>
                 <div className="text-center space-y-2">
-                  <p className="text-zinc-300 font-medium">Link Sent to:</p>
+                  <p className="text-zinc-300 font-bold">Link Sent to:</p>
                   <p className="text-white font-bold">{email}</p>
                 </div>
                 <Button

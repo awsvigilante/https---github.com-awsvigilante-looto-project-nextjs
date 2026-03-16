@@ -21,7 +21,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [lotoId, setLotoId] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedContractorNumber, setSelectedContractorNumber] = useState("");
   const [companies, setCompanies] = useState<any[]>([]);
+  const [contractors, setContractors] = useState<any[]>([]);
   const [userType, setUserType] = useState<"company" | "contractor">("company");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -35,6 +37,22 @@ export default function LoginPage() {
       })
       .catch((err) => console.error("Error fetching companies:", err));
   }, []);
+
+  useEffect(() => {
+    if (selectedCompany) {
+      setContractors([]);
+      setSelectedContractorNumber("");
+      fetch(`/api/contractors?companyName=${encodeURIComponent(selectedCompany)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) setContractors(data);
+        })
+        .catch((err) => console.error("Error fetching contractors:", err));
+    } else {
+      setContractors([]);
+      setSelectedContractorNumber("");
+    }
+  }, [selectedCompany]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -59,15 +77,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (userType === "contractor" && !selectedCompany) {
-        toast.error("Please select your company");
+      if (userType === "contractor" && (!selectedCompany || !selectedContractorNumber)) {
+        toast.error("Please select a company and contractor");
         setIsLoading(false);
         return;
       }
 
       const body =
         userType === "contractor"
-          ? { lotoId, type: userType, companyName: selectedCompany }
+          ? { lotoId, type: userType, companyName: selectedCompany, contractorNumber: selectedContractorNumber }
           : { email, password, type: userType };
 
       const response = await fetch("/api/auth/login", {
@@ -155,7 +173,7 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            <CardDescription className="text-zinc-400 font-medium">
+            <CardDescription className="text-zinc-400 font-bold">
               Secure authentication for safety monitoring.
             </CardDescription>
           </CardHeader>
@@ -235,7 +253,7 @@ export default function LoginPage() {
                         required
                       />
                     </div>
-                    <p className="text-[10px] text-zinc-500 font-medium px-1">
+                    <p className="text-[10px] text-zinc-500 font-bold px-1">
                       Enter the ID provided by your supervisor to access the
                       crew tracking portal.
                     </p>
@@ -269,6 +287,40 @@ export default function LoginPage() {
                       </select>
                     </div>
                   </div>
+
+                  {selectedCompany && (
+                    <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                      <Label
+                        htmlFor="contractorSelection"
+                        className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1"
+                      >
+                        Select Contractor
+                      </Label>
+                      <div className="relative group">
+                        <HardHat className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-blue-400 transition-colors pointer-events-none" />
+                        <select
+                          id="contractorSelection"
+                          title="Your Identity"
+                          value={selectedContractorNumber}
+                          onChange={(e) => setSelectedContractorNumber(e.target.value)}
+                          required={userType === "contractor"}
+                          className="h-16 w-full pl-12 pr-4 bg-zinc-950/50 border border-white/5 text-sm font-black text-white focus:border-blue-500 hover:border-white/10 transition-all rounded-2xl outline-none ring-0 appearance-none cursor-pointer"
+                        >
+                          <option value="" disabled className="text-zinc-500">
+                            Who are you?
+                          </option>
+                          {contractors.length === 0 && (
+                            <option value="" disabled>No contractors found</option>
+                          )}
+                          {contractors.map((c) => (
+                            <option key={c.id} value={c.contractorNumber} className="bg-zinc-900 text-white font-bold py-2">
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

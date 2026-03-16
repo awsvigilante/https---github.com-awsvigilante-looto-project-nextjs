@@ -765,7 +765,7 @@ export default function LotoDetail({
               <h3 className="text-lg font-extrabold text-slate-900 mb-2">
                 Isolation Details Restricted
               </h3>
-              <p className="text-sm font-medium text-slate-500 leading-relaxed">
+              <p className="text-sm font-bold text-slate-500 leading-relaxed">
                 Full isolation details are hidden until the{" "}
                 <span className="text-indigo-600 font-bold">
                   Shift Engineer
@@ -972,6 +972,10 @@ export default function LotoDetail({
                                 canExecuteIsolation ? (
                                   <button
                                     onClick={() => {
+                                      if (p.isolationPosition !== p.requiredPosition) {
+                                        setToastMessage(`Tag #${idx + 1}: Isolated position (${p.isolationPosition}) must match required position (${p.requiredPosition})`);
+                                        return;
+                                      }
                                       const name = activeUser?.name || "Operator";
                                       const now = new Date().toLocaleString("en-CA", { hour12: false }).replace(",", "");
                                       updatePoint(idx, "lockOnInitial1", `${name} – ${now}`);
@@ -1385,6 +1389,11 @@ export default function LotoDetail({
                       </button>
                       <button
                         onClick={async () => {
+                          const mismatched = points.find(p => p.isolationPosition !== p.requiredPosition);
+                          if (mismatched) {
+                            setToastMessage(`Cannot complete: Tag #${mismatched.tagNo}'s isolated position does not match the required position.`);
+                            return;
+                          }
                           await handleAction("fill_rows", {
                             isolationPoints: points.map((p) => ({
                               id: p.id,
@@ -1492,7 +1501,7 @@ export default function LotoDetail({
                       <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
                         Tags Printed. Proceed to Field.
                       </h3>
-                      <p className="text-sm font-medium text-slate-600 mt-1">
+                      <p className="text-sm font-bold text-slate-600 mt-1">
                         Physically attach locks and tags to the{" "}
                         {task?.equipmentName}. Confirm completion below.
                       </p>
@@ -1582,7 +1591,7 @@ export default function LotoDetail({
                       <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
                         Supervisor Verification
                       </h3>
-                      <p className="text-sm font-medium text-slate-600 mt-1">
+                      <p className="text-sm font-bold text-slate-600 mt-1">
                         Physically walk the line to ensure all {points.length}{" "}
                         locks are applied correctly by{" "}
                         {task?.primaryOperator?.name}.
@@ -1663,7 +1672,7 @@ export default function LotoDetail({
                           <h3 className="text-xl font-extrabold text-slate-900 mb-2 flex items-center gap-2 tracking-tight">
                             Isolation is Verified & Active
                           </h3>
-                          <p className="text-sm font-medium text-slate-600">
+                          <p className="text-sm font-bold text-slate-600">
                             The Dedicated Contractor Portal is now live for this
                             LOTO. Contractors may access it to safely apply
                             their visual locks.
@@ -1684,7 +1693,7 @@ export default function LotoDetail({
                           </div>
                           Declaration of Work Complete
                         </h3>
-                        <p className="text-sm font-medium text-slate-600 mt-2 ml-12">
+                        <p className="text-sm font-bold text-slate-600 mt-2 ml-12">
                           Contractors have signed off. Return Equipment to
                           Service.
                         </p>
@@ -1705,7 +1714,7 @@ export default function LotoDetail({
                             <h4 className="font-extrabold text-slate-900 text-lg mb-1">
                               Lockbox #1 is EMPTY
                             </h4>
-                            <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                            <p className="text-sm font-bold text-slate-600 leading-relaxed">
                               I confirm all keys have been removed/returned and
                               physical locks are off the equipment.
                             </p>
@@ -1842,12 +1851,12 @@ export default function LotoDetail({
               <h2 className="text-2xl font-extrabold tracking-tight">
                 Ready to Print 10 Tags?
               </h2>
-              <p className="text-indigo-100 font-medium mt-2">
+              <p className="text-indigo-100 font-bold mt-2">
                 Printer connection verified.
               </p>
             </div>
             <div className="p-8">
-              <p className="text-sm text-slate-600 font-medium text-center leading-relaxed mb-8">
+              <p className="text-sm text-slate-600 font-bold text-center leading-relaxed mb-8">
                 Tags for{" "}
                 <strong className="text-slate-900 font-bold">
                   LOTO-2026-000789

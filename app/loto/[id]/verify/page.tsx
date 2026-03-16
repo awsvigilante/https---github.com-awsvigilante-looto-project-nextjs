@@ -149,7 +149,7 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
             {toastMessage && (
                 <div className="fixed bottom-6 right-6 z-[100] bg-slate-900 border-l-4 border-purple-500 text-white p-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 flex items-start gap-4 max-w-sm">
                     <Bell className="w-5 h-5 text-purple-400 mt-0.5 shrink-0" />
-                    <p className="text-sm font-medium leading-relaxed">{toastMessage}</p>
+                    <p className="text-sm font-bold leading-relaxed">{toastMessage}</p>
                 </div>
             )}
 

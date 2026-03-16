@@ -94,7 +94,7 @@ function SetupPasswordForm() {
             <CardTitle className="text-2xl font-black text-white tracking-tight text-center">
               Secure Your Account
             </CardTitle>
-            <CardDescription className="text-zinc-400 font-medium text-center mt-2">
+            <CardDescription className="text-zinc-400 font-bold text-center mt-2">
               Create a new password to securely access the portal.
             </CardDescription>
           </CardHeader>
@@ -106,7 +106,7 @@ function SetupPasswordForm() {
                 </div>
                 <div className="text-center space-y-2">
                   <p className="text-white font-bold text-xl">Password Updated</p>
-                  <p className="text-zinc-400 font-medium">Redirecting to login...</p>
+                  <p className="text-zinc-400 font-bold">Redirecting to login...</p>
                 </div>
               </div>
             ) : (

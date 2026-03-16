@@ -225,7 +225,7 @@ export default function CreateLOTO() {
                         <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                         <div>
                             <h3 className="text-sm font-bold text-red-800">Missing Required Fields</h3>
-                            <p className="text-sm font-medium text-red-700 mt-0.5">{error}</p>
+                            <p className="text-sm font-bold text-red-700 mt-0.5">{error}</p>
                         </div>
                     </div>
                 )}
@@ -245,7 +245,7 @@ export default function CreateLOTO() {
                                     title="Facility"
                                     value={facility}
                                     onChange={(e) => setFacility(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                 >
                                     <option value="Power Lab">Power Lab</option>
                                     <option value="Building A">Building A</option>
@@ -260,7 +260,7 @@ export default function CreateLOTO() {
                                     value={lockbox}
                                     onChange={(e) => setLockbox(e.target.value)}
                                     placeholder="e.g. 001"
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 shadow-sm transition-all focus:outline-none"
                                     required
                                 />
                             </div>
@@ -271,7 +271,7 @@ export default function CreateLOTO() {
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
                                     placeholder="e.g. Replace leaking top handle gasket..."
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                     required
                                 />
                             </div>
@@ -282,7 +282,7 @@ export default function CreateLOTO() {
                                     value={equipment}
                                     onChange={(e) => setEquipment(e.target.value)}
                                     placeholder="e.g. Water Softener_A"
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                     required
                                 />
                             </div>
@@ -308,7 +308,7 @@ export default function CreateLOTO() {
                                     value={duration}
                                     onChange={(e) => setDuration(e.target.value)}
                                     placeholder="e.g. 2"
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                     required
                                 />
                             </div>
@@ -318,7 +318,7 @@ export default function CreateLOTO() {
                                     title="Assigned Operator"
                                     value={assignedOperator}
                                     onChange={(e) => setAssignedOperator(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                      required
                                  >
                                      <option value="">Select Operator...</option>
@@ -333,7 +333,7 @@ export default function CreateLOTO() {
                                     title="Supervisor"
                                     value={supervisor}
                                     onChange={(e) => setSupervisor(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                      required
                                  >
                                      <option value="">Select Supervisor...</option>
@@ -348,7 +348,7 @@ export default function CreateLOTO() {
                                     title="Approver"
                                     value={approver}
                                     onChange={(e) => setApprover(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                      required
                                  >
                                      <option value="">Select Approver...</option>
@@ -404,7 +404,7 @@ export default function CreateLOTO() {
                                                     value={point.description}
                                                     onChange={(e) => updatePoint(i, 'description', e.target.value)}
                                                     placeholder="e.g. Service Inlet Block Valve"
-                                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                                 />
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
@@ -414,7 +414,7 @@ export default function CreateLOTO() {
                                                         title="Normal Position"
                                                         value={point.normalPosition}
                                                         onChange={(e) => updatePoint(i, 'normalPosition', e.target.value)}
-                                                        className={`w-full rounded-xl border p-3 text-sm font-semibold focus:outline-none ${point.normalPosition ? 'border-slate-200 bg-slate-50 text-slate-700' : 'border-red-300 bg-red-50 text-red-900'}`}
+                                                        className={`w-full rounded-xl border p-3 text-sm font-extrabold focus:outline-none ${point.normalPosition ? 'border-slate-200 bg-slate-50 text-slate-700' : 'border-red-300 bg-red-50 text-red-900'}`}
                                                     >
                                                         <option value="">Select...</option>
                                                         <option value="OPEN">Open</option>
@@ -429,7 +429,7 @@ export default function CreateLOTO() {
                                                         title="Required Position"
                                                         value={point.requiredPosition}
                                                         onChange={(e) => updatePoint(i, 'requiredPosition', e.target.value)}
-                                                        className={`w-full rounded-xl border p-3 text-sm font-semibold focus:outline-none ${point.requiredPosition ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-red-300 bg-red-50 text-red-900'}`}
+                                                        className={`w-full rounded-xl border p-3 text-sm font-extrabold focus:outline-none ${point.requiredPosition ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-red-300 bg-red-50 text-red-900'}`}
                                                     >
                                                         <option value="">Select...</option>
                                                         <option value="OPEN">Open</option>
@@ -472,7 +472,7 @@ export default function CreateLOTO() {
                                                         value={point.description}
                                                         onChange={(e) => updatePoint(i, 'description', e.target.value)}
                                                         placeholder="e.g. Service Inlet Block Valve"
-                                                        className="w-full min-w-[200px] rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                                        className="w-full min-w-[200px] rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                                     />
                                                 </td>
                                                 <td className="py-4 pr-4">
@@ -480,7 +480,7 @@ export default function CreateLOTO() {
                                                         title="Normal Position"
                                                         value={point.normalPosition}
                                                         onChange={(e) => updatePoint(i, 'normalPosition', e.target.value)}
-                                                        className={`w-full rounded-xl border p-3 text-sm font-semibold transition-all shadow-sm focus:outline-none ${point.normalPosition ? 'border-slate-200 bg-slate-50 text-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10' : 'border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 animate-pulse'}`}
+                                                        className={`w-full rounded-xl border p-3 text-sm font-extrabold transition-all shadow-sm focus:outline-none ${point.normalPosition ? 'border-slate-200 bg-slate-50 text-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10' : 'border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 animate-pulse'}`}
                                                     >
                                                         <option value="">Select...</option>
                                                         <option value="OPEN">Open</option>
@@ -494,7 +494,7 @@ export default function CreateLOTO() {
                                                         title="Required Position"
                                                         value={point.requiredPosition}
                                                         onChange={(e) => updatePoint(i, 'requiredPosition', e.target.value)}
-                                                        className={`w-full rounded-xl border p-3 text-sm font-semibold transition-all shadow-sm focus:outline-none ${point.requiredPosition ? 'border-amber-200 bg-amber-50 text-amber-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10' : 'border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 animate-pulse'}`}
+                                                        className={`w-full rounded-xl border p-3 text-sm font-extrabold transition-all shadow-sm focus:outline-none ${point.requiredPosition ? 'border-amber-200 bg-amber-50 text-amber-900 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10' : 'border-red-300 bg-red-50 text-red-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/10 animate-pulse'}`}
                                                     >
                                                         <option value="">Select...</option>
                                                         <option value="OPEN">Open</option>
@@ -548,7 +548,7 @@ export default function CreateLOTO() {
                                 <CheckCircle2 className="w-10 h-10" />
                             </div>
                             <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">LOTO Submitted!</h3>
-                            <p className="text-slate-600 font-medium leading-relaxed">
+                            <p className="text-slate-600 font-bold leading-relaxed">
                                 Your LOTO request has been successfully created and forwarded to the <span className="text-indigo-600 font-bold">Shift Engineer</span> for approval.
                             </p>
                             
