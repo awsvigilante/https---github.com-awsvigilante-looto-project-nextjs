@@ -143,23 +143,25 @@ export default function ContractorPortal() {
       return;
     }
 
-    // Find first lock on among currently active (pending) locks
-    const activeLocks = locks.filter((l) => l.lockedOnAt && !l.lockedOffAt);
-    if (activeLocks.length === 0) {
+    // Find earliest lock on among ALL locks recorded for this task
+    const historicalLocks = locks.filter((l) => l.lockedOnAt);
+    if (historicalLocks.length === 0) {
       setTimerStatus("pending");
       setTimeLeft(null);
       setIsExpired(false);
       return;
     }
 
-    const firstLockOn = activeLocks.reduce((min, p) =>
+    const firstEverLockOn = historicalLocks.reduce((min, p) =>
       new Date(p.lockedOnAt) < new Date(min.lockedOnAt) ? p : min,
     );
-    const timerStart = new Date(firstLockOn.lockedOnAt).getTime();
+    const timerStart = new Date(firstEverLockOn.lockedOnAt).getTime();
     const durationMs = parseDurationToMs(task.expectedDuration);
 
     if (durationMs === 0) {
-      setTimerStatus("pending");
+      // If no valid duration, show timer as "active" but with no countdown? 
+      // Actually, if it's 0, it won't count. Let's at least set status to running if there are locks.
+      setTimerStatus("running");
       return;
     }
 

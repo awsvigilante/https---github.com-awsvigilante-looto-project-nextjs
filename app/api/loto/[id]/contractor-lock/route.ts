@@ -14,9 +14,17 @@ export async function GET(
     const { id } = await params;
     const dataSource = await getDataSource();
     const lockRepo = dataSource.getRepository(ContractorLock);
+    const taskRepo = dataSource.getRepository(LotoTask);
+
+    // Resolve UUID if lotoId (human-readable) was provided
+    let taskId = id;
+    if (!id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      const task = await taskRepo.findOne({ where: { lotoId: id } });
+      if (task) taskId = task.id;
+    }
 
     const locks = await lockRepo.find({
-      where: { taskId: id },
+      where: { taskId: taskId },
       order: { createdAt: "ASC" },
     });
 
@@ -53,14 +61,24 @@ export async function POST(
     const taskRepo = dataSource.getRepository(LotoTask);
     const notifRepo = dataSource.getRepository(Notification);
 
-    const task = await taskRepo.findOne({
+    // Resolve UUID if lotoId (human-readable) was provided
+    let task = await taskRepo.findOne({
       where: { id: id },
       relations: ["primaryOperator", "supervisor"]
     });
 
     if (!task) {
+      task = await taskRepo.findOne({
+        where: { lotoId: id },
+        relations: ["primaryOperator", "supervisor"]
+      });
+    }
+
+    if (!task) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
+
+    const taskId = task.id;
 
     // Upload to Cloudinary
     const [photoUrl, signatureUrl] = await Promise.all([
@@ -69,7 +87,7 @@ export async function POST(
     ]);
 
     const newLock = lockRepo.create({
-      taskId: id,
+      taskId: taskId,
       contractorId: contractorId,
       companyName,
       trade,
@@ -130,7 +148,14 @@ export async function PATCH(
     const taskRepo = dataSource.getRepository(LotoTask);
     const notifRepo = dataSource.getRepository(Notification);
 
-    const lock = await lockRepo.findOne({ where: { id: lockId, taskId: id } });
+    // Resolve UUID if lotoId (human-readable) was provided
+    let taskId = id;
+    if (!id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      const task = await taskRepo.findOne({ where: { lotoId: id } });
+      if (task) taskId = task.id;
+    }
+
+    const lock = await lockRepo.findOne({ where: { id: lockId, taskId: taskId } });
     if (!lock) return NextResponse.json({ error: "Lock not found" }, { status: 404 });
 
     // Handle verification
@@ -158,7 +183,7 @@ export async function PATCH(
 
       await lockRepo.save(lock);
 
-      const task = await taskRepo.findOne({ where: { id: id } });
+      const task = await taskRepo.findOne({ where: { id: taskId } });
 
       // Notifications
       const notificationMessage = `Contractor ${lock.contractorName} signed LOCK OFF for ${task?.lotoId || id}.`;
