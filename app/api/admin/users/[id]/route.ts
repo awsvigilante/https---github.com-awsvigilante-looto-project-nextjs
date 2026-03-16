@@ -53,3 +53,52 @@ export async function DELETE(
     );
   }
 }
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const currentUser = getUserFromRequest(request);
+
+  if (!currentUser || currentUser.role !== "admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { name, email, type, role, lotoId, contractorNumber } = await request.json();
+
+    const dataSource = await getDataSource();
+    const userRepository = dataSource.getRepository(User);
+
+    const userToUpdate = await userRepository.findOneBy({ id });
+
+    if (!userToUpdate) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Optionally prevent changing extreme admin info depending on business logic
+    // but for now, we just update all provided valid fields.
+    if (name) userToUpdate.name = name;
+    if (email && userToUpdate.type === "company") userToUpdate.email = email;
+    if (role && userToUpdate.type === "company") userToUpdate.role = role;
+    
+    // Changing types might be dangerous, but if requested:
+    if (type) userToUpdate.type = type;
+
+    if (userToUpdate.type === "contractor") {
+      if (lotoId) userToUpdate.lotoId = lotoId;
+      if (contractorNumber) userToUpdate.contractorNumber = contractorNumber;
+    }
+
+    await userRepository.save(userToUpdate);
+
+    return NextResponse.json({ message: "User updated successfully", user: userToUpdate });
+  } catch (error) {
+    console.error("Update user error:", error);
+    return NextResponse.json(
+      { error: "Failed to update user" },
+      { status: 500 }
+    );
+  }
+}

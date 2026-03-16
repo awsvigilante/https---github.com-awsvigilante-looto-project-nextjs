@@ -39,6 +39,7 @@ import {
   Construction,
   Trash2,
   CalendarClock,
+  Edit2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format as timeagoFormat } from "timeago.js";
@@ -69,6 +70,17 @@ export default function AdminPage() {
   const [role, setRole] = useState("operator");
   const [lotoId, setLotoId] = useState("");
   const [contractorNumber, setContractorNumber] = useState("");
+
+  // Edit User Form States
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+  const [editUserId, setEditUserId] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editType, setEditType] = useState("company");
+  const [editRole, setEditRole] = useState("operator");
+  const [editLotoId, setEditLotoId] = useState("");
+  const [editContractorNumber, setEditContractorNumber] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -176,6 +188,57 @@ export default function AdminPage() {
       toast.error(err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const openEditModal = (user: any) => {
+    setEditUserId(user.id);
+    setEditName(user.name);
+    setEditEmail(user.email || "");
+    setEditType(user.type || "company");
+    setEditRole(user.role || "operator");
+    setEditLotoId(user.lotoId || "");
+    setEditContractorNumber(user.contractorNumber || "");
+    setIsEditUserOpen(true);
+  };
+
+  const handleEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsEditSubmitting(true);
+    try {
+      const payload: any = {
+        name: editName,
+        type: editType,
+      };
+
+      if (editType === "company") {
+        payload.email = editEmail;
+        payload.role = editRole;
+      } else {
+        payload.role = "operator"; // Force operator for contractors
+        payload.lotoId = editLotoId;
+        payload.contractorNumber = editContractorNumber;
+      }
+
+      const res = await fetch(`/api/admin/users/${editUserId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to edit user");
+
+      toast.success(`User ${editName} updated successfully`);
+      setIsEditUserOpen(false);
+      fetchDashboardData(token);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsEditSubmitting(false);
     }
   };
 
@@ -538,6 +601,134 @@ export default function AdminPage() {
                     </form>
                   </DialogContent>
                 </Dialog>
+
+                {/* Edit User Dialog */}
+                <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+                  <DialogContent className="sm:max-w-[425px] bg-zinc-900 border-white/5 rounded-[2.5rem] p-8">
+                    <DialogHeader className="mb-6">
+                      <DialogTitle className="text-2xl font-black text-white tracking-tight">
+                        Edit Personnel
+                      </DialogTitle>
+                      <DialogDescription className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-2 leading-relaxed">
+                        Update access levels and identifying information.
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleEditUser} className="space-y-6">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                          Account Category
+                        </Label>
+                        <Select value={editType} onValueChange={setEditType}>
+                          <SelectTrigger className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold focus:ring-emerald-500/50">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
+                            <SelectItem value="company" className="text-xs font-bold hover:bg-emerald-500/10">
+                              Company Internal
+                            </SelectItem>
+                            <SelectItem value="contractor" className="text-xs font-bold hover:bg-emerald-500/10">
+                              External Contractor
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {editType === "company" && (
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                            Privilege Level
+                          </Label>
+                          <Select value={editRole} onValueChange={setEditRole}>
+                            <SelectTrigger className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold focus:ring-emerald-500/50">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-900 border-white/5 rounded-xl">
+                              {COMPANY_ROLES.map((r) => (
+                                <SelectItem key={r.value} value={r.value} className="text-xs font-bold hover:bg-emerald-500/10">
+                                  {r.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                          Full Legal Name
+                        </Label>
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          placeholder="e.g. Sarah Jenkins"
+                          className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                          required
+                        />
+                      </div>
+
+                      {editType === "company" && (
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                            Verified Email
+                          </Label>
+                          <Input
+                            type="email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            placeholder="name@organization.com"
+                            className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                            required
+                          />
+                        </div>
+                      )}
+
+                      {editType === "contractor" && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                              Active LOTO ID
+                            </Label>
+                            <Input
+                              value={editLotoId}
+                              onChange={(e) => setEditLotoId(e.target.value)}
+                              placeholder="e.g. 000789"
+                              className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
+                              required
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                              CN Reference
+                            </Label>
+                            <Input
+                              value={editContractorNumber}
+                              onChange={(e) => setEditContractorNumber(e.target.value)}
+                              placeholder="CN-001"
+                              className="rounded-2xl bg-zinc-950 border-white/5 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-emerald-500 hover:bg-emerald-400 text-zinc-950 rounded-2xl h-14 font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 transition-all active:scale-95 mt-4"
+                        disabled={isEditSubmitting}
+                      >
+                        {isEditSubmitting ? (
+                          <>
+                            <Loader2 className="mr-3 h-4 w-4 animate-spin" />{" "}
+                            Updating...
+                          </>
+                        ) : (
+                          "Update Personnel"
+                        )}
+                      </Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
 
               {isLoading ? (
@@ -605,14 +796,26 @@ export default function AdminPage() {
                           </TableCell>
                           <TableCell className="py-6 px-8 text-right">
                             {currentUser?.userId !== u.id && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-10 w-10 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
-                                onClick={() => handleDeleteUser(u.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-10 w-10 text-zinc-600 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all"
+                                  onClick={() => openEditModal(u)}
+                                  title="Edit User"
+                                >
+                                  <Edit2 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-10 w-10 text-zinc-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all"
+                                  onClick={() => handleDeleteUser(u.id)}
+                                  title="Delete User"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             )}
                           </TableCell>
                         </TableRow>
