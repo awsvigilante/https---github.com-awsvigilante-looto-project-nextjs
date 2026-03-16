@@ -573,14 +573,14 @@ export default function ContractorPortal() {
                     </Label>
                     <div className="relative group">
                       <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur opacity-5 group-hover:opacity-10 transition duration-1000"></div>
-                      <div className="relative p-5 rounded-2xl bg-zinc-950 border border-white/5 text-sm font-bold text-zinc-300 leading-relaxed min-h-[100px]">
+                      <div className="relative p-5 rounded-2xl bg-zinc-900 border border-white/10 text-sm font-bold text-zinc-300 leading-relaxed min-h-[100px]">
                         {task?.reasonForIsolation ||
                           "No explicit reason provided"}
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl bg-zinc-950 border border-white/5 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
+                  <div className="p-6 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
                     <div>
                       <span className="text-[10px] font-bold text-white font-bold uppercase tracking-widest block mb-1">
                         Lock Box
@@ -598,7 +598,7 @@ export default function ContractorPortal() {
                     Authorized Personnel
                   </Label>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-white/5 group hover:bg-zinc-900 transition-colors">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900 border border-white/10 group hover:bg-zinc-800 transition-colors">
                       <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-white font-bold group-hover:text-emerald-400 transition-colors">
                         <User className="w-5 h-5" />
                       </div>
@@ -612,7 +612,7 @@ export default function ContractorPortal() {
                       </div>
                       <CheckCircle2 className="w-4 h-4 text-emerald-500/50 ml-auto" />
                     </div>
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-white/5 group hover:bg-zinc-900 transition-colors">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-900 border border-white/10 group hover:bg-zinc-800 transition-colors">
                       <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-white font-bold group-hover:text-emerald-400 transition-colors">
                         <User className="w-5 h-5" />
                       </div>
@@ -661,7 +661,7 @@ export default function ContractorPortal() {
                       className="group hover:bg-white/[0.02] transition-colors"
                     >
                       <td className="py-4 px-6">
-                        <span className="w-6 h-6 rounded-lg bg-zinc-950 border border-white/10 flex items-center justify-center text-[10px] font-bold text-emerald-500 group-hover:border-emerald-500/30 transition-all shadow-lg">
+                        <span className="w-6 h-6 rounded-lg bg-zinc-900 border border-white/15 flex items-center justify-center text-[10px] font-bold text-emerald-500 group-hover:border-emerald-500/30 transition-all shadow-lg">
                           {pt.tagNo}
                         </span>
                       </td>
@@ -763,7 +763,7 @@ export default function ContractorPortal() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden ring-1 ring-white/10 group-hover:ring-emerald-500/30 transition-all flex items-center justify-center text-[10px] font-bold text-zinc-700">
+                          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 overflow-hidden ring-1 ring-white/10 group-hover:ring-emerald-500/30 transition-all flex items-center justify-center text-[10px] font-bold text-zinc-500">
                             {lock.lockOnPhoto ? (
                               <img
                                 src={lock.lockOnPhoto}
@@ -845,12 +845,12 @@ export default function ContractorPortal() {
                     <td className="px-6 py-8" colSpan={2}>
                       <div className="space-y-4">
                         <div className="flex flex-col gap-2">
-                          <Label className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
+                          <Label className="text-[8px] font-bold text-zinc-400 uppercase tracking-[0.2em] ml-1">
                             Member Identity
                           </Label>
                           <Input
                             placeholder="Full Name"
-                            className="bg-zinc-950 border-white/5 text-sm font-bold text-white rounded-xl focus:border-emerald-500/30 transition-all h-11"
+                            className="bg-zinc-900 border-white/10 text-sm font-bold text-white rounded-xl focus:border-emerald-500/30 transition-all h-11 placeholder:text-zinc-500"
                             value={newRow.printName}
                             onChange={(e) =>
                               setNewRow({
@@ -861,12 +861,12 @@ export default function ContractorPortal() {
                           />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Label className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
+                          <Label className="text-[8px] font-bold text-zinc-400 uppercase tracking-[0.2em] ml-1">
                             Trade Specialty
                           </Label>
                           <Input
                             placeholder="e.g. Lead Electrician"
-                            className="bg-zinc-950 border-white/5 text-sm font-bold text-white rounded-xl focus:border-emerald-500/30 transition-all h-11"
+                            className="bg-zinc-900 border-white/10 text-sm font-bold text-white rounded-xl focus:border-emerald-500/30 transition-all h-11 placeholder:text-zinc-500"
                             value={newRow.trade}
                             onChange={(e) =>
                               setNewRow({ ...newRow, trade: e.target.value })
@@ -877,12 +877,12 @@ export default function ContractorPortal() {
                     </td>
                     <td className="px-6 py-8">
                       <div className="flex flex-col gap-2">
-                        <Label className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
+                        <Label className="text-[8px] font-bold text-zinc-400 uppercase tracking-[0.2em] ml-1">
                           Description
                         </Label>
                         <textarea
                           placeholder="Isolation confirmation details..."
-                          className="bg-zinc-950 border border-white/5 text-xs font-bold text-white rounded-xl p-4 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none min-h-[104px] resize-none"
+                          className="bg-zinc-900 border border-white/10 text-xs font-bold text-white rounded-xl p-4 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none min-h-[104px] resize-none placeholder:text-zinc-500"
                           value={newRow.description}
                           onChange={(e) =>
                             setNewRow({
@@ -947,7 +947,7 @@ export default function ContractorPortal() {
         {/* Footer info */}
         <div className="p-8 rounded-3xl bg-zinc-900/20 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-zinc-950 flex items-center justify-center text-emerald-400/50">
+            <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center text-emerald-400/50">
               <Info className="w-5 h-5" />
             </div>
             <p className="text-[10px] font-bold text-white font-bold leading-relaxed max-w-xl uppercase tracking-wider">
@@ -1097,9 +1097,9 @@ export default function ContractorPortal() {
                 </p>
               </div>
 
-              <div className="bg-zinc-950 rounded-[2rem] p-6 border border-white/5 space-y-4 shadow-inner">
+              <div className="bg-zinc-800/50 rounded-[2rem] p-6 border border-white/10 space-y-4 shadow-inner">
                 <div className="flex items-center justify-between px-2">
-                  <Label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
+                  <Label className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
                     Key Authorization
                   </Label>
                   <Key className="w-4 h-4 text-emerald-500/30" />
@@ -1107,7 +1107,7 @@ export default function ContractorPortal() {
                 <Input
                   type="password"
                   placeholder="••••••••"
-                  className="rounded-2xl border-none bg-zinc-900 font-bold py-8 px-6 text-3xl shadow-2xl focus:ring-0 focus:outline-none text-center tracking-widest text-emerald-400 placeholder:text-zinc-800"
+                  className="rounded-2xl border-none bg-zinc-800 font-bold py-8 px-6 text-3xl shadow-2xl focus:ring-0 focus:outline-none text-center tracking-widest text-emerald-400 placeholder:text-zinc-700"
                   value={lockOffInput}
                   onChange={(e) => setLockOffInput(e.target.value)}
                   autoFocus
@@ -1209,9 +1209,9 @@ export default function ContractorPortal() {
 
               {verificationMethod === "password" && (
                 <div className="animate-in slide-in-from-bottom-4 duration-500 space-y-4">
-                  <div className="bg-zinc-950 rounded-2xl p-6 border border-white/5 shadow-inner">
+                  <div className="bg-zinc-900/50 rounded-2xl p-6 border border-white/10 shadow-inner">
                     <div className="flex items-center justify-between mb-2">
-                      <Label className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">
+                      <Label className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">
                         Create Protocol Key
                       </Label>
                       <Key className="w-3 h-3 text-emerald-500/30" />
