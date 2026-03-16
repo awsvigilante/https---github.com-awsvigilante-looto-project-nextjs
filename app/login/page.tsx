@@ -29,30 +29,22 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch companies for the dropdown
+    // Fetch companies for the dropdown just in case
     fetch("/api/companies")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setCompanies(data);
       })
       .catch((err) => console.error("Error fetching companies:", err));
-  }, []);
 
-  useEffect(() => {
-    if (selectedCompany) {
-      setContractors([]);
-      setSelectedContractorNumber("");
-      fetch(`/api/contractors?companyName=${encodeURIComponent(selectedCompany)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) setContractors(data);
-        })
-        .catch((err) => console.error("Error fetching contractors:", err));
-    } else {
-      setContractors([]);
-      setSelectedContractorNumber("");
-    }
-  }, [selectedCompany]);
+    // Unconditionally fetch all contractors for selection
+    fetch(`/api/contractors`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setContractors(data);
+      })
+      .catch((err) => console.error("Error fetching contractors:", err));
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -77,15 +69,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (userType === "contractor" && (!selectedCompany || !selectedContractorNumber)) {
-        toast.error("Please select a company and contractor");
+      if (userType === "contractor" && !selectedContractorNumber) {
+        toast.error("Please select a contractor");
         setIsLoading(false);
         return;
       }
 
       const body =
         userType === "contractor"
-          ? { lotoId, type: userType, companyName: selectedCompany, contractorNumber: selectedContractorNumber }
+          ? { lotoId, type: userType, contractorNumber: selectedContractorNumber }
           : { email, password, type: userType };
 
       const response = await fetch("/api/auth/login", {
@@ -259,43 +251,13 @@ export default function LoginPage() {
                     </p>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
                     <Label
-                      htmlFor="companySelection"
+                      htmlFor="contractorSelection"
                       className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1"
                     >
-                      Your Company
+                      Select Contractor Identity
                     </Label>
-                    <div className="relative group">
-                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-blue-400 transition-colors pointer-events-none" />
-                      <select
-                        id="companySelection"
-                        title="Your Company"
-                        value={selectedCompany}
-                        onChange={(e) => setSelectedCompany(e.target.value)}
-                        required={userType === "contractor"}
-                        className="h-16 w-full pl-12 pr-4 bg-zinc-950/50 border border-white/5 text-sm font-black text-white focus:border-blue-500 hover:border-white/10 transition-all rounded-2xl outline-none ring-0 appearance-none cursor-pointer"
-                      >
-                        <option value="" disabled className="text-zinc-500">
-                          Select your company...
-                        </option>
-                        {companies.map((c) => (
-                          <option key={c.id} value={c.name} className="bg-zinc-900 text-white font-bold py-2">
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {selectedCompany && (
-                    <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-                      <Label
-                        htmlFor="contractorSelection"
-                        className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1"
-                      >
-                        Select Contractor
-                      </Label>
                       <div className="relative group">
                         <HardHat className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-blue-400 transition-colors pointer-events-none" />
                         <select
@@ -319,8 +281,7 @@ export default function LoginPage() {
                           ))}
                         </select>
                       </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
 

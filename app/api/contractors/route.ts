@@ -7,14 +7,6 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const companyName = searchParams.get("companyName");
-
-    if (!companyName) {
-      return NextResponse.json(
-        { error: "Company name is required" },
-        { status: 400 }
-      );
-    }
 
     const dataSource = await getDataSource();
     const userRepository = dataSource.getRepository(User);

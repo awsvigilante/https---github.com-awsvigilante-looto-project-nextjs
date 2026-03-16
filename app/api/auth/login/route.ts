@@ -22,9 +22,9 @@ export async function POST(request: Request) {
     let user;
 
     if (type === "contractor") {
-      if (!lotoId || !companyName) {
+      if (!lotoId || !contractorNumber) {
         return NextResponse.json(
-          { error: "LOTO ID and Company are required" },
+          { error: "LOTO ID and Contractor Number are required" },
           { status: 400 }
         );
       }
@@ -42,24 +42,15 @@ export async function POST(request: Request) {
         );
       }
 
-      // Find ANY contractor user associated with this LOTO, or return a task-specific session
       user = await userRepository.findOne({
-        where: { lotoId: lotoIdTrimmed, type: "contractor" }
+        where: { contractorNumber: contractorNumber, lotoId: lotoIdTrimmed, type: "contractor" }
       });
 
       if (!user) {
-        // Return a virtual user for contractor if none exist in DB for this LOTO
-        user = {
-          id: `virtual-contractor-${task.id}`,
-          email: `contractor@${lotoIdTrimmed}`,
-          name: "Contractor Access",
-          role: "contractor",
-          type: "contractor",
-          lotoId: lotoIdTrimmed,
-          companyName: companyName,
-        } as any;
-      } else {
-        (user as any).companyName = companyName; // Assign company for existing DB user if any
+        return NextResponse.json(
+          { error: "Contractor not recognized for this LOTO." },
+          { status: 401 }
+        );
       }
 
       // Pass the task UUID back for redirection
@@ -107,7 +98,7 @@ export async function POST(request: Request) {
 
     // Generate JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role, type: user.type, companyName: (user as any).companyName || user.companyName },
+      { userId: user.id, email: user.email, role: user.role, type: user.type, companyName: (user as any).companyName || null },
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "1d" }
     );
@@ -124,7 +115,7 @@ export async function POST(request: Request) {
         type: user.type,
         lotoId: user.lotoId,
         taskId: (user as any).taskId,
-        companyName: (user as any).companyName || user.companyName,
+        companyName: (user as any).companyName || null,
       },
     });
   } catch (error) {
