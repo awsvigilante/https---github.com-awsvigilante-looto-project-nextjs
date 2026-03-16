@@ -63,8 +63,8 @@ export default function CreateLOTO() {
                 // Approver can be Shift Engineer or Admin
                 setEngineers(allUsers.filter((u: any) => ['shift_engineer', 'admin'].includes(u.role)))
                 
-                // Supervisor can be Supervisor, Shift Engineer, or Admin
-                setSupervisors(allUsers.filter((u: any) => ['supervisor', 'shift_engineer', 'admin'].includes(u.role)))
+                // Supervisor can be anyone in the company (not a contractor)
+                setSupervisors(allUsers.filter((u: any) => u.type !== 'contractor'))
 
                 // Operator can be Operator, Supervisor, Shift Engineer, or Admin
                 setOperators(allUsers.filter((u: any) => ['operator', 'supervisor', 'shift_engineer', 'admin'].includes(u.role)))

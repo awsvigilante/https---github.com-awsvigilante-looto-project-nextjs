@@ -196,7 +196,8 @@ export default function LotoDetail({
 
     try {
       // Persist changes to backend immediately
-      if (field === "lockOnInitial1" || field === "lockOnInitial2") {
+      const fieldsToPersist = ["lockOnInitial1", "lockOnInitial2", "lockNumber", "isolationPosition"];
+      if (fieldsToPersist.includes(field)) {
         const pointId = points[index]?.id;
         const storedToken = localStorage.getItem("token");
         if (storedToken && pointId && task?.id) {

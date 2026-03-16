@@ -281,9 +281,6 @@ export async function PATCH(
         }
       } else {
         // Operator fields: lockOnInitial1, lockNumber, isolationPosition
-        if (task.primaryOperatorId && task.primaryOperatorId !== user.userId) {
-          return NextResponse.json({ error: "Only the assigned operator can edit isolation rows" }, { status: 403 });
-        }
         await pointRepo.update(pointId, { [field]: value || null });
 
         if (field === "lockOnInitial1") {
