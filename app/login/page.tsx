@@ -20,9 +20,21 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [lotoId, setLotoId] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [companies, setCompanies] = useState<any[]>([]);
   const [userType, setUserType] = useState<"company" | "contractor">("company");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Fetch companies for the dropdown
+    fetch("/api/companies")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCompanies(data);
+      })
+      .catch((err) => console.error("Error fetching companies:", err));
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -47,9 +59,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      if (userType === "contractor" && !selectedCompany) {
+        toast.error("Please select your company");
+        setIsLoading(false);
+        return;
+      }
+
       const body =
         userType === "contractor"
-          ? { lotoId, type: userType }
+          ? { lotoId, type: userType, companyName: selectedCompany }
           : { email, password, type: userType };
 
       const response = await fetch("/api/auth/login", {
@@ -221,6 +239,35 @@ export default function LoginPage() {
                       Enter the ID provided by your supervisor to access the
                       crew tracking portal.
                     </p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <Label
+                      htmlFor="companySelection"
+                      className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1"
+                    >
+                      Your Company
+                    </Label>
+                    <div className="relative group">
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within:text-blue-400 transition-colors pointer-events-none" />
+                      <select
+                        id="companySelection"
+                        title="Your Company"
+                        value={selectedCompany}
+                        onChange={(e) => setSelectedCompany(e.target.value)}
+                        required={userType === "contractor"}
+                        className="h-16 w-full pl-12 pr-4 bg-zinc-950/50 border border-white/5 text-sm font-black text-white focus:border-blue-500 hover:border-white/10 transition-all rounded-2xl outline-none ring-0 appearance-none cursor-pointer"
+                      >
+                        <option value="" disabled className="text-zinc-500">
+                          Select your company...
+                        </option>
+                        {companies.map((c) => (
+                          <option key={c.id} value={c.name} className="bg-zinc-900 text-white font-bold py-2">
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               )}

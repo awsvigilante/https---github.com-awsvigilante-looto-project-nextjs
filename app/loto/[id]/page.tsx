@@ -416,43 +416,43 @@ export default function LotoDetail({
     switch (status) {
       case "Pending Approval":
         return (
-          <span className="bg-amber-500/10 text-amber-500 border-amber-500/20 border px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="bg-amber-500/10 text-amber-500 border-amber-500/20 border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" /> Approval Pending
           </span>
         );
       case "Approved":
         return (
-          <span className="bg-blue-500/10 text-blue-400 border-blue-500/20 border px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="bg-blue-500/10 text-blue-400 border-blue-500/20 border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5" /> Execution Phase
           </span>
         );
       case "Verification In Progress":
         return (
-          <span className="bg-purple-500/10 text-purple-400 border-purple-500/20 border px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="bg-purple-500/10 text-purple-400 border-purple-500/20 border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
             <UserCheck className="w-3.5 h-3.5" /> Awaiting Verification
           </span>
         );
       case "Isolation Complete":
         return (
-          <span className="bg-purple-500/10 text-purple-400 border-purple-500/20 border px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="bg-purple-500/10 text-purple-400 border-purple-500/20 border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
             <UserCheck className="w-3.5 h-3.5" /> Supervisor Sign-off
           </span>
         );
       case "Isolation Verified / Active":
         return (
-          <span className="bg-emerald-500/10 text-emerald-400 border-emerald-500/40 border-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+          <span className="bg-emerald-500/10 text-emerald-400 border-emerald-500/40 border-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
             <ShieldCheck className="w-3.5 h-3.5" /> Safe To Work
           </span>
         );
       case "Return to Service":
         return (
-          <span className="bg-red-500/10 text-red-500 border-red-500/40 border-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="bg-red-500/10 text-red-500 border-red-500/40 border-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
             <Key className="w-3.5 h-3.5" /> Return Phase
           </span>
         );
       case "Closed":
         return (
-          <span className="bg-white/5 text-zinc-500 border-white/5 border px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+          <span className="bg-white/5 text-white font-bold border-white/5 border px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5" /> Archived
           </span>
         );
@@ -473,7 +473,7 @@ export default function LotoDetail({
             <Bell className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">
+            <p className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em] mb-1">
               Alert
             </p>
             <p className="text-sm font-bold leading-relaxed text-zinc-200">
@@ -489,23 +489,23 @@ export default function LotoDetail({
           <div className="flex items-center gap-6">
             <Link
               href="/"
-              className="group flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all text-zinc-500 hover:text-emerald-400"
+              className="group flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-900 border border-white/5 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all text-white font-bold hover:text-emerald-400"
             >
               <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             </Link>
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-2xl font-black tracking-tight text-white">
+                <h1 className="text-2xl font-bold tracking-tight text-white">
                   {task?.lotoId}
                 </h1>
                 <HeaderBadge />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                <span className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em]">
                   {task?.equipmentName}
                 </span>
                 <div className="w-1 h-1 rounded-full bg-zinc-800" />
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.1em]">
+                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.1em]">
                   {task?.facility}
                 </span>
               </div>
@@ -515,14 +515,14 @@ export default function LotoDetail({
           <div className="flex items-center gap-5 justify-end">
             <div className="flex items-center gap-3 bg-zinc-900/50 border border-white/5 rounded-2xl p-1.5 pl-4 pr-1.5 shadow-xl">
               <div className="flex flex-col items-end mr-1">
-                <span className="text-xs font-black text-white">
+                <span className="text-xs font-bold text-white">
                   {activeUser?.name || "User"}
                 </span>
-                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                <span className="text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                   Operator Portal
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-zinc-950 text-xs font-black ring-1 ring-white/10 uppercase">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-zinc-950 text-xs font-bold ring-1 ring-white/10 uppercase">
                 {(activeUser?.name || "U").charAt(0)}
               </div>
               <button
@@ -531,7 +531,7 @@ export default function LotoDetail({
                   localStorage.removeItem("user");
                   router.push("/login");
                 }}
-                className="group w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-95"
+                className="group w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 flex items-center justify-center text-white font-bold hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-95"
                 title="Logout Session"
               >
                 <LogOut className="h-4 w-4" />
@@ -585,7 +585,7 @@ export default function LotoDetail({
             <React.Fragment key={s.step}>
               <div className="flex flex-col items-center group">
                 <div
-                  className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black transition-all duration-500 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-bold transition-all duration-500 ${
                     s.active
                       ? "bg-emerald-500 text-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-110 rotate-3"
                       : s.done
@@ -596,7 +596,7 @@ export default function LotoDetail({
                   {s.done ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
                 </div>
                 <span
-                  className={`text-[10px] mt-3 font-black uppercase tracking-[0.2em] transition-colors duration-300 ${s.active ? "text-emerald-400" : s.done ? "text-zinc-400" : "text-zinc-600"}`}
+                  className={`text-[10px] mt-3 font-bold uppercase tracking-[0.2em] transition-colors duration-300 ${s.active ? "text-emerald-400" : s.done ? "text-white font-bold" : "text-zinc-600"}`}
                 >
                   {s.step}
                 </span>
@@ -625,22 +625,22 @@ export default function LotoDetail({
                     <div className="w-8 h-8 rounded-xl bg-zinc-950 flex items-center justify-center border border-white/5">
                       <Shield className="w-4 h-4 text-emerald-400" />
                     </div>
-                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                    <span className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em]">
                       Safety Status
                     </span>
                   </div>
                   <div className="space-y-4">
                     <div className="p-4 rounded-2xl bg-zinc-950/50 border border-white/5">
-                      <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-1">
+                      <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">
                         Current State
                       </p>
-                      <p className="text-sm font-black text-white">{status}</p>
+                      <p className="text-sm font-bold text-white">{status}</p>
                     </div>
                     <div className="p-4 rounded-2xl bg-zinc-950/50 border border-white/5">
-                      <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-1">
+                      <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-1">
                         Lockbox Reference
                       </p>
-                      <p className="text-sm font-black text-emerald-400">
+                      <p className="text-sm font-bold text-emerald-400">
                         #{lockbox || "N/A"}
                       </p>
                     </div>
@@ -650,7 +650,7 @@ export default function LotoDetail({
                   <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2">
                     Duration Target
                   </p>
-                  <p className="text-xl font-black text-white">{duration}</p>
+                  <p className="text-xl font-bold text-white">{duration}</p>
                 </div>
               </div>
             </Card>
@@ -664,7 +664,7 @@ export default function LotoDetail({
                       <div className="w-8 h-8 rounded-xl bg-zinc-950 flex items-center justify-center border border-white/5">
                         <FileText className="w-4 h-4 text-emerald-400" />
                       </div>
-                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                      <span className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em]">
                         Mission Scope
                       </span>
                     </div>
@@ -675,7 +675,7 @@ export default function LotoDetail({
                             isEditing ? handleSaveEdit() : setIsEditing(true)
                           }
                           disabled={isUpdating}
-                          className={`text-[10px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+                          className={`text-[10px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
                             isEditing
                               ? "bg-emerald-500 text-zinc-950"
                               : "bg-white/5 hover:bg-white/10 text-white"
@@ -703,47 +703,47 @@ export default function LotoDetail({
                       className="w-full bg-zinc-950/50 border border-white/5 rounded-2xl p-6 text-sm font-bold text-white focus:border-emerald-500 transition-all outline-none min-h-[120px] resize-none ring-0"
                     />
                   ) : (
-                    <p className="text-lg font-black text-white leading-relaxed max-w-2xl">
+                    <p className="text-lg font-bold text-white leading-relaxed max-w-2xl">
                       {reason}
                     </p>
                   )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 bg-zinc-950/20 divide-x divide-white/5 border-t border-white/5">
                   <div className="p-6 group">
-                    <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-zinc-500 transition-colors text-center md:text-left">
+                    <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-white font-bold transition-colors text-center md:text-left">
                       Isolation Operator
                     </p>
                     <div className="flex items-center gap-3 justify-center md:justify-start">
-                      <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-emerald-400">
+                      <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-bold text-emerald-400">
                         OP
                       </div>
-                      <span className="text-xs font-black text-zinc-200">
+                      <span className="text-xs font-bold text-zinc-200">
                         {task?.primaryOperator?.name || "N/A"}
                       </span>
                     </div>
                   </div>
                   <div className="p-6 group">
-                    <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-zinc-500 transition-colors text-center md:text-left">
+                    <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-white font-bold transition-colors text-center md:text-left">
                       Operator Supervisor
                     </p>
                     <div className="flex items-center gap-3 justify-center md:justify-start">
-                      <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-emerald-400">
+                      <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-bold text-emerald-400">
                         OS
                       </div>
-                      <span className="text-xs font-black text-zinc-200">
+                      <span className="text-xs font-bold text-zinc-200">
                         {task?.supervisor?.name || "N/A"}
                       </span>
                     </div>
                   </div>
                   <div className="p-6 group bg-emerald-500/5">
-                    <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-zinc-500 transition-colors text-center md:text-left">
+                    <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-white font-bold transition-colors text-center md:text-left">
                       Shift Approval
                     </p>
                     <div className="flex items-center gap-3 justify-center md:justify-start">
-                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-[10px] font-black text-emerald-400">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-[10px] font-bold text-emerald-400">
                         SE
                       </div>
-                      <span className="text-xs font-black text-zinc-200">
+                      <span className="text-xs font-bold text-zinc-200">
                         {task?.approver?.name || "N/A"}
                       </span>
                     </div>
@@ -785,10 +785,10 @@ export default function LotoDetail({
                     <Lock className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-black text-white tracking-tight">
+                    <h2 className="text-lg font-bold text-white tracking-tight">
                       Isolation Points
                     </h2>
-                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                    <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest">
                       {points.length} Required Segregations
                     </p>
                   </div>
@@ -800,37 +800,37 @@ export default function LotoDetail({
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-white/5 bg-zinc-950/20">
-                        <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                        <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                           ID & Type
                         </th>
-                        <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest min-w-[180px]">
+                        <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest min-w-[180px]">
                           Description / Equipment
                         </th>
-                        <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                        <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                           Required
                         </th>
                         {showOperatorCols && (
-                          <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                          <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                             Lock No.
                           </th>
                         )}
                         {showOperatorCols && (
-                          <th className="px-4 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                          <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                             Isolated Pos.
                           </th>
                         )}
                         {showLockInitial1 && (
-                          <th className="px-4 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                          <th className="px-4 py-5 text-right text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                             Operator Sign
                           </th>
                         )}
                         {showInitial2 && (
-                          <th className={`px-4 py-5 text-right text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${canSupervisorVerify ? 'text-purple-400' : 'text-zinc-500'}`}>
+                          <th className={`px-4 py-5 text-right text-[9px] font-bold uppercase tracking-widest whitespace-nowrap ${canSupervisorVerify ? 'text-purple-400' : 'text-white font-bold'}`}>
                             Supervisor Sign
                           </th>
                         )}
                         {showRTS && (
-                          <th className="px-4 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">
+                          <th className="px-4 py-5 text-right text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                             RTS Initial
                           </th>
                         )}
@@ -842,7 +842,7 @@ export default function LotoDetail({
                           key={p.id || idx}
                           className="group hover:bg-white/[0.02] transition-colors"
                         >
-                          <td className="px-4 py-5 font-black text-zinc-400">
+                          <td className="px-4 py-5 font-bold text-white font-bold">
                             #{p.tagNo || idx + 1}
                             <span className="block text-[8px] text-zinc-600 uppercase tracking-widest mt-1">
                               {p.isolationType || "LOTO"}
@@ -861,7 +861,7 @@ export default function LotoDetail({
                                 <span className="font-bold text-sm text-zinc-200 group-hover:text-white transition-colors">
                                   {p.isolationDescription}
                                 </span>
-                                <span className="text-[10px] font-bold text-zinc-500 mt-1">
+                                <span className="text-[10px] font-bold text-white font-bold mt-1">
                                   {p.equipmentName || "Standard Segment"}
                                 </span>
                               </div>
@@ -882,7 +882,7 @@ export default function LotoDetail({
                                 <option value="REMOVED">Removed</option>
                               </select>
                             ) : (
-                              <span className="inline-flex rounded-lg bg-amber-500/10 px-3 py-1.5 text-[10px] font-black text-amber-500 border border-amber-500/20 uppercase tracking-widest">
+                              <span className="inline-flex rounded-lg bg-amber-500/10 px-3 py-1.5 text-[10px] font-bold text-amber-500 border border-amber-500/20 uppercase tracking-widest">
                                 {p.requiredPosition || "—"}
                               </span>
                             )}
@@ -897,7 +897,7 @@ export default function LotoDetail({
                                   disabled={!!p.lockOnInitial1 || isRowUpdating}
                                   className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
                                     p.lockOnInitial1
-                                      ? "bg-white/5 text-white opacity-100 cursor-not-allowed border-transparent font-black"
+                                      ? "bg-white/5 text-white opacity-100 cursor-not-allowed border-transparent font-bold"
                                       : "bg-zinc-900 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 hover:bg-zinc-800"
                                   }`}
                                 >
@@ -907,7 +907,7 @@ export default function LotoDetail({
                                   ))}
                                 </select>
                               ) : (
-                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-black border uppercase tracking-widest ${
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border uppercase tracking-widest ${
                                   p.lockNumber ? "bg-zinc-800 text-white border-white/10" : "bg-zinc-950 text-zinc-600 border-white/5"
                                 }`}>
                                   {p.lockNumber || "—"}
@@ -925,7 +925,7 @@ export default function LotoDetail({
                                   disabled={!!p.lockOnInitial1 || isRowUpdating}
                                   className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
                                     p.lockOnInitial1
-                                      ? "bg-white/5 text-white opacity-100 cursor-not-allowed border-transparent font-black"
+                                      ? "bg-white/5 text-white opacity-100 cursor-not-allowed border-transparent font-bold"
                                       : "bg-zinc-900 text-emerald-400 focus:border-emerald-500 hover:bg-zinc-800"
                                   }`}
                                 >
@@ -936,7 +936,7 @@ export default function LotoDetail({
                                   <option value="REMOVED">Removed</option>
                                 </select>
                               ) : (
-                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-black border uppercase tracking-widest ${
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border uppercase tracking-widest ${
                                   p.isolationPosition ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-zinc-950 text-zinc-600 border-white/5"
                                 }`}>
                                   {p.isolationPosition || "—"}
@@ -949,10 +949,10 @@ export default function LotoDetail({
                               {p.lockOnInitial1 ? (
                                 <div className="flex flex-col items-end gap-2">
                                   <div className="inline-flex flex-col items-end">
-                                    <span className="text-[9px] font-black text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                                    <span className="text-[9px] font-bold text-emerald-400 uppercase bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
                                       {p.lockOnInitial1.split(" – ")[0]}
                                     </span>
-                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                                    <span className="text-[9px] text-white font-bold uppercase tracking-widest mt-1">
                                       {p.lockOnInitial1.split(" – ")[1]}
                                     </span>
                                   </div>
@@ -977,12 +977,12 @@ export default function LotoDetail({
                                     }}
                                     disabled={!p.lockNumber || !p.isolationPosition || isRowUpdating}
                                     title={!p.lockNumber ? "Set Lock No. first" : !p.isolationPosition ? "Set Isolated Position first" : "Click to sign"}
-                                    className="text-[10px] font-black text-zinc-950 bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.2)] active:scale-95 transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none min-w-[90px]"
+                                    className="text-[10px] font-bold text-zinc-950 bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.2)] active:scale-95 transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-white font-bold disabled:shadow-none min-w-[90px]"
                                   >
                                     Sign Row
                                   </button>
                                 ) : (
-                                  <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest italic flex items-center justify-end gap-1.5" title="Awaiting action">
+                                  <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest italic flex items-center justify-end gap-1.5" title="Awaiting action">
                                     {status === "Pending Approval" ? "Not Ready" : "Awaiting Op"}
                                   </span>
                                 )
@@ -994,10 +994,10 @@ export default function LotoDetail({
                               {p.lockOnInitial2 ? (
                                 <div className="flex flex-col items-end gap-2">
                                   <div className="inline-flex flex-col items-end">
-                                    <span className="text-[9px] font-black text-purple-400 uppercase bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]">
+                                    <span className="text-[9px] font-bold text-purple-400 uppercase bg-purple-500/10 px-3 py-1 rounded-lg border border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]">
                                       {p.lockOnInitial2.split(" – ")[0]}
                                     </span>
-                                    <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                                    <span className="text-[9px] text-white font-bold uppercase tracking-widest mt-1">
                                       {p.lockOnInitial2.split(" – ")[1]}
                                     </span>
                                   </div>
@@ -1016,12 +1016,12 @@ export default function LotoDetail({
                                 <button
                                   onClick={() => updatePoint(idx, "lockOnInitial2", "sign")}
                                   disabled={isRowUpdating}
-                                  className="text-[10px] font-black text-white bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.2)] active:scale-95 transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed min-w-[90px]"
+                                  className="text-[10px] font-bold text-white bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.2)] active:scale-95 transition-all uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed min-w-[90px]"
                                 >
                                   Verify Safe
                                 </button>
                               ) : (
-                                <span className="text-[10px] text-zinc-600 font-black uppercase tracking-widest flex items-center justify-end gap-1.5">
+                                <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest flex items-center justify-end gap-1.5">
                                   —
                                 </span>
                               )}
@@ -1039,7 +1039,7 @@ export default function LotoDetail({
                                   className="w-[80px] rounded-xl border border-white/10 bg-zinc-900/50 p-2.5 text-xs font-bold text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/10 outline-none float-right"
                                 />
                               ) : (
-                                <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest float-right">
+                                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest float-right">
                                   {p.returnedToServiceInitial || "—"}
                                 </span>
                               )}
@@ -1079,16 +1079,16 @@ export default function LotoDetail({
                   <table className="w-full text-left">
                     <thead className="bg-slate-50/50 border-b border-slate-100">
                       <tr>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest shrink-0">
+                        <th className="px-6 py-4 text-[10px] font-bold uppercase text-slate-500 tracking-widest shrink-0">
                           Identity
                         </th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                        <th className="px-6 py-4 text-[10px] font-bold uppercase text-slate-500 tracking-widest">
                           Trade \ Contact
                         </th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                        <th className="px-6 py-4 text-[10px] font-bold uppercase text-slate-500 tracking-widest">
                           LOCK ON
                         </th>
-                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-500 tracking-widest text-right">
+                        <th className="px-6 py-4 text-[10px] font-bold uppercase text-slate-500 tracking-widest text-right">
                           LOCK OFF
                         </th>
                       </tr>
@@ -1100,7 +1100,7 @@ export default function LotoDetail({
                           <td colSpan={4} className="px-6 py-12 text-center">
                             <div className="flex flex-col items-center opacity-40">
                               <User className="h-10 w-10 mb-2 text-slate-300" />
-                              <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+                              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
                                 No one signed on yet
                               </p>
                             </div>
@@ -1137,7 +1137,7 @@ export default function LotoDetail({
                                   )}
                                 </div>
                                 <div>
-                                  <div className="font-black text-slate-900 text-sm tracking-tight leading-none mb-1">
+                                  <div className="font-bold text-slate-900 text-sm tracking-tight leading-none mb-1">
                                     {lock.contractorName}
                                   </div>
                                   <div className="text-[10px] text-emerald-600 font-extrabold uppercase tracking-wide flex items-center gap-1">
@@ -1168,7 +1168,7 @@ export default function LotoDetail({
                             </td>
                             <td className="px-6 py-5">
                               <div className="inline-flex flex-col items-center">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                   <Clock className="h-3 w-3" />{" "}
                                   {new Date(lock.lockedOnAt).toLocaleTimeString(
                                     [],
@@ -1200,7 +1200,7 @@ export default function LotoDetail({
                                     </div>
                                   )}
                                 </div>
-                                <div className="text-[9px] font-black text-emerald-600 uppercase mt-1">
+                                <div className="text-[9px] font-bold text-emerald-600 uppercase mt-1">
                                   Active
                                 </div>
                               </div>
@@ -1242,7 +1242,7 @@ export default function LotoDetail({
                                       </div>
                                     )}
                                   </div>
-                                  <div className="text-[9px] font-black text-slate-500 uppercase mt-1">
+                                  <div className="text-[9px] font-bold text-slate-500 uppercase mt-1">
                                     {lock.lockOffType === "Self"
                                       ? "Verified Entry"
                                       : lock.lockOffType}
@@ -1274,10 +1274,10 @@ export default function LotoDetail({
                       <FileText className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-white tracking-tight">
+                      <h3 className="text-xl font-bold text-white tracking-tight">
                         Approval & Review
                       </h3>
-                      <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mt-1">
+                      <p className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em] mt-1">
                         Task Lifecycle Management
                       </p>
                     </div>
@@ -1298,21 +1298,21 @@ export default function LotoDetail({
                           >
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black text-zinc-300">
+                                <span className="text-[10px] font-bold text-zinc-300">
                                   {c.author}
                                 </span>
-                                <span className="px-2 py-0.5 rounded-lg bg-zinc-900 text-[8px] font-black text-zinc-500 uppercase tracking-widest border border-white/5">
+                                <span className="px-2 py-0.5 rounded-lg bg-zinc-900 text-[8px] font-bold text-white font-bold uppercase tracking-widest border border-white/5">
                                   {c.authorRole}
                                 </span>
                               </div>
-                              <span className="text-[8px] font-black text-zinc-600 uppercase">
+                              <span className="text-[8px] font-bold text-zinc-600 uppercase">
                                 {new Date(c.timestamp).toLocaleString([], {
                                   dateStyle: "short",
                                   timeStyle: "short",
                                 })}
                               </span>
                             </div>
-                            <p className="text-sm font-bold text-zinc-400 leading-relaxed italic">
+                            <p className="text-sm font-bold text-white font-bold leading-relaxed italic">
                               "{c.text}"
                             </p>
                           </div>
@@ -1334,7 +1334,7 @@ export default function LotoDetail({
                             setNewComment("");
                           }}
                           disabled={!newComment.trim() || isUpdating}
-                          className="px-6 py-3 rounded-xl border border-white/5 bg-zinc-900 text-[10px] font-black text-zinc-400 hover:text-white hover:bg-zinc-800 active:scale-95 transition-all uppercase tracking-widest disabled:opacity-50"
+                          className="px-6 py-3 rounded-xl border border-white/5 bg-zinc-900 text-[10px] font-bold text-white font-bold hover:text-white hover:bg-zinc-800 active:scale-95 transition-all uppercase tracking-widest disabled:opacity-50"
                         >
                           Post Comment
                         </button>
@@ -1342,7 +1342,7 @@ export default function LotoDetail({
                           <button
                             disabled={isUpdating}
                             onClick={() => handleAction("approve")}
-                            className="px-8 py-3 rounded-xl bg-emerald-500 text-[10px] font-black text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest disabled:opacity-50"
+                            className="px-8 py-3 rounded-xl bg-emerald-500 text-[10px] font-bold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest disabled:opacity-50"
                           >
                             Approve Plan
                           </button>
@@ -1462,7 +1462,7 @@ export default function LotoDetail({
                         isUpdating ||
                         isRowUpdating
                       }
-                      className={`w-full rounded-xl px-8 py-4 text-base font-black text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest disabled:opacity-50 ${points.every((p) => p.lockOnInitial2) && !isRowUpdating ? "bg-purple-600 hover:bg-purple-700 shadow-purple-500/20" : "bg-slate-400 cursor-wait shadow-none"}`}
+                      className={`w-full rounded-xl px-8 py-4 text-base font-bold text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-3 uppercase tracking-widest disabled:opacity-50 ${points.every((p) => p.lockOnInitial2) && !isRowUpdating ? "bg-purple-600 hover:bg-purple-700 shadow-purple-500/20" : "bg-slate-400 cursor-wait shadow-none"}`}
                     >
                       {isUpdating || isRowUpdating ? (
                         <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -1896,7 +1896,7 @@ export default function LotoDetail({
               ) : (
                 <div className="text-slate-700 flex flex-col items-center">
                   <Camera className="h-20 w-20 mb-4 opacity-10" />
-                  <p className="text-xs font-black uppercase tracking-widest opacity-20">
+                  <p className="text-xs font-bold uppercase tracking-widest opacity-20">
                     No Image Data
                   </p>
                 </div>
@@ -1904,7 +1904,7 @@ export default function LotoDetail({
 
               {/* Overlay Info */}
               <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 to-transparent">
-                <h3 className="text-2xl font-black text-white tracking-tight mb-1">
+                <h3 className="text-2xl font-bold text-white tracking-tight mb-1">
                   {mirrorTitle}
                 </h3>
                 <p className="text-sm font-bold text-blue-400 uppercase tracking-widest flex items-center gap-2">

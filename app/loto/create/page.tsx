@@ -144,7 +144,7 @@ export default function CreateLOTO() {
                     lockBoxNumber: lockbox,
                     reasonForIsolation: reason,
                     equipmentName: equipment,
-                    expectedDuration: duration,
+                    expectedDuration: `${duration} days`,
                     numIsolationPoints: points.length,
                     supervisorId: supervisor,
                     approverId: approver,
@@ -301,12 +301,13 @@ export default function CreateLOTO() {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Expected Duration</label>
+                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Allocated Duration (Days)</label>
                                 <input
-                                    type="text"
+                                    type="number"
+                                    min="1"
                                     value={duration}
                                     onChange={(e) => setDuration(e.target.value)}
-                                    placeholder="e.g. 2 days"
+                                    placeholder="e.g. 2"
                                     className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                     required
                                 />

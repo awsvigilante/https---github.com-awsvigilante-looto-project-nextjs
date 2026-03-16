@@ -5,8 +5,9 @@ import crypto from "crypto";
 import { Resend } from "resend";
 import { getDataSource } from "@/lib/data-source";
 import { User } from "@/lib/entities/User";
-
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const dynamic = "force-dynamic";
 
 function getUserFromRequest(request: Request) {
   const auth = request.headers.get("Authorization");

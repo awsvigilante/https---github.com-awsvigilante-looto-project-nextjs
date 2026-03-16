@@ -91,20 +91,12 @@ export default function ContractorPortal() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  // New: Company Selection
-  const [selectedCompany, setSelectedCompany] =
-    useState<string>("Contractor Crew");
-  const companies = [
-    "Black Dreams Electrical Crew",
-    "Apex Industrial Services",
-    "Global Pipefitters Ltd",
-    "Sunrise Safety Team",
-  ];
+  // New: Company Selection (Derived from logged in user)
+  const selectedCompany = currentUser?.companyName || "Contractor Crew";
 
   // Form State for new crew member
   const [showAddForm, setShowAddForm] = useState(false);
   const [newRow, setNewRow] = useState({
-    company: "",
     trade: "",
     description: "",
     printName: "",
@@ -305,7 +297,6 @@ export default function ContractorPortal() {
 
   const handleLockOn = async () => {
     const missing = [];
-    if (!newRow.company) missing.push("Company");
     if (!newRow.trade) missing.push("Trade");
     if (!newRow.description) missing.push("Description");
     if (!newRow.printName) missing.push("Print Name");
@@ -337,7 +328,7 @@ export default function ContractorPortal() {
         verificationPassword: newRow.password,
         lockOnSignature: signature,
         lockOnPhoto: selfie,
-        companyName: newRow.company,
+        companyName: selectedCompany,
         contractorId: currentUser?.id,
       };
 
@@ -354,7 +345,6 @@ export default function ContractorPortal() {
         toast.success("LOCK ON successful!");
         setShowAddForm(false);
         setNewRow({
-          company: "",
           trade: "",
           description: "",
           printName: "",
@@ -449,7 +439,7 @@ export default function ContractorPortal() {
       <div className="flex min-h-screen items-center justify-center bg-zinc-950">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
-          <p className="text-zinc-500 font-bold text-xs uppercase tracking-widest animate-pulse">
+          <p className="text-white font-bold text-xs uppercase tracking-widest animate-pulse">
             Initializing Portal...
           </p>
         </div>
@@ -468,14 +458,14 @@ export default function ContractorPortal() {
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <h1 className="text-xl font-black text-white tracking-tight">
+                <h1 className="text-xl font-bold text-white tracking-tight">
                   Contractor Portal
                 </h1>
-                <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-[8px] font-black text-emerald-400 uppercase tracking-widest border border-emerald-500/20">
+                <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-[8px] font-bold text-emerald-400 uppercase tracking-widest border border-emerald-500/20">
                   Secure Access
                 </span>
               </div>
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+              <p className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em]">
                 {task?.lotoId} • {task?.equipmentName}
               </p>
             </div>
@@ -483,10 +473,10 @@ export default function ContractorPortal() {
 
           <div className="flex items-center gap-4">
             <div className="hidden md:flex flex-col items-end px-4 border-r border-white/5">
-              <span className="text-xs font-black text-white">
+              <span className="text-xs font-bold text-white">
                 {currentUser?.name}
               </span>
-              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+              <span className="text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                 Authorized Personnel
               </span>
             </div>
@@ -496,7 +486,7 @@ export default function ContractorPortal() {
                 localStorage.removeItem("user");
                 router.push("/login");
               }}
-              className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/5 text-[10px] font-black text-zinc-400 hover:text-red-400 hover:border-red-500/30 transition-all uppercase tracking-widest"
+              className="px-4 py-2 rounded-xl bg-zinc-900 border border-white/5 text-[10px] font-bold text-white font-bold hover:text-red-400 hover:border-red-500/30 transition-all uppercase tracking-widest"
             >
               Sign Out
             </button>
@@ -524,13 +514,13 @@ export default function ContractorPortal() {
               </div>
               <div>
                 <span
-                  className={`text-[10px] font-black uppercase tracking-[0.3em] mb-2 block ${
-                    timerStatus === "expired" ? "text-red-400" : "text-zinc-500"
+                  className={`text-[10px] font-bold uppercase tracking-[0.3em] mb-2 block ${
+                    timerStatus === "expired" ? "text-red-400" : "text-white font-bold"
                   }`}
                 >
                   {timerStatus === "expired" ? "EXPIRED" : "REMAINING TIME"}
                 </span>
-                <div className="text-5xl font-black text-white tabular-nums tracking-tighter">
+                <div className="text-5xl font-bold text-white tabular-nums tracking-tighter">
                   {formatTime(timeLeft)}
                 </div>
               </div>
@@ -538,17 +528,17 @@ export default function ContractorPortal() {
 
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-zinc-950 border border-white/5">
-                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                <span className="text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                   Allocation
                 </span>
-                <span className="text-xs font-black text-white">
+                <span className="text-xs font-bold text-white">
                   {task?.expectedDuration}
                 </span>
               </div>
               {timerStatus === "expired" && (
                 <div className="flex items-center gap-2 text-red-400 animate-pulse">
                   <AlertTriangle className="w-3 h-3" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
+                  <span className="text-[9px] font-bold uppercase tracking-widest">
                     Exceeded
                   </span>
                 </div>
@@ -566,10 +556,10 @@ export default function ContractorPortal() {
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-white tracking-tight">
+                  <h2 className="text-xl font-bold text-white tracking-tight">
                     Safety Summary
                   </h2>
-                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                  <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest">
                     Verified Isolation State
                   </p>
                 </div>
@@ -578,7 +568,7 @@ export default function ContractorPortal() {
               <div className="grid md:grid-cols-2 gap-10">
                 <div className="space-y-6">
                   <div>
-                    <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3 block">
+                    <Label className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em] mb-3 block">
                       Reason for Isolation
                     </Label>
                     <div className="relative group">
@@ -592,10 +582,10 @@ export default function ContractorPortal() {
 
                   <div className="p-6 rounded-2xl bg-zinc-950 border border-white/5 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
                     <div>
-                      <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block mb-1">
+                      <span className="text-[10px] font-bold text-white font-bold uppercase tracking-widest block mb-1">
                         Lock Box
                       </span>
-                      <span className="text-3xl font-black text-white tracking-tighter">
+                      <span className="text-3xl font-bold text-white tracking-tighter">
                         {task?.lockBoxNumber}
                       </span>
                     </div>
@@ -604,33 +594,33 @@ export default function ContractorPortal() {
                 </div>
 
                 <div className="space-y-4">
-                  <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-3 block">
+                  <Label className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em] mb-3 block">
                     Authorized Personnel
                   </Label>
                   <div className="space-y-3">
                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-white/5 group hover:bg-zinc-900 transition-colors">
-                      <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-zinc-500 group-hover:text-emerald-400 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-white font-bold group-hover:text-emerald-400 transition-colors">
                         <User className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">
+                        <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">
                           Primary Operator
                         </p>
-                        <p className="text-sm font-black text-white">
+                        <p className="text-sm font-bold text-white">
                           {task?.primaryOperator?.name}
                         </p>
                       </div>
                       <CheckCircle2 className="w-4 h-4 text-emerald-500/50 ml-auto" />
                     </div>
                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-white/5 group hover:bg-zinc-900 transition-colors">
-                      <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-zinc-500 group-hover:text-emerald-400 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-white font-bold group-hover:text-emerald-400 transition-colors">
                         <User className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">
+                        <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">
                           Operator Supervisor
                         </p>
-                        <p className="text-sm font-black text-white">
+                        <p className="text-sm font-bold text-white">
                           {task?.supervisor?.name}
                         </p>
                       </div>
@@ -647,7 +637,7 @@ export default function ContractorPortal() {
             <div className="p-6 border-b border-white/5 bg-zinc-950/20">
               <div className="flex items-center gap-3">
                 <Info className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-black text-white tracking-tight">
+                <h3 className="font-bold text-white tracking-tight">
                   Active Tags
                 </h3>
               </div>
@@ -656,10 +646,10 @@ export default function ContractorPortal() {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-zinc-950/50">
-                    <th className="py-4 px-6 text-[9px] font-black text-zinc-600 uppercase tracking-widest border-b border-white/5">
+                    <th className="py-4 px-6 text-[9px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5">
                       ID
                     </th>
-                    <th className="py-4 px-6 text-[9px] font-black text-zinc-600 uppercase tracking-widest border-b border-white/5">
+                    <th className="py-4 px-6 text-[9px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5">
                       Location
                     </th>
                   </tr>
@@ -671,16 +661,16 @@ export default function ContractorPortal() {
                       className="group hover:bg-white/[0.02] transition-colors"
                     >
                       <td className="py-4 px-6">
-                        <span className="w-6 h-6 rounded-lg bg-zinc-950 border border-white/10 flex items-center justify-center text-[10px] font-black text-emerald-500 group-hover:border-emerald-500/30 transition-all shadow-lg">
+                        <span className="w-6 h-6 rounded-lg bg-zinc-950 border border-white/10 flex items-center justify-center text-[10px] font-bold text-emerald-500 group-hover:border-emerald-500/30 transition-all shadow-lg">
                           {pt.tagNo}
                         </span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex flex-col">
-                          <span className="text-xs font-black text-zinc-300 group-hover:text-white transition-colors">
+                          <span className="text-xs font-bold text-zinc-300 group-hover:text-white transition-colors">
                             {pt.isolationDescription}
                           </span>
-                          <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mt-0.5">
+                          <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-0.5">
                             {pt.requiredPosition}
                           </span>
                         </div>
@@ -701,10 +691,10 @@ export default function ContractorPortal() {
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-white tracking-tight mb-2">
+              <h3 className="text-xl font-bold text-white tracking-tight mb-2">
                 LOTO Active & Verified
               </h3>
-              <p className="text-sm font-bold text-zinc-400 leading-relaxed max-w-2xl">
+              <p className="text-sm font-bold text-white font-bold leading-relaxed max-w-2xl">
                 This system state has been mechanically verified. All energy
                 sources are effectively isolated. Authorized personnel may now
                 apply personal locks.
@@ -719,18 +709,18 @@ export default function ContractorPortal() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <Users2 className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-xl font-black text-white tracking-tight">
+                <h2 className="text-xl font-bold text-white tracking-tight">
                   Crew Tracking
                 </h2>
               </div>
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest">
                 Registered Members • {selectedCompany}
               </p>
             </div>
             {!showAddForm && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="px-6 py-3 rounded-2xl bg-emerald-500 text-[10px] font-black text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest flex items-center gap-2"
+                className="px-6 py-3 rounded-2xl bg-emerald-500 text-[10px] font-bold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Crew Member
               </button>
@@ -741,19 +731,19 @@ export default function ContractorPortal() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/5 bg-zinc-950/20">
-                  <th className="px-6 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                  <th className="px-6 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Date
                   </th>
-                  <th className="px-6 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                  <th className="px-6 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Identity
                   </th>
-                  <th className="px-6 py-5 text-left text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                  <th className="px-6 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Description
                   </th>
-                  <th className="px-6 py-5 text-center text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                  <th className="px-6 py-5 text-center text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Lock Status
                   </th>
-                  <th className="px-6 py-5 text-right text-[9px] font-black text-zinc-500 uppercase tracking-widest">
+                  <th className="px-6 py-5 text-right text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Activity
                   </th>
                 </tr>
@@ -767,13 +757,13 @@ export default function ContractorPortal() {
                       className="group hover:bg-white/[0.02] transition-colors"
                     >
                       <td className="px-6 py-5">
-                        <span className="text-xs font-black text-zinc-500">
+                        <span className="text-xs font-bold text-white font-bold">
                           {new Date(lock.lockedOnAt).toLocaleDateString()}
                         </span>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden ring-1 ring-white/10 group-hover:ring-emerald-500/30 transition-all flex items-center justify-center text-[10px] font-black text-zinc-700">
+                          <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden ring-1 ring-white/10 group-hover:ring-emerald-500/30 transition-all flex items-center justify-center text-[10px] font-bold text-zinc-700">
                             {lock.lockOnPhoto ? (
                               <img
                                 src={lock.lockOnPhoto}
@@ -784,7 +774,7 @@ export default function ContractorPortal() {
                             )}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-black text-white tracking-tight group-hover:text-emerald-400 transition-colors">
+                            <span className="font-bold text-white tracking-tight group-hover:text-emerald-400 transition-colors">
                               {lock.contractorName}
                             </span>
                             <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
@@ -794,7 +784,7 @@ export default function ContractorPortal() {
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-xs font-bold text-zinc-400 leading-relaxed italic max-w-[200px] line-clamp-2">
+                        <p className="text-xs font-bold text-white font-bold leading-relaxed italic max-w-[200px] line-clamp-2">
                           "{lock.description}"
                         </p>
                       </td>
@@ -805,16 +795,16 @@ export default function ContractorPortal() {
                               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
                                 <Key className="w-4 h-4 text-emerald-400" />
                               </div>
-                              <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">
+                              <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">
                                 Locked
                               </span>
                             </div>
                           ) : (
                             <div className="flex flex-col items-center gap-1.5 opacity-30">
                               <div className="w-8 h-8 rounded-xl bg-zinc-950 border border-white/10 flex items-center justify-center">
-                                <CheckCircle2 className="w-4 h-4 text-zinc-500" />
+                                <CheckCircle2 className="w-4 h-4 text-white font-bold" />
                               </div>
-                              <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">
+                              <span className="text-[8px] font-bold text-white font-bold uppercase tracking-widest">
                                 Released
                               </span>
                             </div>
@@ -828,16 +818,16 @@ export default function ContractorPortal() {
                               setVerifyingLockId(lock.id);
                               setShowLockOffVerify(true);
                             }}
-                            className="px-6 py-2.5 rounded-xl bg-zinc-950 border border-white/5 text-[10px] font-black text-zinc-400 hover:text-white hover:bg-zinc-900 active:scale-95 transition-all shadow-2xl"
+                            className="px-6 py-2.5 rounded-xl bg-zinc-950 border border-white/5 text-[10px] font-bold text-white font-bold hover:text-white hover:bg-zinc-900 active:scale-95 transition-all shadow-2xl"
                           >
                             LOCK OFF
                           </button>
                         ) : (
                           <div className="flex flex-col items-end">
-                            <span className="text-xs font-black text-zinc-500">
+                            <span className="text-xs font-bold text-white font-bold">
                               Returned
                             </span>
-                            <span className="text-[9px] font-black text-zinc-700 uppercase">
+                            <span className="text-[9px] font-bold text-zinc-700 uppercase">
                               {new Date(lock.lockedOffAt).toLocaleTimeString(
                                 [],
                                 { hour: "2-digit", minute: "2-digit" },
@@ -855,7 +845,7 @@ export default function ContractorPortal() {
                     <td className="px-6 py-8" colSpan={2}>
                       <div className="space-y-4">
                         <div className="flex flex-col gap-2">
-                          <Label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] ml-1">
+                          <Label className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
                             Member Identity
                           </Label>
                           <Input
@@ -871,7 +861,7 @@ export default function ContractorPortal() {
                           />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] ml-1">
+                          <Label className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
                             Trade Specialty
                           </Label>
                           <Input
@@ -887,7 +877,7 @@ export default function ContractorPortal() {
                     </td>
                     <td className="px-6 py-8">
                       <div className="flex flex-col gap-2">
-                        <Label className="text-[8px] font-black text-zinc-600 uppercase tracking-[0.2em] ml-1">
+                        <Label className="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">
                           Description
                         </Label>
                         <textarea
@@ -920,7 +910,7 @@ export default function ContractorPortal() {
                           )}
                         </button>
                         <span
-                          className={`text-[9px] font-black uppercase tracking-widest ${signature ? "text-emerald-400" : "text-zinc-600"}`}
+                          className={`text-[9px] font-bold uppercase tracking-widest ${signature ? "text-emerald-400" : "text-zinc-600"}`}
                         >
                           {signature ? "Identity Set" : "Verifying Photo"}
                         </span>
@@ -931,7 +921,7 @@ export default function ContractorPortal() {
                         <button
                           onClick={handleLockOn}
                           disabled={isSubmitting}
-                          className="w-full bg-emerald-500 text-[10px] font-black text-zinc-950 p-3 rounded-xl hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest"
+                          className="w-full bg-emerald-500 text-[10px] font-bold text-zinc-950 p-3 rounded-xl hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest"
                         >
                           {isSubmitting ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -941,7 +931,7 @@ export default function ContractorPortal() {
                         </button>
                         <button
                           onClick={() => setShowAddForm(false)}
-                          className="w-full text-[9px] font-black text-zinc-600 hover:text-zinc-400 uppercase tracking-widest transition-colors py-2"
+                          className="w-full text-[9px] font-bold text-zinc-600 hover:text-white font-bold uppercase tracking-widest transition-colors py-2"
                         >
                           Cancel
                         </button>
@@ -960,7 +950,7 @@ export default function ContractorPortal() {
             <div className="w-10 h-10 rounded-xl bg-zinc-950 flex items-center justify-center text-emerald-400/50">
               <Info className="w-5 h-5" />
             </div>
-            <p className="text-[10px] font-bold text-zinc-500 leading-relaxed max-w-xl uppercase tracking-wider">
+            <p className="text-[10px] font-bold text-white font-bold leading-relaxed max-w-xl uppercase tracking-wider">
               By confirming your entry, you are providing a legally binding
               digital signature. All activities are timestamped and logged in
               the secure audit chain.
@@ -968,7 +958,7 @@ export default function ContractorPortal() {
           </div>
           <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-zinc-950 border border-white/5">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+            <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">
               Active System Guard
             </span>
           </div>
@@ -985,10 +975,10 @@ export default function ContractorPortal() {
                   <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white tracking-tight">
+                  <h3 className="text-xl font-bold text-white tracking-tight">
                     Biometric Signature
                   </h3>
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-0.5">
+                  <p className="text-[9px] font-bold text-white font-bold uppercase tracking-widest mt-0.5">
                     Capturing ID Hash
                   </p>
                 </div>
@@ -999,7 +989,7 @@ export default function ContractorPortal() {
                   stream?.getTracks().forEach((track) => track.stop());
                   setShowCamera(false);
                 }}
-                className="w-10 h-10 rounded-full hover:bg-white/5 transition-colors flex items-center justify-center text-zinc-500"
+                className="w-10 h-10 rounded-full hover:bg-white/5 transition-colors flex items-center justify-center text-white font-bold"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -1025,7 +1015,7 @@ export default function ContractorPortal() {
               </div>
             </div>
             <div className="p-8 bg-zinc-950/50 text-center">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] leading-relaxed">
+              <p className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.3em] leading-relaxed">
                 Position your face within the frame. Clarity affects validation
                 results.
               </p>
@@ -1037,10 +1027,10 @@ export default function ContractorPortal() {
                   <div className="w-24 h-24 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
                   <ShieldCheck className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
                 </div>
-                <h4 className="text-xl font-black text-white uppercase tracking-[0.3em]">
+                <h4 className="text-xl font-bold text-white uppercase tracking-[0.3em]">
                   Analyzing ID
                 </h4>
-                <p className="text-[10px] font-black text-emerald-500/50 uppercase tracking-[0.2em] mt-3 animate-pulse">
+                <p className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-[0.2em] mt-3 animate-pulse">
                   Running mechanical compliance check...
                 </p>
               </div>
@@ -1051,15 +1041,15 @@ export default function ContractorPortal() {
                 <div className="w-20 h-20 rounded-[2rem] bg-red-500/10 text-red-500 flex items-center justify-center mb-6 border border-red-500/20 shadow-2xl">
                   <AlertTriangle className="w-10 h-10" />
                 </div>
-                <h4 className="text-2xl font-black text-white uppercase tracking-tight mb-4">
+                <h4 className="text-2xl font-bold text-white uppercase tracking-tight mb-4">
                   Signal Failure
                 </h4>
-                <p className="text-sm font-bold text-zinc-500 leading-relaxed mb-10 max-w-sm">
+                <p className="text-sm font-bold text-white font-bold leading-relaxed mb-10 max-w-sm">
                   {verificationError}
                 </p>
                 <button
                   onClick={startCamera}
-                  className="px-10 py-4 rounded-2xl bg-white text-[11px] font-black text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-2xl uppercase tracking-widest"
+                  className="px-10 py-4 rounded-2xl bg-white text-[11px] font-bold text-zinc-950 hover:bg-zinc-200 active:scale-95 transition-all shadow-2xl uppercase tracking-widest"
                 >
                   Try Again
                 </button>
@@ -1092,10 +1082,10 @@ export default function ContractorPortal() {
               </div>
 
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">
+                <h2 className="text-2xl font-bold text-white tracking-tight">
                   Initialize Release
                 </h2>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2 px-8 leading-relaxed">
+                <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest mt-2 px-8 leading-relaxed">
                   Identity link:{" "}
                   <span className="text-white">
                     {
@@ -1109,7 +1099,7 @@ export default function ContractorPortal() {
 
               <div className="bg-zinc-950 rounded-[2rem] p-6 border border-white/5 space-y-4 shadow-inner">
                 <div className="flex items-center justify-between px-2">
-                  <Label className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">
+                  <Label className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
                     Key Authorization
                   </Label>
                   <Key className="w-4 h-4 text-emerald-500/30" />
@@ -1129,7 +1119,7 @@ export default function ContractorPortal() {
                 <button
                   disabled={!lockOffInput || isVerifyingLockOff}
                   onClick={() => handleLockOffVerify()}
-                  className="w-full h-16 rounded-2xl bg-emerald-500 text-[11px] font-black text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/30 uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50"
+                  className="w-full h-16 rounded-2xl bg-emerald-500 text-[11px] font-bold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/30 uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50"
                 >
                   {isVerifyingLockOff ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -1144,7 +1134,7 @@ export default function ContractorPortal() {
                     setShowLockOffVerify(false);
                     setLockOffInput("");
                   }}
-                  className="text-[10px] font-black text-zinc-600 hover:text-zinc-400 uppercase tracking-widest transition-colors py-2"
+                  className="text-[10px] font-bold text-zinc-600 hover:text-white font-bold uppercase tracking-widest transition-colors py-2"
                 >
                   Return to Dashboard
                 </button>
@@ -1163,10 +1153,10 @@ export default function ContractorPortal() {
                 <div className="mx-auto w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-6 shadow-2xl">
                   <ShieldCheck className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-black text-white tracking-tight">
+                <h3 className="text-2xl font-bold text-white tracking-tight">
                   Security Protocol
                 </h3>
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">
+                <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest mt-2">
                   Required for Future Release Authorization
                 </p>
               </div>
@@ -1182,10 +1172,10 @@ export default function ContractorPortal() {
                     <Plus className="w-6 h-6 rotate-45" />
                   </div>
                   <div className="flex-1">
-                    <div className="font-black text-white tracking-tight">
+                    <div className="font-bold text-white tracking-tight">
                       Set Guard Key
                     </div>
-                    <div className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">
+                    <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
                       Localized Access
                     </div>
                   </div>
@@ -1204,10 +1194,10 @@ export default function ContractorPortal() {
                     <Shield className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
-                    <div className="font-black text-white tracking-tight">
+                    <div className="font-bold text-white tracking-tight">
                       Email Token
                     </div>
-                    <div className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">
+                    <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
                       Network Verification
                     </div>
                   </div>
@@ -1221,7 +1211,7 @@ export default function ContractorPortal() {
                 <div className="animate-in slide-in-from-bottom-4 duration-500 space-y-4">
                   <div className="bg-zinc-950 rounded-2xl p-6 border border-white/5 shadow-inner">
                     <div className="flex items-center justify-between mb-2">
-                      <Label className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">
+                      <Label className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">
                         Create Protocol Key
                       </Label>
                       <Key className="w-3 h-3 text-emerald-500/30" />
@@ -1229,7 +1219,7 @@ export default function ContractorPortal() {
                     <Input
                       type="password"
                       placeholder="Min 4 digits"
-                      className="bg-transparent border-none text-3xl font-black text-white p-0 focus:ring-0 placeholder:text-zinc-800 tracking-[0.3em] h-12"
+                      className="bg-transparent border-none text-3xl font-bold text-white p-0 focus:ring-0 placeholder:text-zinc-800 tracking-[0.3em] h-12"
                       value={newRow.password}
                       onChange={(e) =>
                         setNewRow({ ...newRow, password: e.target.value })
@@ -1247,7 +1237,7 @@ export default function ContractorPortal() {
               {verificationMethod === "email" && (
                 <div className="p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 flex gap-4 animate-in slide-in-from-bottom-4 duration-500">
                   <Info className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <p className="text-[10px] font-black text-zinc-300 uppercase leading-relaxed tracking-wider">
+                  <p className="text-[10px] font-bold text-zinc-300 uppercase leading-relaxed tracking-wider">
                     Transmission active. Verification tokens will be routed to{" "}
                     <span className="text-emerald-400 decoration-emerald-500/30 underline-offset-4 underline">
                       {newRow.email}
@@ -1264,7 +1254,7 @@ export default function ContractorPortal() {
                     (!newRow.password || newRow.password.length < 4))
                 }
                 onClick={() => setShowVerifyOptions(false)}
-                className="w-full h-16 rounded-2xl bg-emerald-500 text-[11px] font-black text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/30 uppercase tracking-[0.2em] relative overflow-hidden group disabled:opacity-50"
+                className="w-full h-16 rounded-2xl bg-emerald-500 text-[11px] font-bold text-zinc-950 hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/30 uppercase tracking-[0.2em] relative overflow-hidden group disabled:opacity-50"
               >
                 <span className="relative z-10">Initialize Commitment</span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />

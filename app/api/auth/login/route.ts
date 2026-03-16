@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, type, lotoId, contractorNumber } = body;
+    const { email, password, type, lotoId, contractorNumber, companyName } = body;
 
     let dataSource = await getDataSource();
     if (!dataSource.isInitialized) {
@@ -22,9 +22,9 @@ export async function POST(request: Request) {
     let user;
 
     if (type === "contractor") {
-      if (!lotoId) {
+      if (!lotoId || !companyName) {
         return NextResponse.json(
-          { error: "LOTO ID is required" },
+          { error: "LOTO ID and Company are required" },
           { status: 400 }
         );
       }
@@ -56,7 +56,10 @@ export async function POST(request: Request) {
           role: "contractor",
           type: "contractor",
           lotoId: lotoIdTrimmed,
+          companyName: companyName,
         } as any;
+      } else {
+        (user as any).companyName = companyName; // Assign company for existing DB user if any
       }
 
       // Pass the task UUID back for redirection
@@ -104,7 +107,7 @@ export async function POST(request: Request) {
 
     // Generate JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role, type: user.type },
+      { userId: user.id, email: user.email, role: user.role, type: user.type, companyName: (user as any).companyName || user.companyName },
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "1d" }
     );
@@ -121,6 +124,7 @@ export async function POST(request: Request) {
         type: user.type,
         lotoId: user.lotoId,
         taskId: (user as any).taskId,
+        companyName: (user as any).companyName || user.companyName,
       },
     });
   } catch (error) {
