@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, type, lotoId, contractorNumber, companyName } = body;
+    const { email, password, type, lotoId, contractorId } = body;
 
     let dataSource = await getDataSource();
     if (!dataSource.isInitialized) {
@@ -22,9 +22,9 @@ export async function POST(request: Request) {
     let user;
 
     if (type === "contractor") {
-      if (!lotoId || !contractorNumber) {
+      if (!lotoId || !contractorId) {
         return NextResponse.json(
-          { error: "LOTO ID and Contractor Number are required" },
+          { error: "LOTO ID and Contractor Company are required" },
           { status: 400 }
         );
       }
@@ -43,17 +43,18 @@ export async function POST(request: Request) {
       }
 
       user = await userRepository.findOne({
-        where: { contractorNumber: contractorNumber, lotoId: lotoIdTrimmed, type: "contractor" }
+        where: { id: contractorId, type: "contractor" }
       });
 
       if (!user) {
         return NextResponse.json(
-          { error: "Contractor not recognized for this LOTO." },
+          { error: "Contractor Company not found." },
           { status: 401 }
         );
       }
 
-      // Pass the task UUID back for redirection
+      // We still map lotoId dynamically to the user instance for this session
+      (user as any).lotoId = lotoIdTrimmed;
       (user as any).taskId = task.id;
     } else {
       // Company login
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
 
     // Generate JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role, type: user.type, companyName: (user as any).companyName || null },
+      { userId: user.id, email: user.email, role: user.role, type: user.type, lotoId: (user as any).lotoId || null },
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "1d" }
     );
@@ -113,9 +114,8 @@ export async function POST(request: Request) {
         name: user.name,
         role: user.role,
         type: user.type,
-        lotoId: user.lotoId,
+        lotoId: (user as any).lotoId || user.lotoId,
         taskId: (user as any).taskId,
-        companyName: (user as any).companyName || null,
       },
     });
   } catch (error) {

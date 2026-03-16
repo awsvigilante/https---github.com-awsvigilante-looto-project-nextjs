@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [lotoId, setLotoId] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
-  const [selectedContractorNumber, setSelectedContractorNumber] = useState("");
+  const [selectedContractorId, setSelectedContractorId] = useState("");
   const [companies, setCompanies] = useState<any[]>([]);
   const [contractors, setContractors] = useState<any[]>([]);
   const [userType, setUserType] = useState<"company" | "contractor">("company");
@@ -69,7 +69,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (userType === "contractor" && !selectedContractorNumber) {
+      if (userType === "contractor" && !selectedContractorId) {
         toast.error("Please select a contractor");
         setIsLoading(false);
         return;
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
       const body =
         userType === "contractor"
-          ? { lotoId, type: userType, contractorNumber: selectedContractorNumber }
+          ? { lotoId, type: userType, contractorId: selectedContractorId }
           : { email, password, type: userType };
 
       const response = await fetch("/api/auth/login", {
@@ -263,8 +263,8 @@ export default function LoginPage() {
                         <select
                           id="contractorSelection"
                           title="Your Identity"
-                          value={selectedContractorNumber}
-                          onChange={(e) => setSelectedContractorNumber(e.target.value)}
+                          value={selectedContractorId}
+                          onChange={(e) => setSelectedContractorId(e.target.value)}
                           required={userType === "contractor"}
                           className="h-16 w-full pl-12 pr-4 bg-zinc-950/50 border border-white/5 text-sm font-black text-white focus:border-blue-500 hover:border-white/10 transition-all rounded-2xl outline-none ring-0 appearance-none cursor-pointer"
                         >
@@ -275,7 +275,7 @@ export default function LoginPage() {
                             <option value="" disabled>No contractors found</option>
                           )}
                           {contractors.map((c) => (
-                            <option key={c.id} value={c.contractorNumber} className="bg-zinc-900 text-white font-bold py-2">
+                            <option key={c.id} value={c.id} className="bg-zinc-900 text-white font-bold py-2">
                               {c.name}
                             </option>
                           ))}
