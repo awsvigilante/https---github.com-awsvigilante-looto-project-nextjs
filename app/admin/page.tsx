@@ -68,8 +68,8 @@ export default function AdminPage() {
   const [email, setEmail] = useState("");
   const [type, setType] = useState("company");
   const [role, setRole] = useState("operator");
-  const [lotoId, setLotoId] = useState("");
-  const [contractorNumber, setContractorNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
 
   // Edit User Form States
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
@@ -79,8 +79,8 @@ export default function AdminPage() {
   const [editEmail, setEditEmail] = useState("");
   const [editType, setEditType] = useState("company");
   const [editRole, setEditRole] = useState("operator");
-  const [editLotoId, setEditLotoId] = useState("");
-  const [editContractorNumber, setEditContractorNumber] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editPhone, setEditPhone] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -144,9 +144,9 @@ export default function AdminPage() {
       toast.error("Name and email are required.");
       return;
     }
-    if (type === "contractor" && (!lotoId || !contractorNumber)) {
+    if (type === "contractor" && (!address || !phone)) {
       toast.error(
-        "LOTO ID and Contractor Number required for contractor accounts.",
+        "Company Address and Phone are required for contractor accounts.",
       );
       return;
     }
@@ -164,8 +164,8 @@ export default function AdminPage() {
           email,
           type,
           role,
-          lotoId,
-          contractorNumber,
+          address,
+          phone,
         }),
       });
       const data = await res.json();
@@ -176,8 +176,8 @@ export default function AdminPage() {
       // Reset form and close modal
       setName("");
       setEmail("");
-      setLotoId("");
-      setContractorNumber("");
+      setAddress("");
+      setPhone("");
       setType("company");
       setRole("operator");
       setIsAddUserOpen(false);
@@ -197,8 +197,8 @@ export default function AdminPage() {
     setEditEmail(user.email || "");
     setEditType(user.type || "company");
     setEditRole(user.role || "operator");
-    setEditLotoId(user.lotoId || "");
-    setEditContractorNumber(user.contractorNumber || "");
+    setEditAddress(user.address || "");
+    setEditPhone(user.phone || "");
     setIsEditUserOpen(true);
   };
 
@@ -216,8 +216,8 @@ export default function AdminPage() {
         payload.role = editRole;
       } else {
         payload.role = "operator"; // Force operator for contractors
-        payload.lotoId = editLotoId;
-        payload.contractorNumber = editContractorNumber;
+        payload.address = editAddress;
+        payload.phone = editPhone;
       }
 
       const res = await fetch(`/api/admin/users/${editUserId}`, {
@@ -528,55 +528,57 @@ export default function AdminPage() {
 
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                          Full Legal Name
+                          {type === "company" ? "Full Legal Name" : "Company Name"}
                         </Label>
                         <Input
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          placeholder="e.g. Sarah Jenkins"
+                          placeholder={type === "company" ? "e.g. Sarah Jenkins" : "e.g. Apex Construction"}
                           className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
                           required
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                          Verified Email
-                        </Label>
-                        <Input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="name@organization.com"
-                          className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
-                          required
-                        />
-                      </div>
+                      {type === "company" && (
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
+                            Verified Email
+                          </Label>
+                          <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="name@organization.com"
+                            className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
+                            required
+                          />
+                        </div>
+                      )}
 
                       {type === "contractor" && (
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                              Active LOTO ID
+                              Company Address
                             </Label>
                             <Input
-                              value={lotoId}
-                              onChange={(e) => setLotoId(e.target.value)}
-                              placeholder="e.g. 000789"
+                              value={address}
+                              onChange={(e) => setAddress(e.target.value)}
+                              placeholder="e.g. 123 Industrial Ave"
                               className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
                           </div>
                           <div className="space-y-2">
                             <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                              CN Reference
+                              Company Phone Number
                             </Label>
                             <Input
-                              value={contractorNumber}
+                              value={phone}
                               onChange={(e) =>
-                                setContractorNumber(e.target.value)
+                                setPhone(e.target.value)
                               }
-                              placeholder="CN-001"
+                              placeholder="(555) 123-4567"
                               className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
@@ -656,12 +658,12 @@ export default function AdminPage() {
 
                       <div className="space-y-2">
                         <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                          Full Legal Name
+                          {editType === "company" ? "Full Legal Name" : "Company Name"}
                         </Label>
                         <Input
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          placeholder="e.g. Sarah Jenkins"
+                          placeholder={editType === "company" ? "e.g. Sarah Jenkins" : "e.g. Apex Construction"}
                           className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-xs font-bold text-white focus:ring-emerald-500/50"
                           required
                         />
@@ -687,24 +689,24 @@ export default function AdminPage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                              Active LOTO ID
+                              Company Address
                             </Label>
                             <Input
-                              value={editLotoId}
-                              onChange={(e) => setEditLotoId(e.target.value)}
-                              placeholder="e.g. 000789"
+                              value={editAddress}
+                              onChange={(e) => setEditAddress(e.target.value)}
+                              placeholder="e.g. 123 Industrial Ave"
                               className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
                           </div>
                           <div className="space-y-2">
                             <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">
-                              CN Reference
+                              Company Phone Number
                             </Label>
                             <Input
-                              value={editContractorNumber}
-                              onChange={(e) => setEditContractorNumber(e.target.value)}
-                              placeholder="CN-001"
+                              value={editPhone}
+                              onChange={(e) => setEditPhone(e.target.value)}
+                              placeholder="(555) 123-4567"
                               className="rounded-2xl bg-zinc-900/50 border-white/10 h-12 text-[10px] font-bold text-white focus:ring-emerald-500/50"
                               required
                             />
@@ -778,7 +780,7 @@ export default function AdminPage() {
                           <TableCell className="py-6 px-8 text-xs font-bold text-zinc-500">
                             {u.type === "company"
                               ? u.email
-                              : `LOTO-${u.lotoId} / ${u.contractorNumber}`}
+                              : `${u.address || "No Address"} / ${u.phone || "No Phone"}`}
                           </TableCell>
                           <TableCell className="py-6 px-8">
                             <span

@@ -66,7 +66,7 @@ export async function PUT(
   }
 
   try {
-    const { name, email, type, role, lotoId, contractorNumber } = await request.json();
+    const { name, email, type, role, address, phone } = await request.json();
 
     const dataSource = await getDataSource();
     const userRepository = dataSource.getRepository(User);
@@ -87,8 +87,8 @@ export async function PUT(
     if (type) userToUpdate.type = type;
 
     if (userToUpdate.type === "contractor") {
-      if (lotoId) userToUpdate.lotoId = lotoId;
-      if (contractorNumber) userToUpdate.contractorNumber = contractorNumber;
+      if (address) userToUpdate.address = address;
+      if (phone) userToUpdate.phone = phone;
     }
 
     await userRepository.save(userToUpdate);

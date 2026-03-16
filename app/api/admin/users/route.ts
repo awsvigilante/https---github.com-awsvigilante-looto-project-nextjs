@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, type, role, lotoId, contractorNumber } = await request.json();
+    const { name, email, type, role, lotoId, contractorNumber, address, phone } = await request.json();
 
     if (!name || !type || !role) {
       return NextResponse.json(
@@ -56,9 +56,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (type === "contractor" && (!lotoId || !contractorNumber)) {
+    if (type === "contractor" && (!address || !phone)) {
       return NextResponse.json(
-        { error: "LOTO ID and Contractor Number are required for contractors" },
+        { error: "Company Address and Phone are required for contractors" },
         { status: 400 }
       );
     }
@@ -66,10 +66,10 @@ export async function POST(request: Request) {
     const dataSource = await getDataSource();
     const userRepository = dataSource.getRepository(User);
 
-    // Check if user already exists (by email for company, or lotoId/number for contractor)
+    // Check if user already exists (by email for company, or by name for contractor acting as a company)
     const existingUser = type === "company" 
       ? await userRepository.findOneBy({ email })
-      : await userRepository.findOneBy({ lotoId, contractorNumber });
+      : await userRepository.findOneBy({ name, type: "contractor" });
 
     if (existingUser) {
       return NextResponse.json(
@@ -96,12 +96,14 @@ export async function POST(request: Request) {
 
     const newUser = userRepository.create({
       name,
-      email: email || `${lotoId}@contractor.temp`, // Fallback for TypeORM non-null constraints if any
+      email: type === "company" ? email : `${name.replace(/\s+/g, "").toLowerCase()}@contractor.temp`, // Fallback for TypeORM non-null constraints
       password: hashedPassword,
       type,
       role,
-      lotoId,
-      contractorNumber,
+      lotoId: undefined, // deprecated fields
+      contractorNumber: undefined, // deprecated fields
+      address: type === "contractor" ? address : undefined,
+      phone: type === "contractor" ? phone : undefined,
       resetToken,
       resetTokenExpiry
     });
@@ -143,8 +145,8 @@ export async function POST(request: Request) {
         email: newUser.email,
         type: newUser.type,
         role: newUser.role,
-        lotoId: newUser.lotoId,
-        contractorNumber: newUser.contractorNumber
+        address: newUser.address,
+        phone: newUser.phone
       }
     });
   } catch (error) {

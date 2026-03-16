@@ -27,6 +27,12 @@ export class User {
   contractorNumber?: string;
 
   @Column({ type: "varchar", nullable: true })
+  address?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  phone?: string;
+
+  @Column({ type: "varchar", nullable: true })
   resetToken?: string;
 
   @Column({ type: "timestamp", nullable: true })
