@@ -897,7 +897,7 @@ export default function LotoDetail({
                                   disabled={!!p.lockOnInitial1 || isRowUpdating}
                                   className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
                                     p.lockOnInitial1
-                                      ? "bg-zinc-950 text-zinc-400 opacity-60 cursor-not-allowed border-transparent"
+                                      ? "bg-white/5 text-white opacity-100 cursor-not-allowed border-transparent font-black"
                                       : "bg-zinc-900 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 hover:bg-zinc-800"
                                   }`}
                                 >
@@ -925,7 +925,7 @@ export default function LotoDetail({
                                   disabled={!!p.lockOnInitial1 || isRowUpdating}
                                   className={`w-full rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold transition-all outline-none cursor-pointer ${
                                     p.lockOnInitial1
-                                      ? "bg-zinc-950 text-zinc-400 opacity-60 cursor-not-allowed border-transparent"
+                                      ? "bg-white/5 text-white opacity-100 cursor-not-allowed border-transparent font-black"
                                       : "bg-zinc-900 text-emerald-400 focus:border-emerald-500 hover:bg-zinc-800"
                                   }`}
                                 >
