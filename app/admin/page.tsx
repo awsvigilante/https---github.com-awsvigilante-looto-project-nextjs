@@ -140,8 +140,8 @@ export default function AdminPage() {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email) {
-      toast.error("Name and email are required.");
+    if (!name || (type === "company" && !email)) {
+      toast.error("Name and email are required for company staff.");
       return;
     }
     if (type === "contractor" && (!address || !phone)) {
