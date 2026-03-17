@@ -649,10 +649,10 @@ export default function ContractorPortal() {
                 <thead>
                   <tr className="bg-zinc-950/50">
                     <th className="py-4 px-6 text-[9px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5">
-                      ID
+                      Lock ID
                     </th>
                     <th className="py-4 px-6 text-[9px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5">
-                      Lock ID
+                      Point Description
                     </th>
                   </tr>
                 </thead>
