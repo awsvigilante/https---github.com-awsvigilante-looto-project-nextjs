@@ -738,7 +738,7 @@ export default function LotoDetail({
                   </div>
                   <div className="p-6 group bg-emerald-500/5">
                     <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-white font-bold transition-colors text-center md:text-left">
-                      Shift Approval
+                      Shift Engineer (Approver)
                     </p>
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                       <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-[10px] font-bold text-emerald-400">

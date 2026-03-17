@@ -328,15 +328,15 @@ export default function CreateLOTO() {
                                  </select>
                             </div>
                              <div className="space-y-1.5">
-                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Assigned Supervisor (Verification)</label>
+                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Assigned Operator (Verification)</label>
                                 <select
-                                    title="Supervisor"
+                                    title="Operator (Verification)"
                                     value={supervisor}
                                     onChange={(e) => setSupervisor(e.target.value)}
                                     className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
                                      required
                                  >
-                                     <option value="">Select Supervisor...</option>
+                                     <option value="">Select Operator (Verification)...</option>
                                      {supervisors.map(s => (
                                          <option key={s.id} value={s.id}>{s.name}</option>
                                      ))}
@@ -572,11 +572,11 @@ export default function CreateLOTO() {
 
                                 <div className="grid grid-cols-3 gap-2">
                                     <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100/50 text-center">
-                                        <p className="text-[8px] font-extrabold text-indigo-400 uppercase tracking-widest mb-1">Approver</p>
+                                        <p className="text-[8px] font-extrabold text-indigo-400 uppercase tracking-widest mb-1">Shift Engineer (Approver)</p>
                                         <p className="text-[10px] font-bold text-indigo-700 truncate">{engineers.find(e => e.id === submittedTask?.approverId)?.name || 'N/A'}</p>
                                     </div>
                                     <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100/50 text-center">
-                                        <p className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest mb-1">Supervisor</p>
+                                        <p className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest mb-1">Operator (Verification)</p>
                                         <p className="text-[10px] font-bold text-emerald-700 truncate">{supervisors.find(s => s.id === submittedTask?.supervisorId)?.name || 'N/A'}</p>
                                     </div>
                                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
