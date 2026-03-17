@@ -1383,6 +1383,19 @@ export default function LotoDetail({
 
             {isIsolationPhase && (
               <div className="space-y-4">
+                {/* Print Tags Button — Only for Isolator / Creator (available anytime) */}
+                {(isCreator || isAssignedOperator) && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handlePrintTags}
+                      disabled={isUpdating}
+                      className="rounded-xl bg-white border border-indigo-200 px-8 py-3.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <Printer className="w-5 h-5" />
+                      Print Tags
+                    </button>
+                  </div>
+                )}
                 {/* Operator action panel — only when status is Approved */}
                 {status === "Approved" && (
                   <div className="rounded-2xl border border-indigo-200/60 bg-gradient-to-br from-indigo-50 to-blue-50/30 p-6 md:p-8 shadow-sm">
@@ -1402,14 +1415,7 @@ export default function LotoDetail({
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <button
-                        onClick={handlePrintTags}
-                        disabled={isUpdating}
-                        className="rounded-xl bg-white border border-indigo-200 px-8 py-3.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
-                      >
-                        <Printer className="w-5 h-5" />
-                        Print Tags
-                      </button>
+
                       <button
                         onClick={async () => {
                           const mismatched = points.find(p => p.isolationPosition !== p.requiredPosition);
