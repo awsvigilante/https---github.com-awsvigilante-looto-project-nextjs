@@ -808,6 +808,9 @@ export default function LotoDetail({
                           Description / Equipment
                         </th>
                         <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
+                          Normal
+                        </th>
+                        <th className="px-4 py-5 text-left text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
                           Required
                         </th>
                         {showOperatorCols && (
@@ -863,9 +866,29 @@ export default function LotoDetail({
                                   {p.isolationDescription}
                                 </span>
                                 <span className="text-[10px] font-bold text-white font-bold mt-1">
-                                  {p.equipmentName || "Standard Segment"}
+                                  {p.equipmentName || "Standard Isolation"}
                                 </span>
                               </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-5">
+                            {isEditing ? (
+                              <select
+                                title="Normal Position"
+                                value={p.normalPosition || ""}
+                                onChange={(e) => updatePoint(idx, "normalPosition", e.target.value)}
+                                className="w-full rounded-xl border border-white/10 bg-zinc-900/50 px-3 py-2.5 text-xs font-bold text-blue-400 focus:border-emerald-500 outline-none cursor-pointer"
+                              >
+                                <option value="">Select...</option>
+                                <option value="CLOSE">Close</option>
+                                <option value="OPEN">Open</option>
+                                <option value="INSTALLED">Installed</option>
+                                <option value="REMOVED">Removed</option>
+                              </select>
+                            ) : (
+                              <span className="inline-flex rounded-lg bg-blue-500/10 px-3 py-1.5 text-[10px] font-bold text-blue-400 border border-blue-500/20 uppercase tracking-widest">
+                                {p.normalPosition || "—"}
+                              </span>
                             )}
                           </td>
                           <td className="px-4 py-5">
