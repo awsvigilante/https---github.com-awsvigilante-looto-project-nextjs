@@ -743,6 +743,9 @@ export default function ContractorPortal() {
                     Description
                   </th>
                   <th className="px-6 py-5 text-center text-[9px] font-bold text-white font-bold uppercase tracking-widest">
+                    Phone
+                  </th>
+                  <th className="px-6 py-5 text-center text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Lock Status
                   </th>
                   <th className="px-6 py-5 text-right text-[9px] font-bold text-white font-bold uppercase tracking-widest">
@@ -789,6 +792,11 @@ export default function ContractorPortal() {
                         <p className="text-xs font-bold text-white font-bold leading-relaxed italic max-w-[200px] line-clamp-2">
                           "{lock.description}"
                         </p>
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <span className="text-[10px] font-bold text-zinc-400">
+                          {lock.contractorPhone || "—"}
+                        </span>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex justify-center">
@@ -872,6 +880,19 @@ export default function ContractorPortal() {
                             value={newRow.trade}
                             onChange={(e) =>
                               setNewRow({ ...newRow, trade: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2 mt-4">
+                          <Label className="text-[8px] font-bold text-zinc-400 uppercase tracking-[0.2em] ml-1">
+                            Phone Number
+                          </Label>
+                          <Input
+                            placeholder="Phone Number"
+                            className="bg-zinc-900 border-white/10 text-sm font-bold text-white rounded-xl focus:border-emerald-500/30 transition-all h-11 placeholder:text-zinc-500"
+                            value={newRow.phone || ""}
+                            onChange={(e) =>
+                              setNewRow({ ...newRow, phone: e.target.value })
                             }
                           />
                         </div>
