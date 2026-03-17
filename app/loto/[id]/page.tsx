@@ -790,7 +790,7 @@ export default function LotoDetail({
                       Isolation Points
                     </h2>
                     <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest">
-                      {points.length} Required Segregations
+                      {points.length} Required Isolations
                     </p>
                   </div>
                 </div>
