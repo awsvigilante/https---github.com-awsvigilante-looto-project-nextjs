@@ -84,12 +84,17 @@ export async function POST(request: Request) {
     const count = await taskRepo.count();
     const lotoId = generateLotoId(count);
 
+    const now = new Date();
+    const ymd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+    const seq = String(count + 1).padStart(6, "0");
+    const generatedRtm = `RTM-${ymd}-${seq}`;
+
     const task = taskRepo.create({
       lotoId,
       facility,
       lockBoxNumber,
       reasonForIsolation,
-      redTagMasterNo: redTagMasterNo || lotoId.replace("LOTO-", "YR/MO-"),
+      redTagMasterNo: redTagMasterNo || generatedRtm,
       equipmentName,
       expectedDuration,
       numIsolationPoints: Number(numIsolationPoints),

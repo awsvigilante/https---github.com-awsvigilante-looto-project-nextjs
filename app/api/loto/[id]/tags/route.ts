@@ -32,18 +32,25 @@ function getUserFromRequest(request: Request) {
 }
 
 // ─── PDF Styles ───────────────────────────────────────────────────────────────
-// 1pt = 1/72 inch  →  3.25" × 5.5"
-const W = 3.25 * 72;   // 234 pt
-const H = 5.5  * 72;   // 396 pt
+// 1pt = 1/72 inch
+const W = 250;
+const H = 360; // adjusted to fit 2-down on US Letter (792pt tall) with wrapping
 
 const styles = StyleSheet.create({
-  page: {
+  sheet: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    padding: 24,
+    justifyContent: "center",
+  },
+  tagWrapper: {
     width: W,
     height: H,
     flexDirection: "column",
     backgroundColor: "#ffffff",
     border: "2pt solid #111111",
     fontFamily: "Helvetica",
+    margin: 10,
   },
 
   // ── DANGER header
@@ -192,8 +199,8 @@ function LotoTag({
   );
 
   return React.createElement(
-    Page,
-    { size: [W, H], style: styles.page },
+    View,
+    { style: styles.tagWrapper, wrap: false },
 
     // DANGER header
     React.createElement(View, { style: styles.dangerBar },
@@ -311,15 +318,19 @@ function TagDocument({
   return React.createElement(
     Document,
     { title: `LOTO Tags – ${task.lotoId}` },
-    ...points.map((p, i) =>
-      React.createElement(LotoTag, {
-        key: p.id,
-        point: p,
-        tagIndex: i + 1,
-        totalTags: points.length,
-        task,
-        operatorName,
-      })
+    React.createElement(
+      Page,
+      { size: "LETTER", style: styles.sheet },
+      ...points.map((p, i) =>
+        React.createElement(LotoTag, {
+          key: p.id,
+          point: p,
+          tagIndex: i + 1,
+          totalTags: points.length,
+          task,
+          operatorName,
+        })
+      )
     )
   );
 }
