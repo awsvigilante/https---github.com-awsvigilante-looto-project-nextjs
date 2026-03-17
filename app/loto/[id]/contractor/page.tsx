@@ -652,7 +652,7 @@ export default function ContractorPortal() {
                       ID
                     </th>
                     <th className="py-4 px-6 text-[9px] font-bold text-zinc-600 uppercase tracking-widest border-b border-white/5">
-                      Location
+                      Lock ID
                     </th>
                   </tr>
                 </thead>
