@@ -1389,7 +1389,7 @@ export default function LotoDetail({
                     <button
                       onClick={handlePrintTags}
                       disabled={isUpdating}
-                      className="rounded-xl bg-white border border-indigo-200 px-8 py-3.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2"
+                      className="rounded-xl bg-indigo-600 border border-indigo-500 px-8 py-3.5 text-sm font-black text-white hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 uppercase tracking-widest"
                     >
                       <Printer className="w-5 h-5" />
                       Print Tags
