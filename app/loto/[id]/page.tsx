@@ -725,7 +725,7 @@ export default function LotoDetail({
                   </div>
                   <div className="p-6 group">
                     <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest mb-2 group-hover:text-white font-bold transition-colors text-center md:text-left">
-                      Operator Supervisor
+                      Operator (Verification)
                     </p>
                     <div className="flex items-center gap-3 justify-center md:justify-start">
                       <div className="w-8 h-8 rounded-lg bg-zinc-900 flex items-center justify-center border border-white/5 text-[10px] font-bold text-emerald-400">
@@ -1677,9 +1677,9 @@ export default function LotoDetail({
                         </span>
                       </div>
                       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm opacity-80">
-                        <p className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-2">
-                          Operator Supervisor
-                        </p>
+                          <p className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mt-1">
+                            Operator (Verification)
+                          </p>
                         <span className="font-[Brush_Script_MT] text-3xl text-slate-800">
                           {task?.supervisor?.name}
                         </span>

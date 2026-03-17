@@ -620,7 +620,7 @@ export default function ContractorPortal() {
                       </div>
                       <div>
                         <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">
-                          Operator Supervisor
+                          Operator (Verification)
                         </p>
                         <p className="text-sm font-bold text-white">
                           {task?.supervisor?.name}
