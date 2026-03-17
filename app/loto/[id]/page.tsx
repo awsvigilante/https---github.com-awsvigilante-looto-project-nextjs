@@ -666,7 +666,7 @@ export default function LotoDetail({
                         <FileText className="w-4 h-4 text-emerald-400" />
                       </div>
                       <span className="text-[10px] font-bold text-white font-bold uppercase tracking-[0.2em]">
-                        Mission Scope
+                        Reason for Isolation
                       </span>
                     </div>
                     {isCreator &&
