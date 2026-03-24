@@ -848,13 +848,17 @@ export default function ContractorPortal() {
                       </td>
                       <td className="px-6 py-5">
                         {!lock.lockedOffAt ? (
-                          <input
-                            type="text"
-                            placeholder="Add comment..."
-                            className="bg-zinc-900 border border-white/10 text-[10px] font-bold text-white rounded-lg p-2 focus:ring-emerald-500/50 outline-none w-32"
-                            value={lockOffData[lock.id]?.comment || ""}
-                            onChange={(e) => setLockOffData(prev => ({ ...prev, [lock.id]: { ...prev[lock.id], comment: e.target.value } }))}
-                          />
+                          lockOffData[lock.id]?.jobStatus === "Incomplete" ? (
+                            <input
+                              type="text"
+                              placeholder="Reason for incomplete..."
+                              className="bg-zinc-900 border border-white/10 text-[10px] font-bold text-white rounded-lg p-2 focus:ring-emerald-500/50 outline-none w-32 transition-all"
+                              value={lockOffData[lock.id]?.comment || ""}
+                              onChange={(e) => setLockOffData(prev => ({ ...prev, [lock.id]: { ...prev[lock.id], comment: e.target.value } }))}
+                            />
+                          ) : (
+                            <span className="text-[10px] font-bold text-zinc-600 italic">N/A</span>
+                          )
                         ) : (
                           <span className="text-[10px] font-bold text-zinc-400">{(lock as any).comment || "—"}</span>
                         )}
@@ -862,7 +866,10 @@ export default function ContractorPortal() {
                       <td className="px-6 py-5 text-right">
                         {!lock.lockedOffAt ? (
                           <button
-                            disabled={!lockOffData[lock.id]?.jobStatus}
+                            disabled={
+                              !lockOffData[lock.id]?.jobStatus || 
+                              (lockOffData[lock.id]?.jobStatus === "Incomplete" && !lockOffData[lock.id]?.comment?.trim())
+                            }
                             onClick={() => {
                               setVerifyingLockId(lock.id);
                               setShowLockOffVerify(true);
