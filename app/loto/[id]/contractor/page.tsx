@@ -849,13 +849,14 @@ export default function ContractorPortal() {
                       <td className="px-6 py-5">
                         {!lock.lockedOffAt ? (
                           lockOffData[lock.id]?.jobStatus === "Incomplete" ? (
-                            <input
-                              type="text"
-                              placeholder="Reason for incomplete..."
-                              className="bg-zinc-900 border border-white/10 text-[10px] font-bold text-white rounded-lg p-2 focus:ring-emerald-500/50 outline-none w-32 transition-all"
-                              value={lockOffData[lock.id]?.comment || ""}
-                              onChange={(e) => setLockOffData(prev => ({ ...prev, [lock.id]: { ...prev[lock.id], comment: e.target.value } }))}
-                            />
+                            <div className="relative h-8 w-32">
+                              <textarea
+                                placeholder="Reason for incomplete..."
+                                className="absolute top-0 left-0 bg-zinc-900 border border-white/10 text-[10px] font-bold text-white rounded-lg p-2 outline-none w-32 h-8 min-h-[32px] focus:w-72 focus:h-28 focus:z-[60] focus:-translate-y-10 focus:-translate-x-40 focus:ring-2 focus:ring-emerald-500 focus:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] focus:bg-zinc-800 transition-all duration-300 resize-none"
+                                value={lockOffData[lock.id]?.comment || ""}
+                                onChange={(e) => setLockOffData(prev => ({ ...prev, [lock.id]: { ...prev[lock.id], comment: e.target.value } }))}
+                              />
+                            </div>
                           ) : (
                             <span className="text-[10px] font-bold text-zinc-600 italic">N/A</span>
                           )
