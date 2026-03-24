@@ -78,6 +78,24 @@ const STATUS_CONFIG: Record<
     bg: "bg-emerald-100",
     textColor: "text-emerald-700",
   },
+  "READY_FOR_DELOT": {
+    label: "Awaiting De-LOTO",
+    color: "border-amber-200",
+    bg: "bg-amber-100",
+    textColor: "text-amber-700",
+  },
+  "De-LOTO Execution": {
+    label: "De-LOTO",
+    color: "border-indigo-200",
+    bg: "bg-indigo-100",
+    textColor: "text-indigo-700",
+  },
+  "Return to Service": {
+    label: "Restoring",
+    color: "border-rose-200",
+    bg: "bg-rose-100",
+    textColor: "text-rose-700",
+  },
   Closed: {
     label: "Closed",
     color: "border-slate-200",
@@ -135,6 +153,14 @@ function getTaskActionLabel(
     (["supervisor", "maintenance_supervisor", "admin"].includes(role) || isSupervisorForTask)
   ) {
     return "Verify";
+  }
+
+  // De-LOTO Phase -> Operator
+  if (
+    (status === "READY_FOR_DELOT" || status === "De-LOTO Execution" || status === "Return to Service") &&
+    (role === "operator" || role === "admin")
+  ) {
+    return "De-LOTO";
   }
 
   // Everyone else, or any other status (like Draft) just gets "View"

@@ -29,17 +29,22 @@ import {
   Users2,
   PenTool,
   LogOut,
+  Unlock,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 type LotoStatus =
-  | "AWAITING_APPROVAL"
-  | "PENDING_ISOLATION"
-  | "TAGS_PRINTED"
-  | "AWAITING_VERIFICATION"
-  | "ACTIVE"
+  | "Draft"
+  | "Pending Approval"
+  | "Approved"
+  | "Isolation In Progress"
+  | "Isolation Complete"
+  | "Verification In Progress"
+  | "Isolation Verified / Active"
   | "READY_FOR_DELOT"
-  | "COMPLETED";
+  | "De-LOTO Execution"
+  | "Return to Service"
+  | "Closed";
 
 const INITIAL_POINTS = [];
 
@@ -265,26 +270,7 @@ export default function LotoDetail({
   };
 
   const mapStatusToUI = (dbStatus: string): LotoStatus => {
-    switch (dbStatus) {
-      case "Draft":
-        return "AWAITING_APPROVAL";
-      case "Pending Approval":
-        return "AWAITING_APPROVAL";
-      case "Approved":
-        return "PENDING_ISOLATION";
-      case "Verification In Progress":
-        return "TAGS_PRINTED";
-      case "Isolation Complete":
-        return "AWAITING_VERIFICATION";
-      case "Isolation Verified / Active":
-        return "ACTIVE";
-      case "Return to Service":
-        return "READY_FOR_DELOT";
-      case "Closed":
-        return "COMPLETED";
-      default:
-        return "AWAITING_APPROVAL";
-    }
+    return dbStatus as LotoStatus;
   };
 
   const uiStatus = mapStatusToUI(status);
@@ -363,6 +349,7 @@ export default function LotoDetail({
     "Return to Service",
     "Closed",
   ].includes(status);
+  const showDeLoto = ["De-LOTO Execution", "Return to Service", "Closed"].includes(status);
   const showRTS = ["Return to Service", "Closed"].includes(status);
   const canSeeDetails =
     status !== "Pending Approval" || isAuthorizedApprover || isCreator;
@@ -578,7 +565,12 @@ export default function LotoDetail({
               done: status === "Return to Service" || status === "Closed",
             },
             {
-              step: "Delot",
+              step: "De-LOTO",
+              active: status === "READY_FOR_DELOT" || status === "De-LOTO Execution",
+              done: status === "Return to Service" || status === "Closed",
+            },
+            {
+              step: "RTS",
               active: status === "Return to Service",
               done: status === "Closed",
             },
@@ -1055,16 +1047,16 @@ export default function LotoDetail({
                               )}
                             </td>
                           )}
-                          {showRTS && (
+                          {showDeLoto && (
                             <td className="px-4 py-5 text-right">
-                              {status === "Return to Service" ? (
+                              {status === "De-LOTO Execution" ? (
                                 <input
-                                  title="Returned to Service Initial"
+                                  title="De-LOTO Initial"
                                   type="text"
                                   placeholder="Initial..."
                                   value={p.returnedToServiceInitial || ""}
                                   onChange={(e) => updatePoint(idx, "returnedToServiceInitial", e.target.value)}
-                                  className="w-[80px] rounded-xl border border-white/10 bg-zinc-900/50 p-2.5 text-xs font-bold text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/10 outline-none float-right"
+                                  className="w-[80px] rounded-xl border border-white/10 bg-zinc-900/50 p-2.5 text-xs font-bold text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none float-right"
                                 />
                               ) : (
                                 <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest float-right">
@@ -1087,6 +1079,8 @@ export default function LotoDetail({
               "Verification In Progress",
               "Isolation Complete",
               "Isolation Verified / Active",
+              "READY_FOR_DELOT",
+              "De-LOTO Execution",
               "Return to Service",
               "Closed",
             ].includes(status) && (
@@ -1656,7 +1650,7 @@ export default function LotoDetail({
                         )}
                       </div>
                       <button
-                        onClick={() => setStatus("ACTIVE")}
+                        onClick={() => setStatus("Isolation Verified / Active")}
                         disabled={!supervisorSignature}
                         className="w-full rounded-xl bg-purple-600 px-8 py-4 text-sm font-bold text-white hover:bg-purple-700 active:scale-[0.98] transition-all shadow-md shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -1670,7 +1664,7 @@ export default function LotoDetail({
             )}
             {(isAuthorizedApprover || isCreator) && (
               <>
-                {(status === "ACTIVE" || status === "READY_FOR_DELOT") && (
+                {(status === "Isolation Verified / Active" || status === "READY_FOR_DELOT") && (
                   <div className="space-y-6">
                     {/* Existing signatures readonly */}
                     <div className="grid md:grid-cols-2 gap-4">
@@ -1702,11 +1696,30 @@ export default function LotoDetail({
                             Isolation is Verified & Active
                           </h3>
                           <p className="text-sm font-bold text-slate-600">
-                            The Dedicated Contractor Portal is now live for this
-                            LOTO. Contractors may access it to safely apply
-                            their visual locks.
+                            The isolation has been verified and the equipment is safe. 
+                            Work can now proceed under this LOTO.
                           </p>
                         </div>
+                        {status === "READY_FOR_DELOT" && (isAssignedOperator || isCreator) && (
+                          <button
+                            onClick={() => handleAction("initiate_deloto")}
+                            disabled={isUpdating}
+                            className="shrink-0 rounded-xl bg-amber-600 px-8 py-3.5 text-sm font-extrabold text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-amber-700 disabled:opacity-50"
+                          >
+                            <Unlock className="w-5 h-5" />
+                            Initiate De-LOTO
+                          </button>
+                        )}
+                        {status === "Isolation Verified / Active" && (!task?.contractorLocks || task.contractorLocks.length === 0) && (isAssignedOperator || isCreator) && (
+                          <button
+                            onClick={() => handleAction("initiate_deloto")}
+                            disabled={isUpdating}
+                            className="shrink-0 rounded-xl bg-amber-600 px-8 py-3.5 text-sm font-extrabold text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-amber-700 disabled:opacity-50"
+                          >
+                            <Unlock className="w-5 h-5" />
+                            Begin De-LOTO
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

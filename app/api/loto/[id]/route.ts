@@ -395,7 +395,50 @@ export async function PATCH(
 
     // Actions moved to /api/loto/[id]/contractor-lock
     
-    // --- Return to service ---
+    // --- Initiate De-LOTO Execution ---
+    if (action === "initiate_deloto") {
+       if (task.primaryOperatorId !== user.userId && user.role !== 'shift_engineer' && user.role !== 'admin') {
+         return NextResponse.json({ error: "Unauthorized to initiate De-LOTO" }, { status: 403 });
+       }
+       if (task.status !== "READY_FOR_DELOT" && task.status !== "Isolation Verified / Active") {
+         return NextResponse.json({ error: "Task must be in a ready state to begin De-LOTO" }, { status: 400 });
+       }
+       
+       if (task.status === "Isolation Verified / Active") {
+         const contractorLockRepo = ds.getRepository(ContractorLock);
+         const locks = await contractorLockRepo.find({ where: { taskId: id } });
+         if (locks.some(l => !l.lockedOffAt)) {
+           return NextResponse.json({ error: "Cannot De-LOTO while contractors are still actively locked on." }, { status: 400 });
+         }
+       }
+       
+       task.status = "De-LOTO Execution";
+       await taskRepo.save(task);
+       return NextResponse.json({ task });
+    }
+
+    // --- Complete De-LOTO (Move to RTS) ---
+    if (action === "complete_deloto") {
+       if (task.primaryOperatorId !== user.userId && user.role !== 'shift_engineer' && user.role !== 'admin') {
+         return NextResponse.json({ error: "Unauthorized to complete De-LOTO" }, { status: 403 });
+       }
+       for (const pt of body.isolationPoints || []) {
+         if (!pt.returnedToServiceInitial) {
+           return NextResponse.json(
+             { error: `Missing De-LOTO initial for a tag prior to completion` },
+             { status: 400 }
+           );
+         }
+         await pointRepo.update(pt.id, {
+           returnedToServiceInitial: pt.returnedToServiceInitial
+         });
+       }
+       task.status = "Return to Service";
+       await taskRepo.save(task);
+       return NextResponse.json({ task });
+    }
+
+    // --- Return to service (Legacy unused trigger route, kept for safety) ---
     if (action === "return_to_service") {
        if (task.primaryOperatorId !== user.userId && task.supervisorId !== user.userId && user.role !== 'shift_engineer') {
          return NextResponse.json({ error: "Unauthorized for return to service" }, { status: 403 });
@@ -436,6 +479,7 @@ export async function PATCH(
     if (action === "check_all_locks_off") {
        const contractorLockRepo = ds.getRepository(ContractorLock);
        const allLocks = await contractorLockRepo.find({ where: { taskId: id } });
+       // Requires actively locked on contractors to transition via lock removal
        const allOff = allLocks.length > 0 && allLocks.every(l => l.lockedOffAt !== null);
        
        if (allOff && task.status === "Isolation Verified / Active") {
