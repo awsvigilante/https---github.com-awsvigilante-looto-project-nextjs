@@ -65,6 +65,13 @@ export class ContractorLock {
 
   // LOCK OFF phase
   @Column({ type: "varchar", nullable: true })
+  jobStatus?: string; // "Complete" or "Incomplete"
+
+  @Column({ type: "text", nullable: true })
+  comment?: string;
+
+  // LOCK OFF phase
+  @Column({ type: "varchar", nullable: true })
   lockOffType?: string; // "Self", "Other", "N/A"
 
   @Column({ type: "text", nullable: true })

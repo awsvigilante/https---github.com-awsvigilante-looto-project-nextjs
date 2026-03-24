@@ -142,7 +142,7 @@ export async function PATCH(
     const { id } = await params;
     const dataSource = await getDataSource();
     const body = await request.json();
-    const { lockId, lockOffType, lockOffNote, action, verificationValue } = body;
+    const { lockId, lockOffType, lockOffNote, action, verificationValue, jobStatus, comment } = body;
 
     const lockRepo = dataSource.getRepository(ContractorLock);
     const taskRepo = dataSource.getRepository(LotoTask);
@@ -175,6 +175,8 @@ export async function PATCH(
 
       lock.lockOffType = lockOffType;
       lock.lockOffNote = lockOffNote;
+      lock.jobStatus = jobStatus;
+      lock.comment = comment;
       lock.lockedOffAt = new Date();
       
       // REPLICATE picture and signature from Lock On

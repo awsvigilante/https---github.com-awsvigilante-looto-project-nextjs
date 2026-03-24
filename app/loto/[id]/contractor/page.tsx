@@ -129,6 +129,7 @@ export default function ContractorPortal() {
   const [verifyingLockId, setVerifyingLockId] = useState<string | null>(null);
   const [lockOffInput, setLockOffInput] = useState("");
   const [isVerifyingLockOff, setIsVerifyingLockOff] = useState(false);
+  const [lockOffData, setLockOffData] = useState<Record<string, { jobStatus: string, comment: string }>>({});
 
   // Timer State
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -409,6 +410,7 @@ export default function ContractorPortal() {
 
     setIsSubmitting(true);
     try {
+      const lockState = lockOffData[lockId] || {};
       const res = await fetch(`/api/loto/${id}/contractor-lock`, {
         method: "PATCH",
         headers: {
@@ -420,6 +422,8 @@ export default function ContractorPortal() {
           lockOffType: type,
           action: "contractor_lock_off",
           verificationValue: lockOffInput,
+          jobStatus: lockState.jobStatus || "",
+          comment: lockState.comment || "",
         }),
       });
 
@@ -748,6 +752,12 @@ export default function ContractorPortal() {
                   <th className="px-6 py-5 text-center text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Lock Status
                   </th>
+                  <th className="px-6 py-5 text-center text-[9px] font-bold text-white uppercase tracking-widest">
+                    Job Status
+                  </th>
+                  <th className="px-6 py-5 text-center text-[9px] font-bold text-white uppercase tracking-widest">
+                    Comment
+                  </th>
                   <th className="px-6 py-5 text-right text-[9px] font-bold text-white font-bold uppercase tracking-widest">
                     Activity
                   </th>
@@ -821,14 +831,43 @@ export default function ContractorPortal() {
                           )}
                         </div>
                       </td>
+                      <td className="px-6 py-5">
+                        {!lock.lockedOffAt ? (
+                          <select
+                            className="bg-zinc-900 border border-white/10 text-[10px] font-bold text-white rounded-lg p-2 focus:ring-emerald-500/50 outline-none w-24"
+                            value={lockOffData[lock.id]?.jobStatus || ""}
+                            onChange={(e) => setLockOffData(prev => ({ ...prev, [lock.id]: { ...prev[lock.id], jobStatus: e.target.value } }))}
+                          >
+                            <option value="">Select</option>
+                            <option value="Complete">Complete</option>
+                            <option value="Incomplete">Incomplete</option>
+                          </select>
+                        ) : (
+                          <span className="text-[10px] font-bold text-zinc-400">{(lock as any).jobStatus || "—"}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-5">
+                        {!lock.lockedOffAt ? (
+                          <input
+                            type="text"
+                            placeholder="Add comment..."
+                            className="bg-zinc-900 border border-white/10 text-[10px] font-bold text-white rounded-lg p-2 focus:ring-emerald-500/50 outline-none w-32"
+                            value={lockOffData[lock.id]?.comment || ""}
+                            onChange={(e) => setLockOffData(prev => ({ ...prev, [lock.id]: { ...prev[lock.id], comment: e.target.value } }))}
+                          />
+                        ) : (
+                          <span className="text-[10px] font-bold text-zinc-400">{(lock as any).comment || "—"}</span>
+                        )}
+                      </td>
                       <td className="px-6 py-5 text-right">
                         {!lock.lockedOffAt ? (
                           <button
+                            disabled={!lockOffData[lock.id]?.jobStatus}
                             onClick={() => {
                               setVerifyingLockId(lock.id);
                               setShowLockOffVerify(true);
                             }}
-                            className="px-6 py-2.5 rounded-xl bg-zinc-950 border border-white/5 text-[10px] font-bold text-white font-bold hover:text-white hover:bg-zinc-900 active:scale-95 transition-all shadow-2xl"
+                            className="px-6 py-2.5 rounded-xl bg-zinc-950 border border-white/5 text-[10px] font-bold text-white font-bold hover:text-white hover:bg-zinc-900 active:scale-95 transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             LOCK OFF
                           </button>
