@@ -67,7 +67,7 @@ export default function CreateLOTO() {
                 setSupervisors(allUsers.filter((u: any) => u.type !== 'contractor'))
 
                 // Operator can be Operator, Supervisor, Shift Engineer, or Admin
-                setOperators(allUsers.filter((u: any) => ['operator', 'supervisor', 'shift_engineer', 'admin'].includes(u.role)))
+                setOperators(allUsers.filter((u: any) => ['operator', 'supervisor', 'shift_engineer', 'maintenance_supervisor', 'admin'].includes(u.role)))
             })
             .catch(() => {})
     }, [token])

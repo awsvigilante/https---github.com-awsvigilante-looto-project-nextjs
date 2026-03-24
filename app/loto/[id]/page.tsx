@@ -110,7 +110,7 @@ export default function LotoDetail({
           JSON.parse(localStorage.getItem("user") || "{}")?.role || "";
         if (
           data.task.status === "Isolation In Progress" &&
-          ["supervisor", "shift_engineer"].includes(currentUserRole)
+          ["supervisor", "shift_engineer", "maintenance_supervisor"].includes(currentUserRole)
         ) {
           router.replace(`/loto/${id}/verify`);
           return;
@@ -374,7 +374,7 @@ export default function LotoDetail({
   ].includes(status);
   // Only the assigned supervisor can verify Lock on Initial #2
   // Role check catches both 'supervisor' and 'shift_engineer' roles
-  const isSupervisorRole = ["supervisor", "shift_engineer"].includes(
+  const isSupervisorRole = ["supervisor", "shift_engineer", "maintenance_supervisor"].includes(
     activeUser?.role || "",
   );
   const canSupervisorVerify =

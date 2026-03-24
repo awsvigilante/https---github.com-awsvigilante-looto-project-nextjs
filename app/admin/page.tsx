@@ -54,9 +54,10 @@ const PHONE_REGEX = /^\+?[\d\s\-()]{7,20}$/;
 import { format as timeagoFormat } from "timeago.js";
 
 const COMPANY_ROLES = [
-  { value: "operator", label: "Operator" },
-  { value: "shift_engineer", label: "Shift Engineer" },
-  { value: "supervisor", label: "Supervisor" },
+  { value: "operator", label: "Primary Operator" },
+  { value: "shift_engineer", label: "Shift Engineer (Approver)" },
+  { value: "supervisor", label: "Operator (Verification)" },
+  { value: "maintenance_supervisor", label: "Maintenance Supervisor" },
   { value: "admin", label: "Admin" },
 ];
 

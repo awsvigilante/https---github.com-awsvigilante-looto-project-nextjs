@@ -132,7 +132,7 @@ function getTaskActionLabel(
   if (
     (status === "Isolation Complete" ||
       status === "Verification In Progress") &&
-    (role === "supervisor" || role === "admin" || isSupervisorForTask)
+    (["supervisor", "maintenance_supervisor", "admin"].includes(role) || isSupervisorForTask)
   ) {
     return "Verify";
   }
@@ -150,7 +150,7 @@ function getTaskRoute(
   const base = `/loto/${task.id}`;
 
   // Supervisor going to verify an in-progress isolation → dedicated verify page
-  if (task.status === "Isolation In Progress" && role === "supervisor") {
+  if (task.status === "Isolation In Progress" && ["supervisor", "maintenance_supervisor"].includes(role)) {
     return `${base}/verify`;
   }
 
@@ -305,7 +305,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {["operator", "shift_engineer", "supervisor"].includes(user.role) && (
+          {["operator", "shift_engineer", "supervisor", "maintenance_supervisor"].includes(user.role) && (
             <div className="flex items-center gap-4">
               <button className="flex items-center gap-2 rounded-2xl border border-white/5 bg-zinc-900 px-5 py-3 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:border-emerald-500/30 hover:text-white transition-all">
                 <FileText className="h-4 w-4" />

@@ -264,7 +264,7 @@ export async function PATCH(
         const isSupervisor =
           !task.supervisorId ||
           task.supervisorId === user.userId ||
-          ["supervisor", "shift_engineer"].includes(user.role || "");
+          ["supervisor", "shift_engineer", "maintenance_supervisor"].includes(user.role || "");
         if (!isSupervisor) {
           return NextResponse.json({ error: "Only the assigned supervisor can sign Lock on Initial #2" }, { status: 403 });
         }
