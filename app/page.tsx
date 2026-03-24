@@ -424,7 +424,7 @@ export default function Dashboard() {
                           Identity / Location
                         </th>
                         <th className="py-5 px-8 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                          Purpose
+                          Reason for Isolation
                         </th>
                         <th className="py-5 px-8 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                           Verification
