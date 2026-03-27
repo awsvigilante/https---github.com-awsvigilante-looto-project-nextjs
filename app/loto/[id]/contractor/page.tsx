@@ -1136,7 +1136,9 @@ export default function ContractorPortal() {
                   setSignatureRole("maintenance");
                   setShowRoleSignatureModal(true);
                 }}
-                className="shrink-0 bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 px-8 rounded-xl shadow-md transition-all active:scale-[0.98]"
+                disabled={!locks.some(lock => lock.lockedOffAt !== null)}
+                title={!locks.some(lock => lock.lockedOffAt !== null) ? "Awaiting at least one Contractor Lock-Off" : ""}
+                className="shrink-0 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-6 px-8 rounded-xl shadow-md transition-all active:scale-[0.98]"
               >
                 <PenTool className="w-5 h-5 mr-no-2" style={{ marginRight: "8px" }} />
                 MAINTENANCE SUPERVISOR SIGN
