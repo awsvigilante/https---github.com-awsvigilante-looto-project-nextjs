@@ -78,6 +78,8 @@ interface LotoTask {
   expectedDuration?: string;
   primaryOperator?: { name: string };
   supervisor?: { name: string };
+  maintenanceSignature?: string;
+  maintenanceSignedAt?: string;
 }
 
 export default function ContractorPortal() {
@@ -88,6 +90,11 @@ export default function ContractorPortal() {
   const [points, setPoints] = useState<IsolationPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Maintenance Signature
+  const [showMaintenanceSignatureModal, setShowMaintenanceSignatureModal] = useState(false);
+  const maintSigCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [isMaintSignSubmitting, setIsMaintSignSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -439,6 +446,79 @@ export default function ContractorPortal() {
       setIsSubmitting(false);
     }
   };
+
+  const handleMaintenanceSignSubmit = async () => {
+    if (!maintSigCanvasRef.current) return;
+    const canvas = maintSigCanvasRef.current;
+    
+    const blank = document.createElement("canvas");
+    blank.width = canvas.width;
+    blank.height = canvas.height;
+    if (canvas.toDataURL() === blank.toDataURL()) {
+      toast.error("Please provide a signature first.");
+      return;
+    }
+
+    const signatureData = canvas.toDataURL("image/png");
+    setIsMaintSignSubmitting(true);
+    try {
+      const res = await fetch(`/api/loto/${id}/contractor-lock`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          action: "maintenance_sign_contractor",
+          signature: signatureData,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Maintenance Supervisor Signature Saved");
+        setShowMaintenanceSignatureModal(false);
+        fetchData();
+      } else {
+        toast.error("Failed to save signature");
+      }
+    } catch (err) {
+      toast.error("An error occurred saving signature");
+    } finally {
+      setIsMaintSignSubmitting(false);
+    }
+  };
+
+  const clearMaintenanceSignature = () => {
+    if (!maintSigCanvasRef.current) return;
+    const ctx = maintSigCanvasRef.current.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, maintSigCanvasRef.current.width, maintSigCanvasRef.current.height);
+  };
+
+  const [isDrawing, setIsDrawing] = useState(false);
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!maintSigCanvasRef.current) return;
+    const canvas = maintSigCanvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    setIsDrawing(true);
+    const rect = canvas.getBoundingClientRect();
+    const x = ("touches" in e ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = ("touches" in e ? e.touches[0].clientY : e.clientY) - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !maintSigCanvasRef.current) return;
+    const canvas = maintSigCanvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = ("touches" in e ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = ("touches" in e ? e.touches[0].clientY : e.clientY) - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+  const stopDrawing = () => setIsDrawing(false);
 
   if (isLoading || !task) {
     return (
@@ -1014,6 +1094,48 @@ export default function ContractorPortal() {
           </div>
         </Card>
 
+        {/* Maintenance Supervisor Sign Off Card */}
+        <Card className="border-white/5 bg-zinc-900/40 backdrop-blur-xl rounded-3xl overflow-hidden ring-1 ring-white/10 mb-8 p-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-zinc-950 border border-white/5 flex items-center justify-center text-purple-400">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white tracking-tight">
+                  Maintenance Supervisor Sign-Off
+                </h3>
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                  Required authorization acknowledgement.
+                </p>
+              </div>
+            </div>
+            {task.maintenanceSignature ? (
+              <div className="flex flex-col items-end">
+                <div className="h-16 w-32 rounded-xl bg-white border border-slate-200 p-2 shadow-inner">
+                  <img
+                    src={task.maintenanceSignature}
+                    alt="Maintenance Signature"
+                    className="h-full w-full object-contain grayscale"
+                  />
+                </div>
+                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-2 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Signed At: {new Date(task.maintenanceSignedAt!).toLocaleTimeString()}
+                </span>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setShowMaintenanceSignatureModal(true)}
+                className="shrink-0 bg-purple-600 hover:bg-purple-700 text-white font-bold py-6 px-8 rounded-xl shadow-md transition-all active:scale-[0.98]"
+              >
+                <PenTool className="w-5 h-5 mr-no-2" style={{ marginRight: "8px" }} />
+                MAINTENANCE SUPERVISOR SIGN
+              </Button>
+            )}
+          </div>
+        </Card>
+
         {/* Footer info */}
         <div className="p-8 rounded-3xl bg-zinc-900/20 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4">
@@ -1331,6 +1453,58 @@ export default function ContractorPortal() {
               </button>
             </div>
           </Card>
+        </div>
+      )}
+
+      {/* --- MAINTENANCE SIGNATURE MODAL --- */}
+      {showMaintenanceSignatureModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/95 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-zinc-900 rounded-[2.5rem] p-8 border border-white/10 shadow-2xl relative">
+            <button
+              onClick={() => setShowMaintenanceSignatureModal(false)}
+              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-xl bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold text-white tracking-tight">Manual Authorization Signature</h2>
+              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">Please sign within the box below</p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-2 shadow-inner border-[3px] border-zinc-700 mb-6">
+              <canvas
+                ref={maintSigCanvasRef}
+                width={400}
+                height={200}
+                className="w-full touch-none cursor-crosshair rounded-xl border border-dashed border-slate-300"
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseOut={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                className="w-full h-14 rounded-xl text-[10px] font-bold uppercase tracking-widest border-white/10 bg-transparent text-white hover:bg-white/5"
+                onClick={clearMaintenanceSignature}
+              >
+                Clear Pad
+              </Button>
+              <Button
+                className="w-full h-14 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/20"
+                onClick={handleMaintenanceSignSubmit}
+                disabled={isMaintSignSubmitting}
+              >
+                {isMaintSignSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Signature"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 

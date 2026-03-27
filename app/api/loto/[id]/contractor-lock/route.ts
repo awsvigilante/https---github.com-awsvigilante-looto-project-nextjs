@@ -159,6 +159,27 @@ export async function PATCH(
     if (!lock) return NextResponse.json({ error: "Lock not found" }, { status: 404 });
 
     // Handle verification
+    if (action === "maintenance_sign_contractor") {
+      let task = await taskRepo.findOne({
+        where: { id: id },
+      });
+      if (!task) {
+        task = await taskRepo.findOne({
+          where: { lotoId: id },
+        });
+      }
+      if (!task) {
+        return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      }
+
+      const { signature } = body;
+      task.maintenanceSignature = signature;
+      task.maintenanceSignedAt = new Date().toISOString();
+      await taskRepo.save(task);
+
+      return NextResponse.json({ success: true, task });
+    }
+
     if (action === "verify_lock_off") {
       if (lock.verificationPassword && lock.verificationPassword !== verificationValue) {
         return NextResponse.json({ error: "Invalid verification credentials" }, { status: 401 });
