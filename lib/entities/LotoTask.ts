@@ -109,6 +109,12 @@ export class LotoTask {
   maintenanceSignedAt?: string;
 
   @Column({ type: "text", nullable: true })
+  shiftEngineerSignature?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  shiftEngineerSignedAt?: string;
+
+  @Column({ type: "text", nullable: true })
   finalOperatorSignature?: string;
 
   @Column({ type: "varchar", nullable: true })

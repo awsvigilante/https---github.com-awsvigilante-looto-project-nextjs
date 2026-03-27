@@ -155,11 +155,8 @@ export async function PATCH(
       if (task) taskId = task.id;
     }
 
-    const lock = await lockRepo.findOne({ where: { id: lockId, taskId: taskId } });
-    if (!lock) return NextResponse.json({ error: "Lock not found" }, { status: 404 });
-
-    // Handle verification
-    if (action === "maintenance_sign_contractor") {
+    // High-level task signatures from contractor portal
+    if (action === "maintenance_sign_contractor" || action === "shift_engineer_sign_contractor") {
       let task = await taskRepo.findOne({
         where: { id: id },
       });
@@ -173,12 +170,22 @@ export async function PATCH(
       }
 
       const { signature } = body;
-      task.maintenanceSignature = signature;
-      task.maintenanceSignedAt = new Date().toISOString();
+      if (action === "maintenance_sign_contractor") {
+        task.maintenanceSignature = signature;
+        task.maintenanceSignedAt = new Date().toISOString();
+      } else {
+        task.shiftEngineerSignature = signature;
+        task.shiftEngineerSignedAt = new Date().toISOString();
+      }
       await taskRepo.save(task);
 
       return NextResponse.json({ success: true, task });
     }
+
+    const lock = await lockRepo.findOne({ where: { id: lockId, taskId: taskId } });
+    if (!lock) return NextResponse.json({ error: "Lock not found" }, { status: 404 });
+
+    // Handle verification
 
     if (action === "verify_lock_off") {
       if (lock.verificationPassword && lock.verificationPassword !== verificationValue) {
