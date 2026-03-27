@@ -173,6 +173,16 @@ export async function PATCH(
       if (action === "maintenance_sign_contractor") {
         task.maintenanceSignature = signature;
         task.maintenanceSignedAt = new Date().toISOString();
+        
+        // Notify Shift Engineer instantly
+        if (task.approverId) {
+          await notifRepo.save(notifRepo.create({
+            userId: task.approverId,
+            message: `Maintenance Supervisor has signed off on Contractor Portal for ${task.lotoId}. Your Shift Engineer signature is now required.`,
+            type: "warning",
+            taskId: task.id
+          }));
+        }
       } else {
         task.shiftEngineerSignature = signature;
         task.shiftEngineerSignedAt = new Date().toISOString();
