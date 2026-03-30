@@ -25,6 +25,7 @@ export default function CreateLOTO() {
     const [supervisors, setSupervisors] = useState<SupervisorOption[]>([])
     const [engineers, setEngineers] = useState<SupervisorOption[]>([])
     const [operators, setOperators] = useState<SupervisorOption[]>([])
+    const [maintenanceSupervisors, setMaintenanceSupervisors] = useState<SupervisorOption[]>([])
     const [token, setToken] = useState('')
     const [currentUser, setCurrentUser] = useState<any>(null)
 
@@ -38,6 +39,7 @@ export default function CreateLOTO() {
     const [supervisor, setSupervisor] = useState('')
     const [approver, setApprover] = useState('')
     const [assignedOperator, setAssignedOperator] = useState('')
+    const [maintenanceSupervisor, setMaintenanceSupervisor] = useState('')
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user')
@@ -68,6 +70,9 @@ export default function CreateLOTO() {
 
                 // Operator can be Operator, Supervisor, Shift Engineer, or Admin
                 setOperators(allUsers.filter((u: any) => ['operator', 'supervisor', 'shift_engineer', 'maintenance_supervisor', 'admin'].includes(u.role)))
+                
+                // Maintenance Supervisor can be Maintenance Supervisor or Admin
+                setMaintenanceSupervisors(allUsers.filter((u: any) => ['maintenance_supervisor', 'admin'].includes(u.role)))
             })
             .catch(() => {})
     }, [token])
@@ -106,8 +111,8 @@ export default function CreateLOTO() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
-        if (!facility || !lockbox || !reason || !equipment || !supervisor || !approver || !assignedOperator) {
-            setError("Please fill all mandatory fields (Facility, Lockbox, Reason, Equipment, Approver, Supervisor, Operator)")
+        if (!facility || !lockbox || !reason || !equipment || !supervisor || !approver || !assignedOperator || !maintenanceSupervisor) {
+            setError("Please fill all mandatory fields (Facility, Lockbox, Reason, Equipment, Approver, Supervisor, Operator, Maintenance Supervisor)")
             window.scrollTo({ top: 0, behavior: 'smooth' })
             return
         }
@@ -149,6 +154,7 @@ export default function CreateLOTO() {
                     supervisorId: supervisor,
                     approverId: approver,
                     primaryOperatorId: assignedOperator,
+                    maintenanceSupervisorId: maintenanceSupervisor,
                     status: 'Pending Approval',
                     isolationPoints: points.map((p, i) => ({
                         isolationDescription: p.description,
@@ -342,7 +348,22 @@ export default function CreateLOTO() {
                                      ))}
                                  </select>
                             </div>
-                            <div className="space-y-1.5">
+                             <div className="space-y-1.5">
+                                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Maintenance Supervisor</label>
+                                <select
+                                    title="Maintenance Supervisor"
+                                    value={maintenanceSupervisor}
+                                    onChange={(e) => setMaintenanceSupervisor(e.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm font-extrabold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-sm transition-all focus:outline-none"
+                                     required
+                                 >
+                                     <option value="">Select Maintenance Supervisor...</option>
+                                     {maintenanceSupervisors.map(s => (
+                                         <option key={s.id} value={s.id}>{s.name}</option>
+                                     ))}
+                                 </select>
+                            </div>
+                            <div className="space-y-1.5 md:col-span-2">
                                 <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest ml-1">Shift Engineer (Approver)</label>
                                 <select
                                     title="Approver"

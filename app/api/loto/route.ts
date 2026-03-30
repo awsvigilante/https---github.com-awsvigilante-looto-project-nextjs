@@ -66,15 +66,16 @@ export async function POST(request: Request) {
       supervisorId,
       approverId, // NEW: assigned shift engineer for approval
       primaryOperatorId, // NEW: assigned operator for isolation
+      maintenanceSupervisorId, // NEW: assigned maintenance supervisor
       status, // NEW: optional initial status
       isolationPoints, // NEW: array of { isolationDescription, normalPosition, requiredPosition }
     } = body;
 
     if (
       !facility || !lockBoxNumber || !reasonForIsolation ||
-      !equipmentName || !expectedDuration || !numIsolationPoints || !supervisorId || !approverId
+      !equipmentName || !expectedDuration || !numIsolationPoints || !supervisorId || !approverId || !maintenanceSupervisorId
     ) {
-      return NextResponse.json({ error: "All header fields are required including Approver" }, { status: 400 });
+      return NextResponse.json({ error: "All header fields are required including Approver and Maintenance Supervisor" }, { status: 400 });
     }
 
     const ds = await getDataSource();
@@ -102,6 +103,7 @@ export async function POST(request: Request) {
       creatorId: user.userId,
       supervisorId,
       approverId,
+      maintenanceSupervisorId,
       primaryOperatorId: primaryOperatorId || user.userId,
     });
 

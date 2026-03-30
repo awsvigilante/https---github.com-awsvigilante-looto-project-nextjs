@@ -82,6 +82,8 @@ interface LotoTask {
   maintenanceSignedAt?: string;
   shiftEngineerSignature?: string;
   shiftEngineerSignedAt?: string;
+  maintenanceSupervisorId?: string;
+  approverId?: string;
 }
 
 export default function ContractorPortal() {
@@ -98,6 +100,15 @@ export default function ContractorPortal() {
   const [showRoleSignatureModal, setShowRoleSignatureModal] = useState(false);
   const roleSigCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isRoleSignSubmitting, setIsRoleSignSubmitting] = useState(false);
+
+  // Auth Verification Modal
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [pendingSignatureRole, setPendingSignatureRole] = useState<"maintenance" | "shift_engineer" | null>(null);
+
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -447,6 +458,55 @@ export default function ContractorPortal() {
       toast.error("An error occurred during lock off");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setIsAuthenticating(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: authEmail, password: authPassword }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || "Invalid credentials");
+        setIsAuthenticating(false);
+        return;
+      }
+
+      const verifiedUser = data.user;
+      
+      // Strict DB Assignment Validation
+      if (pendingSignatureRole === "maintenance") {
+        if (verifiedUser.role !== "admin" && verifiedUser.id !== task?.maintenanceSupervisorId && verifiedUser.userId !== task?.maintenanceSupervisorId) {
+          setAuthError("Unauthorized: You are not the assigned Maintenance Supervisor for this task.");
+          setIsAuthenticating(false);
+          return;
+        }
+      } else if (pendingSignatureRole === "shift_engineer") {
+        if (verifiedUser.role !== "admin" && verifiedUser.id !== task?.approverId && verifiedUser.userId !== task?.approverId) {
+          setAuthError("Unauthorized: You are not the assigned Shift Engineer for this task.");
+          setIsAuthenticating(false);
+          return;
+        }
+      }
+
+      // Success
+      setShowAuthModal(false);
+      setSignatureRole(pendingSignatureRole);
+      setShowRoleSignatureModal(true);
+      setAuthEmail("");
+      setAuthPassword("");
+    } catch (err) {
+      setAuthError("Authentication system error.");
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -1133,8 +1193,8 @@ export default function ContractorPortal() {
             ) : (
               <Button
                 onClick={() => {
-                  setSignatureRole("maintenance");
-                  setShowRoleSignatureModal(true);
+                  setPendingSignatureRole("maintenance");
+                  setShowAuthModal(true);
                 }}
                 disabled={!locks.some(lock => lock.lockedOffAt !== null)}
                 title={!locks.some(lock => lock.lockedOffAt !== null) ? "Awaiting at least one Contractor Lock-Off" : ""}
@@ -1180,8 +1240,8 @@ export default function ContractorPortal() {
             ) : (
               <Button
                 onClick={() => {
-                  setSignatureRole("shift_engineer");
-                  setShowRoleSignatureModal(true);
+                  setPendingSignatureRole("shift_engineer");
+                  setShowAuthModal(true);
                 }}
                 disabled={!task.maintenanceSignature}
                 title={!task.maintenanceSignature ? "Awaiting Maintenance Supervisor Signature first" : ""}
@@ -1511,6 +1571,73 @@ export default function ContractorPortal() {
               </button>
             </div>
           </Card>
+        </div>
+      )}
+
+      {/* --- AUTH VERIFICATION MODAL --- */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-zinc-950/95 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-sm bg-zinc-900 rounded-[2.5rem] p-8 border border-white/10 shadow-2xl relative">
+            <button
+              onClick={() => {
+                setShowAuthModal(false);
+                setPendingSignatureRole(null);
+                setAuthError("");
+                setAuthEmail("");
+                setAuthPassword("");
+              }}
+              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-xl bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)]">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold text-white tracking-tight">Identity Verification</h2>
+              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                Please securely authenticate your role.
+              </p>
+            </div>
+
+            {authError && (
+              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
+                <p className="text-xs font-bold text-red-400">{authError}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleAuthSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-zinc-950 p-4 text-xs font-bold text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
+                  required
+                />
+              </div>
+              <div className="space-y-1.5 mb-6">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-zinc-950 p-4 text-xs font-bold text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
+                  required
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isAuthenticating}
+                className="w-full h-14 rounded-xl text-[10px] font-bold uppercase tracking-widest bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
+              >
+                {isAuthenticating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify Identity"}
+              </Button>
+            </form>
+          </div>
         </div>
       )}
 

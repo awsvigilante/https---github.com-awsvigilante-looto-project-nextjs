@@ -64,6 +64,13 @@ export class LotoTask {
   supervisor?: User;
 
   @Column({ type: "varchar", nullable: true })
+  maintenanceSupervisorId?: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: "maintenanceSupervisorId" })
+  maintenanceSupervisor?: User;
+
+  @Column({ type: "varchar", nullable: true })
   primaryOperatorId?: string;
 
   @ManyToOne(() => User)
