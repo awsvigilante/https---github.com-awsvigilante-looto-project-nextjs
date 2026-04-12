@@ -186,6 +186,30 @@ export async function PATCH(
       } else {
         task.shiftEngineerSignature = signature;
         task.shiftEngineerSignedAt = new Date().toISOString();
+
+        // Both signatures now complete → auto-advance to De-LOTO stage
+        if (task.maintenanceSignature) {
+          task.status = "READY_FOR_DELOT";
+
+          // Notify primary operator
+          if (task.primaryOperatorId) {
+            await notifRepo.save(notifRepo.create({
+              userId: task.primaryOperatorId,
+              message: `Both Maintenance Supervisor and Shift Engineer have signed off on ${task.lotoId}. Task is now ready for De-LOTO execution.`,
+              type: "success",
+              taskId: task.id
+            }));
+          }
+          // Also notify task creator
+          if (task.creatorId && task.creatorId !== task.primaryOperatorId) {
+            await notifRepo.save(notifRepo.create({
+              userId: task.creatorId,
+              message: `Both Maintenance Supervisor and Shift Engineer have signed off on ${task.lotoId}. Task is now ready for De-LOTO execution.`,
+              type: "success",
+              taskId: task.id
+            }));
+          }
+        }
       }
       await taskRepo.save(task);
 

@@ -378,7 +378,7 @@ export default function LotoDetail({
     "Return to Service",
     "Closed",
   ].includes(status);
-  const showDeLoto = ["De-LOTO Execution", "Return to Service", "Closed"].includes(status);
+  const showDeLoto = ["READY_FOR_DELOT", "De-LOTO Execution", "Return to Service", "Closed"].includes(status);
   const showRTS = ["Return to Service", "Closed"].includes(status);
   const canSeeDetails =
     status !== "Pending Approval" || isAuthorizedApprover || isCreator;
@@ -808,10 +808,10 @@ export default function LotoDetail({
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-white tracking-tight">
-                      Isolation Points
+                      {showDeLoto ? "De-LOTO Points" : "Isolation Points"}
                     </h2>
                     <p className="text-[10px] font-bold text-white font-bold uppercase tracking-widest">
-                      {points.length} Required Isolations
+                      {points.length} {showDeLoto ? "Points to De-Isolate" : "Required Isolations"}
                     </p>
                   </div>
                 </div>
@@ -852,6 +852,11 @@ export default function LotoDetail({
                         {showInitial2 && (
                           <th className={`px-4 py-5 text-right text-[9px] font-bold uppercase tracking-widest whitespace-nowrap ${canSupervisorVerify ? 'text-purple-400' : 'text-white font-bold'}`}>
                             Supervisor Sign
+                          </th>
+                        )}
+                        {showDeLoto && (
+                          <th className="px-4 py-5 text-right text-[9px] font-bold text-indigo-400 uppercase tracking-widest whitespace-nowrap">
+                            De-LOTO Initial
                           </th>
                         )}
                         {showRTS && (
@@ -1078,14 +1083,14 @@ export default function LotoDetail({
                           )}
                           {showDeLoto && (
                             <td className="px-4 py-5 text-right">
-                              {status === "De-LOTO Execution" ? (
+                              {["READY_FOR_DELOT", "De-LOTO Execution"].includes(status) ? (
                                 <input
                                   title="De-LOTO Initial"
                                   type="text"
                                   placeholder="Initial..."
                                   value={p.returnedToServiceInitial || ""}
                                   onChange={(e) => updatePoint(idx, "returnedToServiceInitial", e.target.value)}
-                                  className="w-[80px] rounded-xl border border-white/10 bg-zinc-900/50 p-2.5 text-xs font-bold text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none float-right"
+                                  className="w-[80px] rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-2.5 text-xs font-bold text-indigo-300 placeholder:text-indigo-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none float-right"
                                 />
                               ) : (
                                 <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest float-right">
