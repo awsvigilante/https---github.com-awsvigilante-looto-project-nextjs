@@ -1111,7 +1111,7 @@ export default function LotoDetail({
                                     ? "bg-red-500/10 text-red-400 border-red-500/20"
                                     : "bg-zinc-950 text-zinc-600 border-white/5"
                                 }`}>
-                                  {p.returnedToServiceInitial || "—"}
+                                  {p.returnedToServiceInitial || "DELOTO"}
                                 </span>
                               )}
                             </td>
