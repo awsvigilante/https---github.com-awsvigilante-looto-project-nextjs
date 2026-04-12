@@ -1094,19 +1094,19 @@ export default function LotoDetail({
                             <td className="px-4 py-5 text-right">
                               {canDeLoto ? (
                                 <select
-                                  title="De-LOTO Status"
+                                  title="De-LOTO Sign-off"
                                   value={p.returnedToServiceInitial || ""}
                                   onChange={(e) => updatePoint(idx, "returnedToServiceInitial", e.target.value)}
                                   className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 px-3 py-2.5 text-xs font-bold text-indigo-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none cursor-pointer"
                                 >
                                   <option value="">Select...</option>
-                                  <option value={activeUser?.name || "Operator"}>{activeUser?.name || "Operator"}</option>
+                                  <option value={activeUser?.name}>{activeUser?.name || "Sign"}</option>
                                 </select>
                               ) : (
-                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border tracking-widest ${
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border uppercase tracking-widest ${
                                   p.returnedToServiceInitial
-                                    ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 uppercase"
-                                    : "bg-zinc-950 text-zinc-600 border-white/5 uppercase"
+                                    ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                                    : "bg-zinc-950 text-zinc-600 border-white/5"
                                 }`}>
                                   {p.returnedToServiceInitial || "—"}
                                 </span>
