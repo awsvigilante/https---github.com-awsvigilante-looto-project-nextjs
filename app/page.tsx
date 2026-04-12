@@ -204,8 +204,18 @@ export default function Dashboard() {
     }
     try {
       const parsed = JSON.parse(storedUser);
+      if (parsed.type === "contractor") {
+        if (parsed.taskId) {
+          router.replace(`/loto/${parsed.taskId}/contractor`);
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          router.replace("/login");
+        }
+        return;
+      }
       if (parsed.role === "admin") {
-        router.push("/admin");
+        router.replace("/admin");
         return;
       }
       setUser(parsed);
