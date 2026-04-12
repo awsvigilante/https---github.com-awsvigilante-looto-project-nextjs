@@ -360,6 +360,8 @@ export default function LotoDetail({
     "Verification In Progress",
     "Isolation Complete",
     "Isolation Verified / Active",
+    "READY_FOR_DELOT",
+    "De-LOTO Execution",
     "Return to Service",
     "Closed",
   ].includes(status); // Lock Details + Isolation Position
@@ -368,6 +370,8 @@ export default function LotoDetail({
     "Verification In Progress",
     "Isolation Complete",
     "Isolation Verified / Active",
+    "READY_FOR_DELOT",
+    "De-LOTO Execution",
     "Return to Service",
     "Closed",
   ].includes(status);
@@ -375,6 +379,8 @@ export default function LotoDetail({
     "Verification In Progress",
     "Isolation Complete",
     "Isolation Verified / Active",
+    "READY_FOR_DELOT",
+    "De-LOTO Execution",
     "Return to Service",
     "Closed",
   ].includes(status);
