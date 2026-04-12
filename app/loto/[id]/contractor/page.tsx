@@ -221,11 +221,23 @@ export default function ContractorPortal() {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
     if (!storedUser || !storedToken) {
-      router.push("/login");
+      router.replace("/login");
       return;
     }
     setCurrentUser(JSON.parse(storedUser));
     setToken(storedToken);
+
+    // ── Back-button trap ────────────────────────────────────────────────────
+    // Push a duplicate entry so the browser "back" slot is consumed by this
+    // same page, not the staff operator page that may be behind it in history.
+    window.history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      // Every time back is pressed, re-push so the user stays here.
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+    // ────────────────────────────────────────────────────────────────────────
   }, [id, router]);
 
   useEffect(() => {
