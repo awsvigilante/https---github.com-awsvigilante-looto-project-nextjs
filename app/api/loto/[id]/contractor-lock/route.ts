@@ -5,8 +5,24 @@ import { LotoTask } from "@/lib/entities/LotoTask";
 import { Notification } from "@/lib/entities/Notification";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
+/** Fire-and-forget notification trigger — does not block the response */
+function triggerNotification(taskId: string, type: string, senderToken: string) {
+  const appUrl = "https://www.smartlotto.online";
+  const url = `${appUrl}/api/notifications/send`;
+  
+  fetch(url, {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/json", 
+      "Authorization": `Bearer ${senderToken}` 
+    },
+    body: JSON.stringify({ taskId, type }),
+  }).catch(err => console.warn("Notification trigger failed:", err));
+}
+
 // GET all locks for a task
 export async function GET(
+
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -143,6 +159,7 @@ export async function PATCH(
     const dataSource = await getDataSource();
     const body = await request.json();
     const { lockId, lockOffType, lockOffNote, action, verificationValue, jobStatus, comment } = body;
+    const token = request.headers.get("Authorization")?.replace("Bearer ", "") || "";
 
     const lockRepo = dataSource.getRepository(ContractorLock);
     const taskRepo = dataSource.getRepository(LotoTask);
@@ -175,6 +192,7 @@ export async function PATCH(
         task.maintenanceSignedAt = new Date().toISOString();
         
         // Notify Shift Engineer instantly
+        triggerNotification(task.id, "contractor_maintenance_signed", token);
         if (task.approverId) {
           await notifRepo.save(notifRepo.create({
             userId: task.approverId,
@@ -190,6 +208,9 @@ export async function PATCH(
         // Both signatures now complete → auto-advance to De-LOTO stage
         if (task.maintenanceSignature) {
           task.status = "READY_FOR_DELOT";
+
+          // Notify primary operator with an email to begin De-LOTO
+          triggerNotification(task.id, "contractor_shift_engineer_signed", token);
 
           // Notify primary operator
           if (task.primaryOperatorId) {

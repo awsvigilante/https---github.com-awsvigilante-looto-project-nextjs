@@ -370,6 +370,51 @@ export async function POST(request: Request) {
         break;
       }
 
+      case "contractor_maintenance_signed": {
+        // Maintenance has signed, now notify Shift Engineer they need to sign
+        if (approver?.email) {
+          const url = magicUrl(approver.id, taskId, `/loto/${taskId}/contractor`);
+          await sendEmail(
+            approver.email, approver.id,
+            `[Action Required] Contractor Handover – Your Signature Required for ${task.lotoId}`,
+            emailWrapper(
+              approver.name,
+              "Your Final Signature is Required ✍️",
+              `The Maintenance Supervisor has completed their sign-off for contractor isolation on <strong>${task.equipmentName}</strong>.<br><br>As the Shift Engineer, your final signature is now required to release the equipment for De-LOTO entirely. Please click below to open the portal and sign.`,
+              url,
+              "Open Contractor Portal & Sign",
+              summary
+            ),
+            "contractor_maintenance_signed → shift_engineer",
+            `Maintenance signed ${task.lotoId}. Your signature required.`
+          );
+        }
+        break;
+      }
+
+      case "contractor_shift_engineer_signed": {
+        // Shift Engineer has signed, De-LOTO is now authorized. Notify Operator.
+        const delotoOperator = operator || creator;
+        if (delotoOperator?.email) {
+          const url = magicUrl(delotoOperator.id, taskId, `/loto/${taskId}`);
+          await sendEmail(
+            delotoOperator.email, delotoOperator.id,
+            `✅ Authorized for De-LOTO Execution – ${task.lotoId}`,
+            emailWrapper(
+              delotoOperator.name,
+              "Equipment is Ready for De-LOTO 🔓",
+              `Both the Maintenance Supervisor and Shift Engineer have successfully signed off on the contractor handover for <strong>${task.equipmentName}</strong>.<br><br>The task is now in the <strong>READY_FOR_DELOT</strong> stage. You are authorized to begin physical De-LOTO execution and return the equipment to service.`,
+              url,
+              "Begin De-LOTO Execution",
+              summary
+            ),
+            "contractor_shift_engineer_signed → operator",
+            `${task.lotoId} is ready for De-LOTO.`
+          );
+        }
+        break;
+      }
+
       default:
         return NextResponse.json({ error: `Unknown notification type: ${type}` }, { status: 400 });
     }
