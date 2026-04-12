@@ -53,7 +53,11 @@ export default function LoginPage() {
     if (token && storedUser) {
       try {
         const parsed = JSON.parse(storedUser);
-        router.push(parsed.role === "admin" ? "/admin" : "/");
+        if (parsed.type === "contractor" && parsed.taskId) {
+           router.replace(`/loto/${parsed.taskId}/contractor`);
+        } else {
+           router.replace(parsed.role === "admin" ? "/admin" : "/");
+        }
       } catch {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
