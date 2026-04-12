@@ -186,6 +186,16 @@ export async function PATCH(
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
       }
 
+      // Ensure all contractors have locked off first
+      const allLocks = await lockRepo.find({ where: { taskId: task.id } });
+      const hasActiveLocks = allLocks.some((lock) => !lock.lockedOffAt);
+      if (hasActiveLocks) {
+        return NextResponse.json(
+          { error: "All contractors must lock off before staff can sign off on this handover." },
+          { status: 400 }
+        );
+      }
+
       const { signature } = body;
       if (action === "maintenance_sign_contractor") {
         task.maintenanceSignature = signature;
