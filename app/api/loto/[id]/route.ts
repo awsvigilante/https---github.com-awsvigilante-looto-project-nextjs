@@ -50,13 +50,13 @@ export async function GET(
     // Support lookup by UUID or the human-readable lotoId string
     let task = await taskRepo.findOne({
       where: { id: id },
-      relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"]
+      relations: ["creator", "supervisor", "primaryOperator", "approver", "maintenanceSupervisor", "contractorLocks", "contractorLocks.contractor"]
     });
 
     if (!task) {
       task = await taskRepo.findOne({
         where: { lotoId: id },
-        relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"]
+        relations: ["creator", "supervisor", "primaryOperator", "approver", "maintenanceSupervisor", "contractorLocks", "contractorLocks.contractor"]
       });
     }
 
@@ -304,7 +304,7 @@ export async function PATCH(
       // Refresh task to return latest status
       const updatedTask = await taskRepo.findOne({
         where: { id },
-        relations: ["creator", "supervisor", "primaryOperator", "approver", "contractorLocks", "contractorLocks.contractor"],
+        relations: ["creator", "supervisor", "primaryOperator", "approver", "maintenanceSupervisor", "contractorLocks", "contractorLocks.contractor"],
       });
       return NextResponse.json({ task: updatedTask });
     }

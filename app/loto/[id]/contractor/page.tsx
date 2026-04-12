@@ -84,6 +84,8 @@ interface LotoTask {
   shiftEngineerSignedAt?: string;
   maintenanceSupervisorId?: string;
   approverId?: string;
+  maintenanceSupervisor?: { name: string };
+  approver?: { name: string };
 }
 
 export default function ContractorPortal() {
@@ -497,13 +499,15 @@ export default function ContractorPortal() {
       // Strict DB Assignment Validation
       if (pendingSignatureRole === "maintenance") {
         if (verifiedUser.role !== "admin" && verifiedUser.id !== task?.maintenanceSupervisorId && verifiedUser.userId !== task?.maintenanceSupervisorId) {
-          setAuthError("Unauthorized: You are not the assigned Maintenance Supervisor for this task.");
+          const expectedName = task?.maintenanceSupervisor?.name || "the assigned Maintenance Supervisor";
+          setAuthError(`This engineer is not assigned to do this. Contact ${expectedName}.`);
           setIsAuthenticating(false);
           return;
         }
       } else if (pendingSignatureRole === "shift_engineer") {
         if (verifiedUser.role !== "admin" && verifiedUser.id !== task?.approverId && verifiedUser.userId !== task?.approverId) {
-          setAuthError("Unauthorized: You are not the assigned Shift Engineer for this task.");
+          const expectedName = task?.approver?.name || "the assigned Shift Engineer";
+          setAuthError(`This engineer is not assigned to do this. Contact ${expectedName}.`);
           setIsAuthenticating(false);
           return;
         }
