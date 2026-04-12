@@ -385,7 +385,6 @@ export default function LotoDetail({
     "Closed",
   ].includes(status);
   const showDeLoto = ["READY_FOR_DELOT", "De-LOTO Execution", "Return to Service", "Closed"].includes(status);
-  const showRTS = ["Return to Service", "Closed"].includes(status);
   const canSeeDetails =
     status !== "Pending Approval" || isAuthorizedApprover || isCreator;
 
@@ -872,11 +871,6 @@ export default function LotoDetail({
                               De-LOTO Time
                             </th>
                           </>
-                        )}
-                        {showRTS && (
-                          <th className="px-4 py-5 text-right text-[9px] font-bold text-white font-bold uppercase tracking-widest whitespace-nowrap">
-                            RTS Initial
-                          </th>
                         )}
                       </tr>
                     </thead>
