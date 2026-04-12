@@ -230,7 +230,7 @@ export default function LotoDetail({
 
     try {
       // Persist changes to backend immediately
-      const fieldsToPersist = ["lockOnInitial1", "lockOnInitial2", "lockNumber", "isolationPosition"];
+      const fieldsToPersist = ["lockOnInitial1", "lockOnInitial2", "lockNumber", "isolationPosition", "returnedToServiceInitial"];
       if (fieldsToPersist.includes(field)) {
         const pointId = points[index]?.id;
         const storedToken = localStorage.getItem("token");
@@ -1122,6 +1122,20 @@ export default function LotoDetail({
                   </table>
                 </div>
               </Card>
+
+              {/* Confirm De-LOTO Completion Button */}
+              {status === "De-LOTO Execution" && canDeLoto && (
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => handleAction("complete_deloto", { isolationPoints: points })}
+                    disabled={isUpdating || points.some(p => p.returnedToServiceInitial !== "Yes")}
+                    className="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ShieldCheck className="w-5 h-5" />
+                    Confirm De-LOTO Complete
+                  </button>
+                </div>
+              )}
             </section>
 
             {/* Crew Tracking Section — Shared with Contractor Portal */}
@@ -1776,7 +1790,7 @@ export default function LotoDetail({
                   </div>
                 )}
 
-                {(status === "READY_FOR_DELOT" || status === "Closed") && (
+                {(status === "Return to Service" || status === "Closed") && (
                   <div className="animate-in slide-in-from-bottom-4 duration-500 space-y-6">
                     <div className="rounded-2xl border border-red-200/60 bg-white overflow-hidden shadow-lg shadow-red-500/5">
                       <div className="bg-gradient-to-r from-red-50 to-rose-50/50 px-6 md:px-8 py-5 border-b border-red-100">
