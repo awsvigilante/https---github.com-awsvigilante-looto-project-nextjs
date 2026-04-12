@@ -55,6 +55,30 @@ export default function LotoDetail({
 }) {
   const { id } = use(params);
   const router = useRouter();
+
+  // ── Synchronous contractor guard ────────────────────────────────────────────
+  // Runs before ANY render so the contractor never sees the operator page, even
+  // for a single frame. typeof window check keeps SSR happy.
+  if (typeof window !== "undefined") {
+    try {
+      const _raw = window.localStorage.getItem("user");
+      if (_raw) {
+        const _u = JSON.parse(_raw);
+        if (_u?.type === "contractor") {
+          if (_u?.taskId) {
+            router.replace(`/loto/${_u.taskId}/contractor`);
+          } else {
+            window.localStorage.removeItem("token");
+            window.localStorage.removeItem("user");
+            router.replace("/login");
+          }
+          return null;
+        }
+      }
+    } catch {}
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   // Simulate active role and system status for demonstration
   const [task, setTask] = useState<any>(null);
   const [points, setPoints] = useState<any[]>([]);

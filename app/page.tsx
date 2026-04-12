@@ -185,12 +185,34 @@ function getTaskRoute(
 }
 
 export default function Dashboard() {
+  const router = useRouter();
+
+  // ── Synchronous contractor guard ────────────────────────────────────────────
+  if (typeof window !== "undefined") {
+    try {
+      const _raw = window.localStorage.getItem("user");
+      if (_raw) {
+        const _u = JSON.parse(_raw);
+        if (_u?.type === "contractor") {
+          if (_u?.taskId) {
+            router.replace(`/loto/${_u.taskId}/contractor`);
+          } else {
+            window.localStorage.removeItem("token");
+            window.localStorage.removeItem("user");
+            router.replace("/login");
+          }
+          return null;
+        }
+      }
+    } catch {}
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState("");
   const [tasks, setTasks] = useState<LotoTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const router = useRouter();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
