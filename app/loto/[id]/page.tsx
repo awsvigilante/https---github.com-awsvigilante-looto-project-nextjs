@@ -1857,30 +1857,35 @@ export default function LotoDetail({
                                     can sign here.
                                   </div>
                                 )}
-                              <div className="relative">
-                                <input
-                                  type="text"
-                                  placeholder={`Type signature to sign...`}
-                                  value={maintenanceSignature}
-                                  readOnly={!!maintenanceSignature}
-                                  disabled={
-                                    (activeUser?.role !== "contractor" &&
-                                      !isAssignedSupervisor) ||
-                                    !!maintenanceSignature
-                                  }
-                                  onBlur={() =>
-                                    maintenanceSignature &&
-                                    handleAction("maintenance_sign", {
-                                      signature: maintenanceSignature,
-                                    })
-                                  }
-                                  onChange={(e) =>
-                                    setMaintenanceSignature(e.target.value)
-                                  }
-                                  className={`w-full rounded-xl border p-4 text-center text-sm font-bold transition-all shadow-sm ${maintenanceSignature ? "bg-slate-50 border-slate-200 text-slate-600" : "bg-white border-slate-300 focus:border-red-400 focus:ring-4 focus:ring-red-500/10"} disabled:opacity-50 disabled:cursor-not-allowed outline-none`}
-                                />
-                                {maintenanceSignature && (
-                                  <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                              <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                  <input
+                                    type="text"
+                                    placeholder={`Type signature to sign...`}
+                                    value={maintenanceSignature}
+                                    readOnly={!!maintenanceSignature}
+                                    disabled={
+                                      (activeUser?.role !== "contractor" &&
+                                        !isAssignedSupervisor) ||
+                                      !!maintenanceSignature
+                                    }
+                                    onChange={(e) =>
+                                      setMaintenanceSignature(e.target.value)
+                                    }
+                                    className={`w-full rounded-xl border p-4 text-center text-sm font-bold transition-all shadow-sm ${maintenanceSignature ? "bg-slate-50 border-slate-200 text-slate-600" : "bg-white border-slate-300 focus:border-red-400 focus:ring-4 focus:ring-red-500/10"} disabled:opacity-50 disabled:cursor-not-allowed outline-none`}
+                                  />
+                                  {maintenanceSignature && (
+                                    <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                                  )}
+                                </div>
+                                {!maintenanceSignature && (
+                                  <button
+                                    onClick={() => maintenanceSignature && handleAction("maintenance_sign", { signature: maintenanceSignature })}
+                                    disabled={!maintenanceSignature || isUpdating}
+                                    className="rounded-xl bg-red-600 px-6 font-bold text-white hover:bg-red-700 transition-all disabled:opacity-50"
+                                  >
+                                    Sign
+                                  </button>
                                 )}
                               </div>
                             </div>
@@ -1905,30 +1910,35 @@ export default function LotoDetail({
                                     {task?.primaryOperator?.name}) can sign.
                                   </div>
                                 )}
-                              <div className="relative w-full mb-4">
-                                <input
-                                  type="text"
-                                  placeholder={`Type '${task?.primaryOperator?.name}' to sign...`}
-                                  value={finalOperatorSignature}
-                                  readOnly={!!finalOperatorSignature}
-                                  disabled={
-                                    !isAssignedOperator ||
-                                    !maintenanceSignature ||
-                                    !!finalOperatorSignature
-                                  }
-                                  onBlur={() =>
-                                    finalOperatorSignature &&
-                                    handleAction("final_operator_sign", {
-                                      signature: finalOperatorSignature,
-                                    })
-                                  }
-                                  onChange={(e) =>
-                                    setFinalOperatorSignature(e.target.value)
-                                  }
-                                  className={`w-full rounded-xl border p-4 text-center text-sm font-bold transition-all shadow-sm ${finalOperatorSignature ? "bg-slate-50 border-slate-200 text-slate-600" : "bg-white border-slate-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/20"} disabled:opacity-50 disabled:cursor-not-allowed outline-none`}
-                                />
-                                {finalOperatorSignature && (
-                                  <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                              <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                  <input
+                                    type="text"
+                                    placeholder={`Type '${task?.primaryOperator?.name}' to sign...`}
+                                    value={finalOperatorSignature}
+                                    readOnly={!!finalOperatorSignature}
+                                    disabled={
+                                      !isAssignedOperator ||
+                                      !maintenanceSignature ||
+                                      !!finalOperatorSignature
+                                    }
+                                    onChange={(e) =>
+                                      setFinalOperatorSignature(e.target.value)
+                                    }
+                                    className={`w-full rounded-xl border p-4 text-center text-sm font-bold transition-all shadow-sm ${finalOperatorSignature ? "bg-slate-50 border-slate-200 text-slate-600" : "bg-white border-slate-900 focus:border-red-500 focus:ring-4 focus:ring-red-500/20"} disabled:opacity-50 disabled:cursor-not-allowed outline-none`}
+                                  />
+                                  {finalOperatorSignature && (
+                                    <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
+                                  )}
+                                </div>
+                                {!finalOperatorSignature && (
+                                  <button
+                                    onClick={() => finalOperatorSignature && handleAction("final_operator_sign", { signature: finalOperatorSignature })}
+                                    disabled={!finalOperatorSignature || isUpdating}
+                                    className="rounded-xl bg-slate-900 px-6 font-bold text-white hover:bg-slate-800 transition-all disabled:opacity-50"
+                                  >
+                                    Sign
+                                  </button>
                                 )}
                               </div>
                             </div>
