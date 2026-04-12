@@ -484,7 +484,7 @@ export default function ContractorPortal() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: authEmail, password: authPassword, type: "staff" }),
+        body: JSON.stringify({ email: authEmail, password: authPassword, type: "company" }),
       });
 
       const data = await res.json();
