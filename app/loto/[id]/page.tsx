@@ -1100,16 +1100,13 @@ export default function LotoDetail({
                                   className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 px-3 py-2.5 text-xs font-bold text-indigo-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none cursor-pointer"
                                 >
                                   <option value="">Select...</option>
-                                  <option value="Yes">Yes</option>
-                                  <option value="No">No</option>
+                                  <option value={activeUser?.name || "Operator"}>{activeUser?.name || "Operator"}</option>
                                 </select>
                               ) : (
-                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border uppercase tracking-widest ${
-                                  p.returnedToServiceInitial === "Yes"
-                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                    : p.returnedToServiceInitial === "No"
-                                    ? "bg-red-500/10 text-red-400 border-red-500/20"
-                                    : "bg-zinc-950 text-zinc-600 border-white/5"
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border tracking-widest ${
+                                  p.returnedToServiceInitial
+                                    ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 uppercase"
+                                    : "bg-zinc-950 text-zinc-600 border-white/5 uppercase"
                                 }`}>
                                   {p.returnedToServiceInitial || "—"}
                                 </span>
@@ -1128,7 +1125,7 @@ export default function LotoDetail({
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={() => handleAction("complete_deloto", { isolationPoints: points })}
-                    disabled={isUpdating || points.some(p => p.returnedToServiceInitial !== "Yes")}
+                    disabled={isUpdating || points.some(p => !p.returnedToServiceInitial)}
                     className="rounded-xl bg-indigo-600 px-8 py-3.5 text-sm font-extrabold text-white active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShieldCheck className="w-5 h-5" />
