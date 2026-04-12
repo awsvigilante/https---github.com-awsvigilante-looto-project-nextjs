@@ -407,6 +407,9 @@ export default function LotoDetail({
   const canExecuteIsolation =
     status === "Approved" && (isCreator || isAssignedOperator);
 
+  // Only the assigned primary operator can sign off De-LOTO rows
+  const canDeLoto = ["READY_FOR_DELOT", "De-LOTO Execution"].includes(status) && (isAssignedOperator || isCreator);
+
   const updatePointLock = (index: number, val: string) => {
     setPoints((prev) => {
       const newPts = [...prev];
@@ -1089,17 +1092,25 @@ export default function LotoDetail({
                           )}
                           {showDeLoto && (
                             <td className="px-4 py-5 text-right">
-                              {["READY_FOR_DELOT", "De-LOTO Execution"].includes(status) ? (
-                                <input
-                                  title="De-LOTO Initial"
-                                  type="text"
-                                  placeholder="Initial..."
+                              {canDeLoto ? (
+                                <select
+                                  title="De-LOTO Status"
                                   value={p.returnedToServiceInitial || ""}
                                   onChange={(e) => updatePoint(idx, "returnedToServiceInitial", e.target.value)}
-                                  className="w-[80px] rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-2.5 text-xs font-bold text-indigo-300 placeholder:text-indigo-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none float-right"
-                                />
+                                  className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 px-3 py-2.5 text-xs font-bold text-indigo-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 outline-none cursor-pointer"
+                                >
+                                  <option value="">Select...</option>
+                                  <option value="Yes">Yes</option>
+                                  <option value="No">No</option>
+                                </select>
                               ) : (
-                                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest float-right">
+                                <span className={`inline-flex rounded-lg px-3 py-1.5 text-[10px] font-bold border uppercase tracking-widest ${
+                                  p.returnedToServiceInitial === "Yes"
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                    : p.returnedToServiceInitial === "No"
+                                    ? "bg-red-500/10 text-red-400 border-red-500/20"
+                                    : "bg-zinc-950 text-zinc-600 border-white/5"
+                                }`}>
                                   {p.returnedToServiceInitial || "—"}
                                 </span>
                               )}
