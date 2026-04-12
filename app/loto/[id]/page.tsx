@@ -1863,11 +1863,11 @@ export default function LotoDetail({
                                     type="text"
                                     placeholder={`Type signature to sign...`}
                                     value={maintenanceSignature}
-                                    readOnly={!!maintenanceSignature}
+                                    readOnly={!!task?.maintenanceSignature}
                                     disabled={
                                       (activeUser?.role !== "contractor" &&
                                         !isAssignedSupervisor) ||
-                                      !!maintenanceSignature
+                                      !!task?.maintenanceSignature
                                     }
                                     onChange={(e) =>
                                       setMaintenanceSignature(e.target.value)
@@ -1878,7 +1878,7 @@ export default function LotoDetail({
                                     <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
                                   )}
                                 </div>
-                                {!maintenanceSignature && (
+                                {!task?.maintenanceSignature && (
                                   <button
                                     onClick={() => maintenanceSignature && handleAction("maintenance_sign", { signature: maintenanceSignature })}
                                     disabled={!maintenanceSignature || isUpdating}
@@ -1916,11 +1916,11 @@ export default function LotoDetail({
                                     type="text"
                                     placeholder={`Type '${task?.primaryOperator?.name}' to sign...`}
                                     value={finalOperatorSignature}
-                                    readOnly={!!finalOperatorSignature}
+                                    readOnly={!!task?.finalOperatorSignature}
                                     disabled={
                                       !isAssignedOperator ||
                                       !maintenanceSignature ||
-                                      !!finalOperatorSignature
+                                      !!task?.finalOperatorSignature
                                     }
                                     onChange={(e) =>
                                       setFinalOperatorSignature(e.target.value)
@@ -1931,7 +1931,7 @@ export default function LotoDetail({
                                     <Lock className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2" />
                                   )}
                                 </div>
-                                {!finalOperatorSignature && (
+                                {!task?.finalOperatorSignature && (
                                   <button
                                     onClick={() => finalOperatorSignature && handleAction("final_operator_sign", { signature: finalOperatorSignature })}
                                     disabled={!finalOperatorSignature || isUpdating}
