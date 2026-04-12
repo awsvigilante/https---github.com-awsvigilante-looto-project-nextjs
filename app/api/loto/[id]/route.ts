@@ -254,7 +254,7 @@ export async function PATCH(
         return NextResponse.json({ error: "pointId and field are required" }, { status: 400 });
       }
 
-      const allowedFields = ["lockOnInitial1", "lockOnInitial2", "lockNumber", "isolationPosition"];
+      const allowedFields = ["lockOnInitial1", "lockOnInitial2", "lockNumber", "isolationPosition", "returnedToServiceInitial"];
       if (!allowedFields.includes(field)) {
         return NextResponse.json({ error: "Field not allowed" }, { status: 400 });
       }
@@ -279,6 +279,12 @@ export async function PATCH(
           // Clearing (Edit button)
           await pointRepo.update(pointId, { lockOnInitial2: null as any });
         }
+      } else if (field === "returnedToServiceInitial") {
+        const now = value ? new Date().toLocaleString("en-CA", { hour12: false }).replace(",", "") : null;
+        await pointRepo.update(pointId, { 
+          returnedToServiceInitial: value || null,
+          returnedAt: now || (null as any)
+        });
       } else {
         // Operator fields: lockOnInitial1, lockNumber, isolationPosition
         await pointRepo.update(pointId, { [field]: value || null });
