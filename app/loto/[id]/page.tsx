@@ -82,7 +82,12 @@ export default function LotoDetail({
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
     if (storedUser && storedToken) {
-      setActiveUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      if (parsedUser.type === "contractor" && id) {
+        router.replace(`/loto/${id}/contractor`);
+        return;
+      }
+      setActiveUser(parsedUser);
       setToken(storedToken);
     } else {
       router.push("/login");
